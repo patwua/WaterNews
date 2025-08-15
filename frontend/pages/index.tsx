@@ -46,7 +46,7 @@ export default function HomePage() {
       <main className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4 py-8 max-w-7xl mx-auto">
         <section className="md:col-span-3 space-y-8">
           {loading && (
-            <div className="text-gray-500 text-sm">Loading latest stories…</div>
+            <div className="text-gray-500 text-sm" role="status">Loading latest stories…</div>
           )}
 
           {!loading && articles.length === 0 && (
