@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import NotificationBell from './NotificationBell'
+import NotificationsBellMenu from './NotificationsBellMenu'
 import SmartMenu from './SmartMenu'
 import { SearchIcon } from './icons'
 
@@ -72,7 +72,7 @@ export default function Header() {
             >
               <SearchIcon className="w-5 h-5" />
             </button>
-            <NotificationBell />
+            <NotificationsBellMenu />
           </div>
         </div>
       </div>
