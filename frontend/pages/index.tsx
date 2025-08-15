@@ -24,6 +24,7 @@ export default function HomePage() {
   const [diaspora, setDiaspora] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
   const [resultCount, setResultCount] = useState<number | null>(null)
+  const [activeSort, setActiveSort] = useState<'latest' | 'trending' | 'following'>('latest')
 
   useEffect(() => {
     const run = async () => {
@@ -80,11 +81,35 @@ export default function HomePage() {
         console.error('Server search failed', err)
       }
     }
+    const onMenu = (e: Event) => {
+      const key = (e as CustomEvent<'latest'|'trending'|'following'>).detail
+      setActiveSort(key)
+      // Apply client-side ordering/filtering locally (search results also affected)
+      setArticles((curr) => {
+        const base = [...curr]
+        if (key === 'latest') {
+          // assume current order is latest-first; keep as-is
+          return base
+        }
+        if (key === 'trending') {
+          return base.sort((a, b) => {
+            const as = (a.engagement?.likes || 0) + (a.engagement?.shares || 0) + (a.engagement?.comments || 0)
+            const bs = (b.engagement?.likes || 0) + (b.engagement?.shares || 0) + (b.engagement?.comments || 0)
+            return bs - as
+          })
+        }
+        // following: placeholder behavior — show all for now.
+        // future: filter by saved authors/tags from localStorage
+        return base
+      })
+    }
     window.addEventListener('wn-search-type' as any, onType as any)
     window.addEventListener('wn-search-submit' as any, onSubmit as any)
+    window.addEventListener('wn-menu-change' as any, onMenu as any)
     return () => {
       window.removeEventListener('wn-search-type' as any, onType as any)
       window.removeEventListener('wn-search-submit' as any, onSubmit as any)
+      window.removeEventListener('wn-menu-change' as any, onMenu as any)
     }
   }, [allArticles])
 
