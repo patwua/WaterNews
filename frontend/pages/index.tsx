@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag } from '../utils/follow'
 
 type Article = {
   _id?: string
@@ -14,6 +15,8 @@ type Article = {
   tags?: string[]
   engagement?: { likes: number; shares: number; comments: number }
   publishedAt?: string
+  authorId?: string
+  authorName?: string
 }
 
 export default function HomePage() {
@@ -25,6 +28,9 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [resultCount, setResultCount] = useState<number | null>(null)
   const [activeSort, setActiveSort] = useState<'latest' | 'trending' | 'following'>('latest')
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [followAuthors, setFollowAuthors] = useState<Set<string>>(new Set())
+  const [followTags, setFollowTags] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const run = async () => {
@@ -47,10 +53,21 @@ export default function HomePage() {
     run()
   }, [])
 
+  // Load follows on mount (client-side)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setFollowAuthors(getFollowedAuthors())
+    setFollowTags(getFollowedTags())
+  }, [])
+
   // Instant client-side filter on URL ?q= and on 'type' events
   useEffect(() => {
     const q = (router.query.q as string || '').trim().toLowerCase()
-    if (!q) { setArticles(allArticles); return }
+    if (!q) {
+      // If no query, reapply category/follow filters
+      applyMenuAndCategory(allArticles, activeSort, activeCategory)
+      return
+    }
     const filter = (a: Article) =>
       [a.title, a.summary, (a.tags || []).join(' ')].filter(Boolean).join(' ').toLowerCase().includes(q)
     setArticles(allArticles.filter(filter))
@@ -84,34 +101,49 @@ export default function HomePage() {
     const onMenu = (e: Event) => {
       const key = (e as CustomEvent<'latest'|'trending'|'following'>).detail
       setActiveSort(key)
-      // Apply client-side ordering/filtering locally (search results also affected)
-      setArticles((curr) => {
-        const base = [...curr]
-        if (key === 'latest') {
-          // assume current order is latest-first; keep as-is
-          return base
-        }
-        if (key === 'trending') {
-          return base.sort((a, b) => {
-            const as = (a.engagement?.likes || 0) + (a.engagement?.shares || 0) + (a.engagement?.comments || 0)
-            const bs = (b.engagement?.likes || 0) + (b.engagement?.shares || 0) + (b.engagement?.comments || 0)
-            return bs - as
-          })
-        }
-        // following: placeholder behavior — show all for now.
-        // future: filter by saved authors/tags from localStorage
-        return base
-      })
+      applyMenuAndCategory(allArticles, key, activeCategory)
+    }
+    const onCategory = (e: Event) => {
+      const cat = (e as CustomEvent<string | null>).detail || null
+      setActiveCategory(cat)
+      applyMenuAndCategory(allArticles, activeSort, cat)
     }
     window.addEventListener('wn-search-type' as any, onType as any)
     window.addEventListener('wn-search-submit' as any, onSubmit as any)
     window.addEventListener('wn-menu-change' as any, onMenu as any)
+    window.addEventListener('wn-category-change' as any, onCategory as any)
     return () => {
       window.removeEventListener('wn-search-type' as any, onType as any)
       window.removeEventListener('wn-search-submit' as any, onSubmit as any)
       window.removeEventListener('wn-menu-change' as any, onMenu as any)
+      window.removeEventListener('wn-category-change' as any, onCategory as any)
     }
-  }, [allArticles])
+  }, [allArticles, activeCategory, activeSort])
+
+  function applyMenuAndCategory(source: Article[], sort: 'latest'|'trending'|'following', category: string | null) {
+    let list = [...source]
+    if (category) {
+      const cat = category.toLowerCase()
+      list = list.filter(a => (a.tags || []).some(t => (t || '').toLowerCase() === cat))
+    }
+    if (sort === 'following') {
+      const authors = getFollowedAuthors()
+      const tags = getFollowedTags()
+      list = list.filter(a => {
+        const byAuthor = a.authorId ? authors.has(a.authorId) : false
+        const byTag = (a.tags || []).some(t => tags.has((t || '').toLowerCase()))
+        return byAuthor || byTag
+      })
+    }
+    if (sort === 'trending') {
+      list.sort((a, b) => {
+        const as = (a.engagement?.likes || 0) + (a.engagement?.shares || 0) + (a.engagement?.comments || 0)
+        const bs = (b.engagement?.likes || 0) + (b.engagement?.shares || 0) + (b.engagement?.comments || 0)
+        return bs - as
+      })
+    }
+    setArticles(list)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -155,11 +187,47 @@ export default function HomePage() {
                    dangerouslySetInnerHTML={{ __html: (article as any).summaryHTML || article.summary }} />
               )}
 
-              <div className="text-sm text-blue-600 space-x-2 mb-1">
+              {(article.authorName || article.authorId) && (
+                <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                  <span>by {article.authorName || 'Author'}</span>
+                  {article.authorId && (
+                    <button
+                      className="px-2 py-0.5 text-xs rounded border border-gray-300 hover:bg-gray-50"
+                      onClick={() => {
+                        const followed = toggleFollowAuthor(article.authorId!)
+                        setFollowAuthors(new Set(getFollowedAuthors()))
+                        if (activeSort === 'following') applyMenuAndCategory(allArticles, activeSort, activeCategory)
+                      }}
+                    >
+                      {followAuthors.has(article.authorId) ? 'Following' : 'Follow author'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2 text-sm mb-1">
                 {Array.isArray(article.tags) &&
-                  article.tags.map((tag) => (
-                    <span key={tag} className="inline-block">#{tag}</span>
-                  ))}
+                  article.tags.map((tag) => {
+                    const k = (tag || '').toLowerCase()
+                    const on = followTags.has(k)
+                    return (
+                      <button
+                        key={tag}
+                        onClick={() => {
+                          const followed = toggleFollowTag(tag)
+                          setFollowTags(new Set(getFollowedTags()))
+                          if (activeSort === 'following') applyMenuAndCategory(allArticles, activeSort, activeCategory)
+                        }}
+                        className={[
+                          'px-2 py-0.5 rounded border',
+                          on ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-gray-300 text-blue-600 hover:bg-blue-50'
+                        ].join(' ')}
+                        title={on ? 'Unfollow tag' : 'Follow tag'}
+                      >
+                        #{tag}
+                      </button>
+                    )
+                  })}
               </div>
 
               {article.engagement && (

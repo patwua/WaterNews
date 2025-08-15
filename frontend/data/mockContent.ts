@@ -7,6 +7,8 @@ export type Article = {
   tags?: string[]
   engagement?: { likes: number; shares: number; comments: number }
   publishedAt?: string
+  authorId?: string
+  authorName?: string
 }
 
 export const mockArticles: Article[] = [
@@ -17,6 +19,8 @@ export const mockArticles: Article[] = [
     image: 'https://via.placeholder.com/800x400?text=India+Summit',
     summary: 'India presented eco-tech innovations during the global biodiversity summit, highlighting sustainability solutions.',
     tags: ['India', 'Science'],
+    authorId: 'auth-india',
+    authorName: 'Priya Deshmukh',
     engagement: { likes: 145, shares: 72, comments: 18 }
   },
   {
@@ -25,7 +29,9 @@ export const mockArticles: Article[] = [
     slug: 'ali-clean-energy',
     image: 'https://via.placeholder.com/800x400?text=Clean+Energy+Plan',
     summary: 'President Irfaan Ali unveils a bold renewable energy policy aiming to transform Guyana’s energy sector by 2030.',
-    tags: ['GreenEnergy', 'Guyana'],
+    tags: ['GreenEnergy', 'Guyana', 'Politics'],
+    authorId: 'auth-ali',
+    authorName: 'WaterNews Desk',
     engagement: { likes: 240, shares: 108, comments: 36 }
   },
   {
@@ -34,7 +40,9 @@ export const mockArticles: Article[] = [
     slug: 'guyanese-artists-awards',
     image: 'https://via.placeholder.com/800x400?text=Caribbean+Awards',
     summary: 'Guyanese artists were among top winners celebrated at a Caribbean regional awards ceremony.',
-    tags: ['Culture', 'Art', 'Awards'],
+    tags: ['Culture', 'Art', 'Awards', 'Entertainment'],
+    authorId: 'auth-culture',
+    authorName: 'Alicia Persaud',
     engagement: { likes: 98, shares: 44, comments: 12 }
   }
 ]
