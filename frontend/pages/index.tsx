@@ -23,6 +23,7 @@ export default function HomePage() {
   const [trending, setTrending] = useState<Article[]>([])
   const [diaspora, setDiaspora] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
+  const [resultCount, setResultCount] = useState<number | null>(null)
 
   useEffect(() => {
     const run = async () => {
@@ -34,6 +35,7 @@ export default function HomePage() {
         setArticles(base)
         setTrending(Array.isArray(data.trending) ? data.trending : [])
         setDiaspora(Array.isArray(data.diaspora) ? data.diaspora : [])
+        setResultCount(null)
       } catch (e) {
         // fail silently but render empty states
         console.error('Failed to load /api/news/home', e)
@@ -51,6 +53,7 @@ export default function HomePage() {
     const filter = (a: Article) =>
       [a.title, a.summary, (a.tags || []).join(' ')].filter(Boolean).join(' ').toLowerCase().includes(q)
     setArticles(allArticles.filter(filter))
+    setResultCount(null)
   }, [router.query.q, allArticles])
 
   useEffect(() => {
@@ -61,6 +64,7 @@ export default function HomePage() {
       const filter = (a: Article) =>
         [a.title, a.summary, (a.tags || []).join(' ')].filter(Boolean).join(' ').toLowerCase().includes(lq)
       setArticles(allArticles.filter(filter))
+      setResultCount(null)
     }
     const onSubmit = async (e: Event) => {
       const q = (e as CustomEvent<string>).detail || ''
@@ -68,6 +72,7 @@ export default function HomePage() {
       try {
         const res = await axios.get('/api/search', { params: { q } })
         const data = res?.data || {}
+        if (typeof data.count === 'number') setResultCount(data.count)
         if (Array.isArray(data.articles)) setArticles(data.articles)
         if (Array.isArray(data.trending)) setTrending(data.trending)
         if (Array.isArray(data.diaspora)) setDiaspora(data.diaspora)
@@ -89,6 +94,12 @@ export default function HomePage() {
 
       <main className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4 py-8 max-w-7xl mx-auto">
         <section className="md:col-span-3 space-y-8">
+          {typeof resultCount === 'number' && (
+            <div className="text-sm text-gray-600" aria-live="polite">
+              {resultCount} results for ‘{(router.query.q as string) || ''}’
+            </div>
+          )}
+
           {loading && (
             <div className="text-gray-500 text-sm" role="status">Loading latest stories…</div>
           )}
@@ -102,9 +113,8 @@ export default function HomePage() {
           {articles.map((article) => (
             <article key={article._id || article.slug} className="bg-white border rounded p-4 shadow-sm">
               <Link href={`/article/${article.slug}`}>
-                <h2 className="text-2xl font-semibold mb-2 hover:underline cursor-pointer">
-                  {article.title}
-                </h2>
+                <h2 className="text-2xl font-semibold mb-2 hover:underline cursor-pointer"
+                    dangerouslySetInnerHTML={{ __html: (article as any).titleHTML || article.title }} />
               </Link>
 
               {article.image && (
@@ -116,7 +126,8 @@ export default function HomePage() {
               )}
 
               {article.summary && (
-                <p className="text-gray-700 mb-3">{article.summary}</p>
+                <p className="text-gray-700 mb-3"
+                   dangerouslySetInnerHTML={{ __html: (article as any).summaryHTML || article.summary }} />
               )}
 
               <div className="text-sm text-blue-600 space-x-2 mb-1">
