@@ -15,7 +15,8 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) return null
         await dbConnect()
-        const user = await User.findOne({ email: credentials.email })
+        // Use the typed model to avoid Mongoose union-callable type error
+        const user = await User.findOne({ email: credentials.email }).exec()
         if (!user) return null
         const ok = await bcrypt.compare(credentials.password, user.passwordHash)
         if (!ok) return null
