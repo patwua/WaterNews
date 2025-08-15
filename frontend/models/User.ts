@@ -1,6 +1,17 @@
-import { Schema, models, model } from 'mongoose'
+import { Schema, models, model, Model, Document } from 'mongoose'
 
-const UserSchema = new Schema({
+export interface IUser {
+  name?: string
+  email: string
+  passwordHash: string
+  bio: string
+  avatarUrl: string
+  role: 'author' | 'admin'
+}
+
+export type IUserDoc = IUser & Document
+
+const UserSchema = new Schema<IUser>({
   name: { type: String, trim: true },
   email: { type: String, unique: true, required: true, lowercase: true, index: true },
   passwordHash: { type: String, required: true },
@@ -9,4 +20,5 @@ const UserSchema = new Schema({
   role: { type: String, enum: ['author','admin'], default: 'author' },
 }, { timestamps: true })
 
-export default models.User || model('User', UserSchema)
+const UserModel: Model<IUserDoc> = (models.User as Model<IUserDoc>) || model<IUserDoc>('User', UserSchema)
+export default UserModel
