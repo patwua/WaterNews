@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import NotificationBell from './NotificationBell'
+import SmartMenu from './SmartMenu'
 import { SearchIcon } from './icons'
 
 export default function Header() {
@@ -45,10 +46,8 @@ export default function Header() {
         </Link>
 
         {/* Smart menu (hidden when search expands on small screens) */}
-        <nav className={`ml-2 items-center gap-4 text-sm text-gray-700 ${searchOpen ? 'hidden md:flex' : 'flex'}`}>
-          <Link className="hover:text-blue-700" href="/?sort=recent">Recent</Link>
-          <Link className="hover:text-blue-700" href="/?sort=trending">Trending</Link>
-          <Link className="hover:text-blue-700" href="/?view=categories">Categories</Link>
+        <nav className={`${searchOpen ? 'hidden md:block' : 'block'} ml-2`}>
+          <SmartMenu />
         </nav>
 
         {/* Inline expanding search */}
