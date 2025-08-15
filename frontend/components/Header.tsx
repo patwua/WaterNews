@@ -1,15 +1,41 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import NotificationBell from './NotificationBell'
 import { SearchIcon } from './icons'
 
 export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
+  const [q, setQ] = useState<string>((router.query.q as string) || '')
 
   useEffect(() => {
     if (searchOpen) inputRef.current?.focus()
   }, [searchOpen])
+
+  // Keep local q in sync if URL changes elsewhere
+  useEffect(() => {
+    setQ((router.query.q as string) || '')
+  }, [router.query.q])
+
+  const onType = (value: string) => {
+    setQ(value)
+    // Update URL shallowly for instant client filter
+    router.replace({ pathname: router.pathname, query: { ...router.query, q: value || undefined } }, undefined, { shallow: true })
+    // Notify listeners for instant client filter (no network)
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('wn-search-type', { detail: value }))
+    }
+  }
+
+  const onSubmit = (e?: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e) e.preventDefault()
+    // Notify listeners that user hit Enter -> perform server search
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('wn-search-submit', { detail: q }))
+    }
+  }
 
   return (
     <header className="border-b bg-white">
@@ -32,9 +58,11 @@ export default function Header() {
               <input
                 ref={inputRef}
                 type="search"
+                value={q}
+                onChange={(e)=>onType(e.target.value)}
+                onKeyDown={(e)=>{ if (e.key === 'Enter') onSubmit(e) }}
                 placeholder="Search WaterNews…"
                 className="w-full md:w-2/3 lg:w-1/2 border rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
-                onBlur={() => { /* keep open until icon toggled */ }}
               />
             )}
             <button

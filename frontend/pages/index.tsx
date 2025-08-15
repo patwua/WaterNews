@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import axios from 'axios'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
@@ -16,6 +17,8 @@ type Article = {
 }
 
 export default function HomePage() {
+  const router = useRouter()
+  const [allArticles, setAllArticles] = useState<Article[]>([])
   const [articles, setArticles] = useState<Article[]>([])
   const [trending, setTrending] = useState<Article[]>([])
   const [diaspora, setDiaspora] = useState<Article[]>([])
@@ -26,7 +29,9 @@ export default function HomePage() {
       try {
         const res = await axios.get('/api/news/home')
         const data = res?.data || {}
-        setArticles(Array.isArray(data.articles) ? data.articles : [])
+        const base = Array.isArray(data.articles) ? data.articles : []
+        setAllArticles(base)
+        setArticles(base)
         setTrending(Array.isArray(data.trending) ? data.trending : [])
         setDiaspora(Array.isArray(data.diaspora) ? data.diaspora : [])
       } catch (e) {
@@ -38,6 +43,45 @@ export default function HomePage() {
     }
     run()
   }, [])
+
+  // Instant client-side filter on URL ?q= and on 'type' events
+  useEffect(() => {
+    const q = (router.query.q as string || '').trim().toLowerCase()
+    if (!q) { setArticles(allArticles); return }
+    const filter = (a: Article) =>
+      [a.title, a.summary, (a.tags || []).join(' ')].filter(Boolean).join(' ').toLowerCase().includes(q)
+    setArticles(allArticles.filter(filter))
+  }, [router.query.q, allArticles])
+
+  useEffect(() => {
+    const onType = (e: Event) => {
+      const q = (e as CustomEvent<string>).detail || ''
+      const lq = q.trim().toLowerCase()
+      if (!lq) { setArticles(allArticles); return }
+      const filter = (a: Article) =>
+        [a.title, a.summary, (a.tags || []).join(' ')].filter(Boolean).join(' ').toLowerCase().includes(lq)
+      setArticles(allArticles.filter(filter))
+    }
+    const onSubmit = async (e: Event) => {
+      const q = (e as CustomEvent<string>).detail || ''
+      if (!q) return
+      try {
+        const res = await axios.get('/api/search', { params: { q } })
+        const data = res?.data || {}
+        if (Array.isArray(data.articles)) setArticles(data.articles)
+        if (Array.isArray(data.trending)) setTrending(data.trending)
+        if (Array.isArray(data.diaspora)) setDiaspora(data.diaspora)
+      } catch (err) {
+        console.error('Server search failed', err)
+      }
+    }
+    window.addEventListener('wn-search-type' as any, onType as any)
+    window.addEventListener('wn-search-submit' as any, onSubmit as any)
+    return () => {
+      window.removeEventListener('wn-search-type' as any, onType as any)
+      window.removeEventListener('wn-search-submit' as any, onSubmit as any)
+    }
+  }, [allArticles])
 
   return (
     <div className="min-h-screen bg-gray-50">
