@@ -1,4 +1,4 @@
-import { Schema, models, model, Model, Document } from 'mongoose'
+import { Schema, models, model, type Model } from 'mongoose'
 
 export interface IUser {
   name?: string
@@ -9,8 +9,6 @@ export interface IUser {
   role: 'author' | 'admin'
 }
 
-export type IUserDoc = IUser & Document
-
 const UserSchema = new Schema<IUser>({
   name: { type: String, trim: true },
   email: { type: String, unique: true, required: true, lowercase: true, index: true },
@@ -20,5 +18,6 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, enum: ['author','admin'], default: 'author' },
 }, { timestamps: true })
 
-const UserModel: Model<IUserDoc> = (models.User as Model<IUserDoc>) || model<IUserDoc>('User', UserSchema)
-export default UserModel
+// Keep typing minimal to avoid Mongoose 8 generic incompatibilities in CI
+const User = (models.User as Model<IUser>) || model<IUser>('User', UserSchema)
+export default User
