@@ -1,9 +1,138 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import axios from 'axios'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
-export default function Home() {
+type Article = {
+  _id?: string
+  slug: string
+  title: string
+  image?: string
+  summary?: string
+  tags?: string[]
+  engagement?: { likes: number; shares: number; comments: number }
+  publishedAt?: string
+}
+
+export default function HomePage() {
+  const [articles, setArticles] = useState<Article[]>([])
+  const [trending, setTrending] = useState<Article[]>([])
+  const [diaspora, setDiaspora] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const res = await axios.get('/api/news/home')
+        const data = res?.data || {}
+        setArticles(Array.isArray(data.articles) ? data.articles : [])
+        setTrending(Array.isArray(data.trending) ? data.trending : [])
+        setDiaspora(Array.isArray(data.diaspora) ? data.diaspora : [])
+      } catch (e) {
+        // fail silently but render empty states
+        console.error('Failed to load /api/news/home', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    run()
+  }, [])
+
   return (
-    <main className="min-h-screen p-8">
-      <h1 className="text-2xl font-bold">Welcome to WaterNews</h1>
-    </main>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+
+      <main className="grid grid-cols-1 md:grid-cols-4 gap-6 px-4 py-8 max-w-7xl mx-auto">
+        <section className="md:col-span-3 space-y-8">
+          {loading && (
+            <div className="text-gray-500 text-sm">Loading latest stories…</div>
+          )}
+
+          {!loading && articles.length === 0 && (
+            <div className="text-gray-500 text-sm">
+              No stories yet. Check back shortly.
+            </div>
+          )}
+
+          {articles.map((article) => (
+            <article key={article._id || article.slug} className="bg-white border rounded p-4 shadow-sm">
+              <Link href={`/article/${article.slug}`}>
+                <h2 className="text-2xl font-semibold mb-2 hover:underline cursor-pointer">
+                  {article.title}
+                </h2>
+              </Link>
+
+              {article.image && (
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  className="w-full h-auto mb-4 rounded"
+                />
+              )}
+
+              {article.summary && (
+                <p className="text-gray-700 mb-3">{article.summary}</p>
+              )}
+
+              <div className="text-sm text-blue-600 space-x-2 mb-1">
+                {Array.isArray(article.tags) &&
+                  article.tags.map((tag) => (
+                    <span key={tag} className="inline-block">#{tag}</span>
+                  ))}
+              </div>
+
+              {article.engagement && (
+                <div className="text-xs text-gray-500">
+                  👍 {article.engagement.likes} | 🔁 {article.engagement.shares} | 💬 {article.engagement.comments}
+                </div>
+              )}
+            </article>
+          ))}
+        </section>
+
+        <aside className="space-y-6">
+          <div className="bg-white border rounded p-4 shadow-sm">
+            <h3 className="text-lg font-semibold border-b pb-2 mb-3">Trending Stories</h3>
+            <ul className="space-y-3 text-sm">
+              {trending.map((t) => (
+                <li key={t._id || t.slug}>
+                  <Link href={`/article/${t.slug}`} className="text-blue-700 hover:underline">
+                    {t.title}
+                  </Link>
+                  {t.publishedAt && (
+                    <div className="text-xs text-gray-400">{t.publishedAt}</div>
+                  )}
+                </li>
+              ))}
+              {trending.length === 0 && (
+                <li className="text-gray-500">No trending stories yet.</li>
+              )}
+            </ul>
+          </div>
+
+          <div className="bg-white border rounded p-4 shadow-sm">
+            <h3 className="text-lg font-semibold border-b pb-2 mb-3">Diaspora Highlights 🌍</h3>
+            <ul className="space-y-3 text-sm">
+              {diaspora.map((d) => (
+                <li key={d._id || d.slug}>
+                  <Link href={`/article/${d.slug}`} className="text-blue-700 hover:underline">
+                    {d.title}
+                  </Link>
+                  {d.publishedAt && (
+                    <div className="text-xs text-gray-400">{d.publishedAt}</div>
+                  )}
+                </li>
+              ))}
+              {diaspora.length === 0 && (
+                <li className="text-gray-500">No diaspora stories yet.</li>
+              )}
+            </ul>
+          </div>
+        </aside>
+      </main>
+
+      <Footer />
+    </div>
   )
 }
