@@ -4,7 +4,23 @@ import { api } from "@/lib/api";
 import EditorBar from "@/components/Newsroom/EditorBar";
 import MarkdownEditor from "@/components/Newsroom/MarkdownEditor";
 import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
+import ModerationNotesDrawer from "@/components/Newsroom/ModerationNotesDrawer";
 import { slugify } from "@/lib/slugify";
+
+// Helper to pull follow affinities from local (merged elsewhere by your boot util)
+function readAffinity() {
+  if (typeof window === "undefined") return { tagList: [], authorList: [] };
+  try {
+    const tagList = JSON.parse(localStorage.getItem("wn:follows:tags") || "[]");
+    const authorList = JSON.parse(localStorage.getItem("wn:follows:authors") || "[]");
+    return {
+      tagList: Array.isArray(tagList) ? tagList : [],
+      authorList: Array.isArray(authorList) ? authorList : [],
+    };
+  } catch {
+    return { tagList: [], authorList: [] };
+  }
+}
 
 export default function EditorPage() {
   const router = useRouter();
@@ -74,6 +90,8 @@ export default function EditorPage() {
     [title, summary, coverImage, tags, type, status]
   );
 
+  const { tagList, authorList } = readAffinity();
+
   return (
     <main className="max-w-7xl mx-auto pb-24">
       <EditorBar
@@ -116,6 +134,9 @@ export default function EditorPage() {
           }}
         />
       </section>
+
+      {/* Moderation notes (internal) */}
+      <ModerationNotesDrawer targetId={draftId} />
     </main>
   );
 }

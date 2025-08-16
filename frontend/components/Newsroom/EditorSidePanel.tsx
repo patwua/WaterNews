@@ -1,5 +1,19 @@
 import { useEffect, useState } from "react";
 
+function readAffinity() {
+  if (typeof window === "undefined") return { tagList: [], authorList: [] };
+  try {
+    const tagList = JSON.parse(localStorage.getItem("wn:follows:tags") || "[]");
+    const authorList = JSON.parse(localStorage.getItem("wn:follows:authors") || "[]");
+    return {
+      tagList: Array.isArray(tagList) ? tagList : [],
+      authorList: Array.isArray(authorList) ? authorList : [],
+    };
+  } catch {
+    return { tagList: [], authorList: [] };
+  }
+}
+
 export default function EditorSidePanel({
   title,
   tags,
@@ -16,9 +30,12 @@ export default function EditorSidePanel({
     const run = async () => {
       setLoading(true);
       try {
+        const { tagList, authorList } = readAffinity();
         const qs = new URLSearchParams({
           title: title || "",
           tags: (tags || []).join(","),
+          affinityTags: tagList.join(","),
+          affinityAuthors: authorList.join(","),
         });
         const res = await fetch(`/api/recs/related?${qs}`);
         const json = await res.json();
