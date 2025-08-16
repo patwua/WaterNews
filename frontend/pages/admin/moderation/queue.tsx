@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import AuditTimelineDrawer from "@/components/Admin/AuditTimelineDrawer";
 
 type Item = {
   _id: string;
@@ -41,6 +42,10 @@ export default function ModerationQueuePage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  const [auditOpen, setAuditOpen] = useState(false);
+  const [auditEventId, setAuditEventId] = useState<string | null>(null);
+
   async function fetchQueue(nextPage = 1) {
     setLoading(true);
     try {
@@ -53,8 +58,9 @@ export default function ModerationQueuePage() {
       setPages(json.pages || 1);
       setTotal(json.total || 0);
       setPage(json.page || nextPage);
+      setSelected({}); // clear selection on refresh
     } catch {
-      setRows([]); setPages(1); setTotal(0); setPage(1);
+      setRows([]); setPages(1); setTotal(0); setPage(1); setSelected({});
     } finally {
       setLoading(false);
     }
@@ -76,6 +82,17 @@ export default function ModerationQueuePage() {
     fetchQueue(page);
   }
 
+  async function doBulk(action: "assign"|"release"|"flag_second"|"resolve"|"reopen") {
+    const ids = Object.keys(selected).filter(k => selected[k]);
+    if (!ids.length) return;
+    await fetch(`/api/moderation/queue/bulk`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids, action, assignee: action === "assign" ? me || "" : undefined, actorId: me || null }),
+    });
+    fetchQueue(page);
+  }
+
   async function openTarget(targetId?: string | null) {
     if (!targetId) return;
     const res = await fetch(`/api/moderation/resolve-target?id=${encodeURIComponent(String(targetId))}`);
@@ -92,6 +109,9 @@ export default function ModerationQueuePage() {
     for (let i = start; i <= end; i++) items.push(i);
     return items;
   }, [page, pages]);
+
+  const allChecked = rows.length > 0 && rows.every(r => selected[r._id]);
+  const anyChecked = rows.some(r => selected[r._id]);
 
   return (
     <main className="max-w-7xl mx-auto p-4">
@@ -125,16 +145,38 @@ export default function ModerationQueuePage() {
           <button onClick={() => fetchQueue(1)} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Apply</button>
           <button onClick={resetFilters} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Reset</button>
         </div>
-        <div className="md:col-span-6 flex items-center gap-2">
+        <div className="md:col-span-6 flex flex-wrap items-center gap-2">
           <input className="rounded-xl border px-3 py-2" placeholder="Me (id/email)" value={me} onChange={(e) => setMe(e.target.value)} />
           <button onClick={() => { setAssignedTo(me); fetchQueue(1); }} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Assigned to me</button>
+
+          {/* Bulk actions toolbar */}
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <span className={`text-sm ${anyChecked ? "text-neutral-800" : "text-neutral-400"}`}>{Object.keys(selected).filter(k => selected[k]).length} selected</span>
+            <button onClick={() => doBulk("assign")} disabled={!anyChecked || !me} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Assign to me</button>
+            <button onClick={() => doBulk("release")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Release</button>
+            <button onClick={() => doBulk("flag_second")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Flag 2nd</button>
+            <button onClick={() => doBulk("resolve")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Resolve</button>
+            <button onClick={() => doBulk("reopen")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Reopen</button>
+          </div>
         </div>
       </section>
 
       <section className="overflow-auto rounded-2xl border">
-        <table className="min-w-[1180px] w-full">
+        <table className="min-w-[1220px] w-full">
           <thead className="bg-neutral-50 text-left text-sm">
             <tr>
+              <th className="p-3 w-[36px]">
+                <input
+                  type="checkbox"
+                  aria-label="Select all"
+                  checked={allChecked}
+                  onChange={(e) => {
+                    const next: Record<string, boolean> = {};
+                    rows.forEach(r => next[r._id] = e.target.checked);
+                    setSelected(next);
+                  }}
+                />
+              </th>
               <th className="p-3 w-[160px]">Updated</th>
               <th className="p-3 w-[120px]">Type</th>
               <th className="p-3 w-[120px]">Status</th>
@@ -142,23 +184,31 @@ export default function ModerationQueuePage() {
               <th className="p-3 w-[160px]">Actor</th>
               <th className="p-3 w-[200px]">Target</th>
               <th className="p-3">Summary (redacted)</th>
-              <th className="p-3 w-[300px]">Actions</th>
+              <th className="p-3 w-[360px]">Actions</th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i} className="border-t">
+                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
                   {Array.from({ length: 8 }).map((__, j) => (
                     <td key={j} className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
                   ))}
                 </tr>
               ))
             ) : rows.length === 0 ? (
-              <tr><td className="p-6 text-neutral-600" colSpan={8}>No items found.</td></tr>
+              <tr><td className="p-6 text-neutral-600" colSpan={9}>No items found.</td></tr>
             ) : (
               rows.map((r) => (
                 <tr key={r._id} className="border-t align-top">
+                  <td className="p-3 align-middle">
+                    <input
+                      type="checkbox"
+                      checked={!!selected[r._id]}
+                      onChange={(e) => setSelected(prev => ({ ...prev, [r._id]: e.target.checked }))}
+                    />
+                  </td>
                   <td className="p-3">{new Date(r.updatedAt || r.createdAt).toLocaleString()}</td>
                   <td className="p-3">{r.type}</td>
                   <td className="p-3"><StatusBadge s={r.status} /></td>
@@ -175,12 +225,12 @@ export default function ModerationQueuePage() {
                   <td className="p-3">
                     <div className="flex flex-wrap gap-2">
                       {!r.assignedTo ? (
-                        <button onClick={() => doAction(r._id, "assign", me)} disabled={!me} className="rounded-lg border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50">Assign to me</button>
+                        <button onClick={() => doAction(r._id, "assign", me)} disabled={!me} className="rounded-lg border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50">Assign</button>
                       ) : (
                         <button onClick={() => doAction(r._id, "release")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Release</button>
                       )}
                       {!r?.secondReview ? (
-                        <button onClick={() => doAction(r._id, "flag_second")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Flag 2nd review</button>
+                        <button onClick={() => doAction(r._id, "flag_second")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Flag 2nd</button>
                       ) : (
                         <span className="px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs">2nd review</span>
                       )}
@@ -189,6 +239,12 @@ export default function ModerationQueuePage() {
                       ) : (
                         <button onClick={() => doAction(r._id, "reopen")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Reopen</button>
                       )}
+                      <button
+                        onClick={() => { setAuditEventId(r._id); setAuditOpen(true); }}
+                        className="rounded-lg border px-2 py-1 hover:bg-neutral-50"
+                      >
+                        Audit
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -205,6 +261,8 @@ export default function ModerationQueuePage() {
         ))}
         <button onClick={() => fetchQueue(Math.min(pages, page + 1))} className="rounded-lg border px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50" disabled={page >= pages || loading}>Next</button>
       </nav>
+      {/* Audit timeline drawer */}
+      <AuditTimelineDrawer eventId={auditEventId} open={auditOpen} onClose={() => setAuditOpen(false)} />
     </main>
   );
 }
