@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { api } from "@/lib/api";
 import EditorBar from "@/components/Newsroom/EditorBar";
 import MarkdownEditor from "@/components/Newsroom/MarkdownEditor";
+import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
 import { slugify } from "@/lib/slugify";
 
 export default function EditorPage() {
@@ -74,7 +75,7 @@ export default function EditorPage() {
   );
 
   return (
-    <main className="max-w-6xl mx-auto pb-24">
+    <main className="max-w-7xl mx-auto pb-24">
       <EditorBar
         value={barValue as any}
         onChange={(patch) => {
@@ -96,12 +97,24 @@ export default function EditorPage() {
         </div>
       ) : null}
 
-      <section className="max-w-4xl mx-auto mt-6 p-3">
-        <MarkdownEditor value={body} onChange={setBody} />
-        <div className="mt-4 flex gap-3">
-          <button onClick={save} className="rounded-xl border px-4 py-2 hover:bg-neutral-50">Save Draft</button>
-          <button onClick={publish} className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">Publish</button>
+      <section className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-4">
+        <div className="max-w-4xl">
+          <MarkdownEditor value={body} onChange={setBody} />
+          <div className="mt-4 flex gap-3">
+            <button onClick={save} className="rounded-xl border px-4 py-2 hover:bg-neutral-50">Save Draft</button>
+            <button onClick={publish} className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">Publish</button>
+          </div>
         </div>
+
+        <EditorSidePanel
+          title={title}
+          tags={tags}
+          onInsertReferences={(items) => {
+            if (!items?.length) return;
+            const bullets = items.map(it => `- [${it.title}](/news/${it.slug})`).join("\n");
+            setBody(prev => prev ? `${prev}\n\n### Related\n${bullets}\n` : `### Related\n${bullets}\n`);
+          }}
+        />
       </section>
     </main>
   );

@@ -1,6 +1,8 @@
 import Draft from "@/models/Draft";
 import Post from "@/models/Post";
 import { slugify } from "@/lib/slugify";
+import { redact, stableHash } from "@/lib/server/redact";
+import Event from "@/models/Event";
 
 function makeExcerpt(markdown: string, fallback: string, max = 240) {
   const text = (markdown || "")
@@ -39,6 +41,19 @@ export async function publishDraftById(id: string) {
     },
     { new: true, upsert: true }
   );
+
+  // Trigger: article_published (public, redacted)
+  const text = `${d.title}\n\n${d.summary || ""}\n\n${d.tags?.join(", ") || ""}`;
+  await Event.create({
+    type: "article_published",
+    actorId: d.authorId || null,
+    targetId: String(post._id),
+    visibility: "public",
+    redactedText: redact(text),
+    rawTextHash: stableHash(text),
+    tags,
+    category: post.category,
+  });
 
   d.status = "published";
   d.scheduledFor = null;
