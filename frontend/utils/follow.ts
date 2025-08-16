@@ -75,3 +75,20 @@ export async function syncFollowsIfAuthed(): Promise<void> {
   // Push merged back to server
   await pushServerFollows()
 }
+
+let bootMerged = false;
+let bootTimer: any;
+
+export async function mergeFollowsOnBoot(fetchServerList: ()=>Promise<string[]>, readLocalList: ()=>string[], writeLocalList: (ids: string[])=>void) {
+  if (bootMerged) return;
+  bootMerged = true;
+
+  const run = async () => {
+    const [server, local] = await Promise.all([fetchServerList(), Promise.resolve(readLocalList())]);
+    const set = new Set<string>([...server, ...local]);
+    writeLocalList(Array.from(set));
+  };
+
+  clearTimeout(bootTimer);
+  bootTimer = setTimeout(run, 120);
+}

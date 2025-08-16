@@ -10,3 +10,10 @@ mark {
   text-decoration-thickness: 2px;
   text-underline-offset: 2px;
 }
+
+:root { --leading-tight: 1.25; --leading-normal: 1.5; }
+h1,h2,h3 { line-height: var(--leading-tight); letter-spacing: -0.01em; }
+p { line-height: var(--leading-normal); }
+.line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.line-clamp-4 { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
