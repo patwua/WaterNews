@@ -1,4 +1,4 @@
-// Zero-dep similarity based on tags + title tokens
+// Zero-dep similarity based on tags + title tokens, plus optional affinity boosts
 export function tokenizeTitle(title: string): string[] {
   return (title || "")
     .toLowerCase()
@@ -32,4 +32,36 @@ export function scoreRelated(
 
   // Weighted blend (favor tags slightly)
   return 0.45 * titleScore + 0.55 * tagScore;
+}
+
+// New: apply affinity boosts for tags/authors and engagement
+export function applyAffinityBoosts(base: number, opts: {
+  postTags?: string[];
+  postAuthorId?: string | null;
+  affinityTags?: string[];
+  affinityAuthors?: string[];
+  engagementScore?: number | null;
+}): number {
+  let score = base;
+
+  // Tag affinity: +0.05 per match, capped
+  if (opts.affinityTags?.length && opts.postTags?.length) {
+    const set = new Set(opts.affinityTags.map(t => t.toLowerCase()));
+    const matches = opts.postTags.filter(t => set.has(String(t).toLowerCase())).length;
+    score += Math.min(0.20, matches * 0.05);
+  }
+
+  // Author affinity: +0.12 if followed
+  if (opts.affinityAuthors?.length && opts.postAuthorId) {
+    const aSet = new Set(opts.affinityAuthors.map(x => String(x)));
+    if (aSet.has(String(opts.postAuthorId))) score += 0.12;
+  }
+
+  // Engagement nudge (normalize around ~0..1k)
+  if (typeof opts.engagementScore === "number") {
+    const e = Math.max(0, Math.min(1, opts.engagementScore / 1000));
+    score += 0.1 * e;
+  }
+
+  return score;
 }
