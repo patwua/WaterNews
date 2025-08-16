@@ -1,7 +1,19 @@
 import Link from "next/link";
 
-export default function BreakingTicker({ items }: { items: { slug: string; title: string; tags?: string[] }[] }) {
-  if (!items?.length) return null;
+type TickerItem = {
+  slug: string;
+  title: string;
+  tags?: string[];
+  isBreaking?: boolean;
+};
+
+type Props = {
+  /** Optional list of items to show. If omitted/empty, the ticker hides. */
+  items?: TickerItem[];
+};
+
+export default function BreakingTicker({ items = [] }: Props) {
+  if (!Array.isArray(items) || items.length === 0) return null;
   return (
     <div className="relative overflow-hidden rounded-2xl bg-red-600 text-white">
       <div className="px-3 py-2 text-xs font-semibold tracking-wide uppercase bg-red-700 inline-flex items-center gap-2 rounded-br-xl">
