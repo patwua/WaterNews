@@ -8,8 +8,14 @@ export default function BreakingTicker() {
     const run = async () => {
       try {
         const res = await axios.get('/api/news/home')
+        const articles = res?.data?.articles || []
         const trending = res?.data?.trending || []
-        setItems(trending.slice(0, 10))
+        const TAGS = ['breaking', 'alert']
+        const tagHits = (articles as any[])
+          .filter(a => Array.isArray(a.tags) && a.tags.some((t: string) => TAGS.includes((t || '').toLowerCase())))
+          .slice(0, 12)
+        const pick = (tagHits.length ? tagHits : trending).slice(0, 12)
+        setItems(pick.map((x: any) => ({ title: x.title, slug: x.slug })))
       } catch (e) {
         console.error('ticker load failed', e)
       }

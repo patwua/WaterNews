@@ -7,11 +7,13 @@ type Article = {
   image?: string
   summary?: string
   tags?: string[]
+  engagement?: { likes: number; shares: number; comments: number }
+  publishedAt?: string
 }
 
 export default function Hero({ articles, category }: { articles: Article[]; category: string | null }) {
   if (!articles?.length) return null
-  const top = articles.slice(0, 3)
+  const top = pickTop(articles, category, 3)
   const main = top[0]
   const side = top.slice(1)
 
@@ -44,4 +46,29 @@ export default function Hero({ articles, category }: { articles: Article[]; cate
       </div>
     </section>
   )
+}
+
+function pickTop(list: Article[], category: string | null, n: number): Article[] {
+  // score: recency (0..1) + engagement (0..1) + category bonus (0 or 0.25)
+  const now = Date.now()
+  const scored = list.map(a => {
+    const likes = a.engagement?.likes ?? 0
+    const shares = a.engagement?.shares ?? 0
+    const comments = a.engagement?.comments ?? 0
+    const e = likes + shares + comments
+    // normalize engagement roughly: map 0..300+ to 0..1
+    const engagementScore = Math.min(1, e / 300)
+    let recencyScore = 0.5
+    if (a.publishedAt) {
+      const ageHrs = Math.max(1, (now - new Date(a.publishedAt).getTime()) / 36e5)
+      // 0h -> 1.0 ; 48h -> ~0.2
+      recencyScore = Math.max(0, Math.min(1, 1 / Math.log10(ageHrs + 1.5)))
+    }
+    const hasCat = !!(category && (a.tags || []).some(t => (t || '').toLowerCase() === category.toLowerCase()))
+    const categoryBonus = hasCat ? 0.25 : 0
+    const score = 0.55 * recencyScore + 0.35 * engagementScore + categoryBonus
+    return { a, score }
+  })
+  scored.sort((x, y) => y.score - x.score)
+  return scored.slice(0, Math.max(1, n)).map(s => s.a)
 }

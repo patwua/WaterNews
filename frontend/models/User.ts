@@ -7,6 +7,8 @@ export interface IUser {
   bio: string
   avatarUrl: string
   role: 'author' | 'admin'
+  followedAuthors: string[]
+  followedTags: string[]
 }
 
 const UserSchema = new Schema<IUser>({
@@ -16,6 +18,8 @@ const UserSchema = new Schema<IUser>({
   bio: { type: String, default: '' },
   avatarUrl: { type: String, default: '' },
   role: { type: String, enum: ['author','admin'], default: 'author' },
+  followedAuthors: { type: [String], default: [] },
+  followedTags: { type: [String], default: [] },
 }, { timestamps: true })
 
 // Keep typing minimal to avoid Mongoose 8 generic incompatibilities in CI

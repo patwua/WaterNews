@@ -39,3 +39,39 @@ export function toggleFollowTag(tag: string): boolean {
   writeSet(TAGS_KEY, s)
   return following
 }
+
+// --- Server sync helpers (no dependency on next-auth hooks; just try/catch)
+export async function loadServerFollows(): Promise<{ authors: string[]; tags: string[] } | null> {
+  try {
+    const res = await fetch('/api/follow')
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function pushServerFollows(): Promise<void> {
+  try {
+    const authors = Array.from(readSet(AUTHORS_KEY))
+    const tags = Array.from(readSet(TAGS_KEY))
+    await fetch('/api/follow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authors, tags })
+    })
+  } catch {}
+}
+
+export async function syncFollowsIfAuthed(): Promise<void> {
+  // If GET returns 401, user not logged in — do nothing.
+  const server = await loadServerFollows()
+  if (!server) return
+  // Merge: union server + local (local wins additions)
+  const localAuthors = readSet(AUTHORS_KEY); for (const a of server.authors || []) localAuthors.add(a)
+  const localTags = readSet(TAGS_KEY); for (const t of (server.tags || [])) localTags.add((t || '').toLowerCase())
+  writeSet(AUTHORS_KEY, localAuthors)
+  writeSet(TAGS_KEY, localTags)
+  // Push merged back to server
+  await pushServerFollows()
+}

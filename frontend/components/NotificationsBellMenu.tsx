@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { BellIcon } from './icons'
 import { getFollowedAuthors, getFollowedTags } from '../utils/follow'
 
+const LAST_VISIT_KEY = 'wn_last_visit'
+
 type Article = {
   slug: string
   title: string
@@ -20,6 +22,7 @@ export default function NotificationsBellMenu() {
   const [byTags, setByTags] = useState<Article[]>([])
   const [recs, setRecs] = useState<Article[]>([])
   const ref = useRef<HTMLDivElement>(null)
+  const [newCount, setNewCount] = useState(0)
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -55,6 +58,13 @@ export default function NotificationsBellMenu() {
       setByAuthors(authorHits)
       setByTags(tagHits)
       setRecs(recPool)
+
+      // since last visit
+      const last = parseInt(localStorage.getItem(LAST_VISIT_KEY) || '0', 10)
+      const since = (arr: Article[]) =>
+        arr.filter(a => (data.now || Date.now()) && (a as any).publishedAt && new Date((a as any).publishedAt).getTime() > last).length
+      const count = since(authorHits) + since(tagHits)
+      setNewCount(count)
     } catch (e) {
       console.error('notifications load failed', e)
     }
@@ -64,6 +74,11 @@ export default function NotificationsBellMenu() {
     const next = !open
     setOpen(next)
     if (next) load()
+    if (!next) {
+      // mark visit when closing
+      try { localStorage.setItem(LAST_VISIT_KEY, String(Date.now())) } catch {}
+      setNewCount(0)
+    }
   }
 
   return (
@@ -77,6 +92,11 @@ export default function NotificationsBellMenu() {
         title="Notifications"
       >
         <BellIcon className="w-5 h-5" />
+        {newCount > 0 && (
+          <span className="inline-flex items-center justify-center absolute -top-1 -right-1 text-[10px] leading-none px-1.5 py-[2px] rounded-full bg-red-600 text-white">
+            {newCount > 9 ? '9+' : newCount}
+          </span>
+        )}
       </button>
 
       {open && (
