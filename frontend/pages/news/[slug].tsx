@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { GetServerSideProps } from "next";
+import type { GetStaticPaths, GetStaticProps } from "next";
 import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
 import type { PostDoc } from "@/models/Post";
@@ -153,14 +153,17 @@ export default function NewsArticle({ ok, post }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Start with no prebuilt paths; build on-demand
+  return { paths: [], fallback: "blocking" };
+};
+
+export const getStaticProps: GetStaticProps<Props> = async (ctx) => {
   const slug = String(ctx.params?.slug || "");
   await dbConnect();
   const doc = await Post.findOne({ slug }).lean();
-  if (!doc) {
-    return { props: { ok: false } };
-  }
-  // prev/next neighbors
+  if (!doc) return { notFound: true, revalidate: 30 };
+
   const prev = await Post.findOne({ publishedAt: { $lt: doc.publishedAt } })
     .sort({ publishedAt: -1 })
     .select({ slug: 1, title: 1 })
@@ -170,7 +173,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     .select({ slug: 1, title: 1 })
     .lean();
 
-  // minimal serialization
   const post = {
     ...doc,
     _id: String(doc._id),
@@ -178,7 +180,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     __prev: prev ? { slug: prev.slug, title: prev.title } : null,
     __next: next ? { slug: next.slug, title: next.title } : null,
   };
-  return { props: { ok: true, post: JSON.parse(JSON.stringify(post)) } };
+  return {
+    props: { ok: true, post: JSON.parse(JSON.stringify(post)) },
+    // Rebuild every 2 minutes (adjust to your newsroom cadence)
+    revalidate: 120,
+  };
 };
 
 // Local component import placed at bottom to avoid SSR circular deps
