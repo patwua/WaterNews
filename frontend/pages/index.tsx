@@ -6,7 +6,7 @@ import Footer from '../components/Footer'
 import BreakingTicker from '../components/BreakingTicker'
 import Hero from '../components/Hero'
 import MasonryFeed from '../components/MasonryFeed'
-import { getFollowedAuthors, getFollowedTags } from '../utils/follow'
+import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
 
 type Article = {
   _id?: string
@@ -29,6 +29,8 @@ export default function HomePage() {
   const [resultCount, setResultCount] = useState<number | null>(null)
   const [activeSort, setActiveSort] = useState<'latest' | 'trending' | 'following'>('latest')
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [followAuthors, setFollowAuthors] = useState<Set<string>>(new Set())
+  const [followTags, setFollowTags] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     const run = async () => {
@@ -47,6 +49,18 @@ export default function HomePage() {
       }
     }
     run()
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    setFollowAuthors(getFollowedAuthors())
+    setFollowTags(getFollowedTags())
+    // best-effort sync with server (if logged in)
+    syncFollowsIfAuthed().then(() => {
+      setFollowAuthors(getFollowedAuthors())
+      setFollowTags(getFollowedTags())
+      if (activeSort === 'following') applyMenuAndCategory(allArticles, activeSort, activeCategory)
+    })
   }, [])
 
   // Instant client-side filter on URL ?q= and on 'type' events
