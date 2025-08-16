@@ -1,23 +1,41 @@
 import { useEffect, useState } from "react";
 
-export default function NotificationsBellMenu({ fetchSince, fetchAll }: { fetchSince: (ts?: number)=>Promise<any[]>; fetchAll: ()=>Promise<any[]> }) {
+type FetchFn = (ts?: number) => Promise<any[]>;
+type FetchAllFn = () => Promise<any[]>;
+
+export default function NotificationsBellMenu({
+  fetchSince,
+  fetchAll,
+}: {
+  fetchSince?: FetchFn;
+  fetchAll?: FetchAllFn;
+}) {
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [sinceItems, setSinceItems] = useState<any[]>([]);
   const lastVisitKey = "wn:lastVisit";
 
   useEffect(() => {
-    const last = Number(localStorage.getItem(lastVisitKey) || 0);
-    fetchSince(last || undefined).then((rows) => {
-      setSinceItems(rows);
-      setUnread(rows.length);
-    });
+    // Safe defaults if no fetchers are provided
+    const fetchSinceSafe: FetchFn = fetchSince ?? (async () => []);
+    const last = Number((typeof window !== "undefined" && localStorage.getItem(lastVisitKey)) || 0);
+    fetchSinceSafe(last || undefined)
+      .then((rows) => {
+        setSinceItems(rows || []);
+        setUnread((rows || []).length);
+      })
+      .catch(() => {
+        setSinceItems([]);
+        setUnread(0);
+      });
   }, []);
 
   const onToggle = async () => {
     const next = !open;
     setOpen(next);
-    if (next) localStorage.setItem(lastVisitKey, String(Date.now()));
+    if (next && typeof window !== "undefined") {
+      localStorage.setItem(lastVisitKey, String(Date.now()));
+    }
   };
 
   return (
