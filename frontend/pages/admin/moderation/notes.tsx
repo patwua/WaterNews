@@ -9,12 +9,28 @@ type Note = {
   redactedText?: string;
   tags?: string[];
   createdAt: string;
+  updatedAt?: string;
+  status?: "open" | "in_review" | "flagged" | "resolved";
+  assignedTo?: string | null;
+  secondReview?: boolean;
 };
 
 function toISODateLocal(d: Date) {
   // yyyy-mm-dd
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function StatusBadge({ s }: { s?: Note["status"] }) {
+  const map: Record<string, string> = {
+    open: "bg-neutral-100 text-neutral-700",
+    in_review: "bg-blue-100 text-blue-700",
+    flagged: "bg-amber-100 text-amber-800",
+    resolved: "bg-green-100 text-green-700",
+  };
+  const cls = map[s || "open"] || map.open;
+  const label = (s || "open").replace("_", " ");
+  return <span className={`px-2 py-0.5 rounded-full text-xs ${cls}`}>{label}</span>;
 }
 
 export default function ModerationNotesPage() {
@@ -25,6 +41,9 @@ export default function ModerationNotesPage() {
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
+  const [status, setStatus] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
+  const [me, setMe] = useState(""); // simplistic "current user" text id/email; integrate with your auth later
 
   const [rows, setRows] = useState<Note[]>([]);
   const [pages, setPages] = useState(1);
@@ -35,13 +54,9 @@ export default function ModerationNotesPage() {
     setLoading(true);
     try {
       const qs = new URLSearchParams({
-        q,
-        targetId,
-        actorId,
-        from,
-        to,
-        page: String(nextPage),
-        limit: String(limit),
+        q, targetId, actorId, from, to,
+        page: String(nextPage), limit: String(limit),
+        status, assignedTo,
       });
       const res = await fetch(`/api/moderation/notes?${qs}`);
       const json = await res.json();
@@ -72,7 +87,7 @@ export default function ModerationNotesPage() {
   useEffect(() => {
     if (from || to) fetchNotes(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, limit]);
+  }, [from, to, limit, status, assignedTo]); // expanded deps
 
   function resetFilters() {
     setQ("");
@@ -83,6 +98,7 @@ export default function ModerationNotesPage() {
     setFrom(toISODateLocal(start));
     setTo(toISODateLocal(now));
     setLimit(20);
+    setStatus(""); setAssignedTo("");
     fetchNotes(1);
   }
 
@@ -106,6 +122,22 @@ export default function ModerationNotesPage() {
     a.download = `moderation-notes-${toISODateLocal(new Date())}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function doAction(id: string, action: "assign"|"release"|"flag_second"|"resolve"|"reopen", assignee?: string) {
+    await fetch(`/api/moderation/notes/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, assignee }),
+    });
+    fetchNotes(page);
+  }
+
+  async function openTarget(targetId?: string | null) {
+    if (!targetId) return;
+    const res = await fetch(`/api/moderation/resolve-target?id=${encodeURIComponent(String(targetId))}`);
+    const json = await res.json();
+    if (json?.href) window.open(json.href, "_blank");
   }
 
   const pager = useMemo(() => {
@@ -136,55 +168,85 @@ export default function ModerationNotesPage() {
           <button onClick={() => fetchNotes(1)} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Apply</button>
           <button onClick={resetFilters} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Reset</button>
         </div>
-        <div className="md:col-span-5 flex items-center gap-3">
+        <div className="md:col-span-5 flex flex-wrap items-center gap-2">
           <label className="text-sm text-neutral-600">From</label>
           <input type="date" className="rounded-xl border px-3 py-2" value={from} onChange={(e) => setFrom(e.target.value)} />
           <label className="text-sm text-neutral-600">To</label>
           <input type="date" className="rounded-xl border px-3 py-2" value={to} onChange={(e) => setTo(e.target.value)} />
-          <button onClick={downloadCSV} className="ml-auto rounded-xl border px-3 py-2 hover:bg-neutral-50">Export CSV</button>
+          <select className="rounded-xl border px-3 py-2" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="">All statuses</option>
+            <option value="open">Open</option>
+            <option value="in_review">In review</option>
+            <option value="flagged">Flagged</option>
+            <option value="resolved">Resolved</option>
+          </select>
+          <input className="rounded-xl border px-3 py-2" placeholder="Assigned to (id/email)" value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} />
+          <div className="ml-auto flex items-center gap-2">
+            <input className="rounded-xl border px-3 py-2" placeholder="Me (id/email)" value={me} onChange={(e) => setMe(e.target.value)} />
+            <button onClick={() => { setAssignedTo(me); fetchNotes(1); }} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Assigned to me</button>
+            <button onClick={downloadCSV} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Export CSV</button>
+          </div>
         </div>
       </section>
 
       <section className="overflow-auto rounded-2xl border">
-        <table className="min-w-[900px] w-full">
+        <table className="min-w-[1080px] w-full">
           <thead className="bg-neutral-50 text-left text-sm">
             <tr>
-              <th className="p-3 w-[200px]">When</th>
+              <th className="p-3 w-[180px]">When</th>
+              <th className="p-3 w-[120px]">Status</th>
+              <th className="p-3 w-[180px]">Assigned</th>
               <th className="p-3 w-[160px]">Actor</th>
               <th className="p-3 w-[200px]">Target</th>
-              <th className="p-3">Tags</th>
               <th className="p-3">Note (redacted)</th>
+              <th className="p-3 w-[260px]">Actions</th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i} className="border-t">
-                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
-                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
-                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
-                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
-                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
+                  {Array.from({ length: 7 }).map((__, j) => (
+                    <td key={j} className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
+                  ))}
                 </tr>
               ))
             ) : rows.length === 0 ? (
-              <tr>
-                <td className="p-6 text-neutral-600" colSpan={5}>No notes found for this filter.</td>
-              </tr>
+              <tr><td className="p-6 text-neutral-600" colSpan={7}>No notes found for this filter.</td></tr>
             ) : (
               rows.map((r) => (
                 <tr key={r._id} className="border-t align-top">
                   <td className="p-3">{new Date(r.createdAt).toLocaleString()}</td>
+                  <td className="p-3"><StatusBadge s={r.status} /></td>
+                  <td className="p-3">{r.assignedTo || <span className="text-neutral-400">—</span>}</td>
                   <td className="p-3">{r.actorId || <span className="text-neutral-400">—</span>}</td>
                   <td className="p-3">
                     {r.targetId ? (
-                      <a href={`/news/${r.targetId}`} className="text-blue-600 hover:underline" onClick={(e) => e.preventDefault()}>
+                      <button onClick={() => openTarget(r.targetId)} className="text-blue-600 hover:underline">
                         {r.targetId}
-                      </a>
+                      </button>
                     ) : <span className="text-neutral-400">—</span>}
                   </td>
-                  <td className="p-3">{(r.tags || []).join(", ")}</td>
                   <td className="p-3 whitespace-pre-wrap">{r.redactedText || ""}</td>
+                  <td className="p-3">
+                    <div className="flex flex-wrap gap-2">
+                      {!r.assignedTo ? (
+                        <button onClick={() => doAction(r._id, "assign", me)} disabled={!me} className="rounded-lg border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50">Assign to me</button>
+                      ) : (
+                        <button onClick={() => doAction(r._id, "release")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Release</button>
+                      )}
+                      {!r?.secondReview ? (
+                        <button onClick={() => doAction(r._id, "flag_second")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Flag 2nd review</button>
+                      ) : (
+                        <span className="px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs">2nd review</span>
+                      )}
+                      {r.status !== "resolved" ? (
+                        <button onClick={() => doAction(r._id, "resolve")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Resolve</button>
+                      ) : (
+                        <button onClick={() => doAction(r._id, "reopen")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Reopen</button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))
             )}

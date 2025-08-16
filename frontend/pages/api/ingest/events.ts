@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     rawTextHash,
     tags: Array.isArray(tags) ? tags : [],
     category: category || null,
+    ...(type === "moderation_note" ? { status: "open", secondReview: false } : {}),
   });
 
   return res.json({ ok: true, id: String(doc._id) });

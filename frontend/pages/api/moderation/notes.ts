@@ -27,6 +27,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     to = "",
     page = "1",
     limit = "20",
+    status = "",
+    assignedTo = "",
   } = req.query as Record<string, string>;
 
   const p = Math.max(1, parseInt(page || "1", 10) || 1);
@@ -43,6 +45,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (actorId.trim()) {
     find.actorId = actorId.trim();
   }
+  if (status.trim()) find.status = status.trim();
+  if (assignedTo.trim()) find.assignedTo = assignedTo.trim();
   if (from || to) {
     find.createdAt = {};
     if (from) find.createdAt.$gte = new Date(from);

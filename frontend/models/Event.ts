@@ -15,7 +15,14 @@ export type EventDoc = {
   rawTextHash?: string;             // hash of raw text (no raw store by default)
   tags?: string[];
   category?: string | null;
+  
+  // NEW moderation workflow fields
+  status?: "open" | "in_review" | "flagged" | "resolved";
+  assignedTo?: string | null; // moderator user id/email
+  secondReview?: boolean;
+
   createdAt: Date;
+  updatedAt: Date;
 };
 
 const EventSchema = new Schema<EventDoc>(
@@ -28,12 +35,20 @@ const EventSchema = new Schema<EventDoc>(
     rawTextHash: { type: String, default: "" },
     tags: { type: [String], default: [] },
     category: { type: String, default: null },
+
+    // NEW workflow fields
+    status: { type: String, enum: ["open", "in_review", "flagged", "resolved"], default: "open", index: true },
+    assignedTo: { type: String, default: null, index: true },
+    secondReview: { type: Boolean, default: false, index: true },
   },
-  { timestamps: { createdAt: true, updatedAt: false } }
+  { timestamps: true } // now tracks updatedAt too
 );
+// Helpful indexes for scaling
 EventSchema.index({ type: 1, visibility: 1, createdAt: -1 });
 EventSchema.index({ targetId: 1, createdAt: -1 });
 EventSchema.index({ actorId: 1, createdAt: -1 });
+EventSchema.index({ status: 1, updatedAt: -1 });
+EventSchema.index({ assignedTo: 1, status: 1 });
 
 export default (mongoose.models.Event as mongoose.Model<EventDoc>) ||
   mongoose.model<EventDoc>("Event", EventSchema);
