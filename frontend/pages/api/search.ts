@@ -38,6 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
     .lean();
 
+  res.setHeader("Cache-Control", "s-maxage=20, stale-while-revalidate=30");
   res.json({
     items: rows.map((r) => ({
       id: String(r._id),
