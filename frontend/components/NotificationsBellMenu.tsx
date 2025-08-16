@@ -1,135 +1,63 @@
-import { useEffect, useRef, useState } from 'react'
-import axios from 'axios'
-import Link from 'next/link'
-import { BellIcon } from './icons'
-import { getFollowedAuthors, getFollowedTags } from '../utils/follow'
+import { useEffect, useState } from "react";
 
-const LAST_VISIT_KEY = 'wn_last_visit'
-
-type Article = {
-  slug: string
-  title: string
-  image?: string
-  tags?: string[]
-  authorId?: string
-  authorName?: string
-  engagement?: { likes: number; shares: number; comments: number }
-}
-
-export default function NotificationsBellMenu() {
-  const [open, setOpen] = useState(false)
-  const [byAuthors, setByAuthors] = useState<Article[]>([])
-  const [byTags, setByTags] = useState<Article[]>([])
-  const [recs, setRecs] = useState<Article[]>([])
-  const ref = useRef<HTMLDivElement>(null)
-  const [newCount, setNewCount] = useState(0)
+export default function NotificationsBellMenu({ fetchSince, fetchAll }: { fetchSince: (ts?: number)=>Promise<any[]>; fetchAll: ()=>Promise<any[]> }) {
+  const [open, setOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const [sinceItems, setSinceItems] = useState<any[]>([]);
+  const lastVisitKey = "wn:lastVisit";
 
   useEffect(() => {
-    const onDoc = (e: MouseEvent) => {
-      if (!ref.current) return
-      if (open && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [open])
+    const last = Number(localStorage.getItem(lastVisitKey) || 0);
+    fetchSince(last || undefined).then((rows) => {
+      setSinceItems(rows);
+      setUnread(rows.length);
+    });
+  }, []);
 
-  const load = async () => {
-    try {
-      const res = await axios.get('/api/news/home')
-      const data = res?.data || {}
-      const all: Article[] = Array.isArray(data.articles) ? data.articles : []
-      const fa = getFollowedAuthors()
-      const ft = getFollowedTags()
-
-      const authorHits = all.filter(a => a.authorId && fa.has(a.authorId)).slice(0, 5)
-      const tagHits = all.filter(a => (a.tags || []).some(t => ft.has((t || '').toLowerCase()))).slice(0, 5)
-
-      // simple recs: high engagement not in author/tag hits
-      const taken = new Set([...authorHits.map(a => a.slug), ...tagHits.map(a => a.slug)])
-      const recPool = all
-        .filter(a => !taken.has(a.slug))
-        .sort((x, y) => {
-          const xs = (x.engagement?.likes || 0) + (x.engagement?.shares || 0) + (x.engagement?.comments || 0)
-          const ys = (y.engagement?.likes || 0) + (y.engagement?.shares || 0) + (y.engagement?.comments || 0)
-          return ys - xs
-        })
-        .slice(0, 5)
-
-      setByAuthors(authorHits)
-      setByTags(tagHits)
-      setRecs(recPool)
-
-      // since last visit
-      const last = parseInt(localStorage.getItem(LAST_VISIT_KEY) || '0', 10)
-      const since = (arr: Article[]) =>
-        arr.filter(a => (data.now || Date.now()) && (a as any).publishedAt && new Date((a as any).publishedAt).getTime() > last).length
-      const count = since(authorHits) + since(tagHits)
-      setNewCount(count)
-    } catch (e) {
-      console.error('notifications load failed', e)
-    }
-  }
-
-  const toggle = () => {
-    const next = !open
-    setOpen(next)
-    if (next) load()
-    if (!next) {
-      // mark visit when closing
-      try { localStorage.setItem(LAST_VISIT_KEY, String(Date.now())) } catch {}
-      setNewCount(0)
-    }
-  }
+  const onToggle = async () => {
+    const next = !open;
+    setOpen(next);
+    if (next) localStorage.setItem(lastVisitKey, String(Date.now()));
+  };
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative">
       <button
-        onClick={toggle}
-        className="p-2 rounded border border-gray-300 hover:bg-gray-100"
-        aria-expanded={open}
-        aria-haspopup="true"
         aria-label="Notifications"
-        title="Notifications"
+        aria-expanded={open}
+        onClick={onToggle}
+        className="relative rounded-full p-2 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <BellIcon className="w-5 h-5" />
-        {newCount > 0 && (
-          <span className="inline-flex items-center justify-center absolute -top-1 -right-1 text-[10px] leading-none px-1.5 py-[2px] rounded-full bg-red-600 text-white">
-            {newCount > 9 ? '9+' : newCount}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-6 w-6"><path d="M12 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 005 15h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6zM8 16a4 4 0 008 0H8z"/></svg>
+        {unread > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center text-[10px] min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-white">
+            {unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-[320px] bg-white border rounded-lg shadow-lg overflow-hidden">
-          <div className="max-h-[70vh] overflow-auto">
-            <Section title="Latest from followed authors" items={byAuthors} />
-            <Section title="New under your tags" items={byTags} />
-            <Section title="You might like" items={recs} />
-          </div>
+        <div role="menu" className="absolute right-0 mt-2 w-96 max-w-[92vw] rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden">
+          <header className="px-4 py-2 text-xs font-semibold tracking-wide text-neutral-600 border-b">
+            Since last visit ({sinceItems.length})
+          </header>
+          <ul className="max-h-80 overflow-auto divide-y">
+            {sinceItems.length === 0 ? (
+              <li className="p-4 text-sm text-neutral-600">You’re all caught up.</li>
+            ) : sinceItems.map((n, i) => (
+              <li key={i} className="p-4 hover:bg-neutral-50 focus-within:bg-neutral-50">
+                <a href={n.href} className="block outline-none focus:ring-2 focus:ring-blue-500 rounded">
+                  <div className="text-sm font-medium">{n.title}</div>
+                  <div className="text-xs text-neutral-600">{n.summary}</div>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <footer className="p-2 text-right">
+            <a href="/notifications" className="text-sm text-blue-600 hover:underline">Open all</a>
+          </footer>
         </div>
       )}
     </div>
-  )
-}
-
-function Section({ title, items }: { title: string; items: Article[] }) {
-  if (!items.length) return null
-  return (
-    <div className="p-3 border-b last:border-b-0">
-      <div className="text-xs font-semibold text-gray-600 mb-2">{title}</div>
-      <ul className="space-y-2">
-        {items.map(a => (
-          <li key={a.slug} className="flex gap-2">
-            {a.image && <img src={a.image} alt="" className="w-12 h-12 object-cover rounded" />}
-            <div className="min-w-0">
-              <Link href={`/article/${a.slug}`} className="text-sm font-medium hover:underline line-clamp-2">
-                {a.title}
-              </Link>
-              {a.authorName && <div className="text-xs text-gray-500">by {a.authorName}</div>}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
+  );
 }
