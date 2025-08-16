@@ -32,5 +32,9 @@ const PostSchema = new Schema<PostDoc>(
   { timestamps: true }
 );
 
+PostSchema.index({ publishedAt: -1 });
+PostSchema.index({ tags: 1, publishedAt: -1 });
+PostSchema.index({ title: "text", excerpt: "text" }); // requires MongoDB text index support
+
 export default (mongoose.models.Post as mongoose.Model<PostDoc>) ||
   mongoose.model<PostDoc>("Post", PostSchema);

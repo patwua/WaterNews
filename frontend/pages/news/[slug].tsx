@@ -5,6 +5,7 @@ import Post from "@/models/Post";
 import type { PostDoc } from "@/models/Post";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { readingTime } from "@/lib/readingTime";
 
 type Props = {
   ok: boolean;
@@ -57,6 +58,8 @@ export default function NewsArticle({ ok, post }: Props) {
     publishedAt,
   } = post as PostDoc;
 
+  const rt = readingTime(`${post.title || ""} ${post.excerpt || ""} ${post.body || ""}`);
+
   const canonical = `/news/${slug}`;
   const site = "https://waternews.patwua.com"; // change to your prod origin
   const fullUrl = `${site}${canonical}`;
@@ -76,6 +79,16 @@ export default function NewsArticle({ ok, post }: Props) {
     keywords: (tags || []).join(", "),
   };
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: site + "/" },
+      { "@type": "ListItem", position: 2, name: "News", item: site + "/news" },
+      { "@type": "ListItem", position: 3, name: title, item: fullUrl },
+    ],
+  };
+
   return (
     <>
       <Head>
@@ -93,6 +106,10 @@ export default function NewsArticle({ ok, post }: Props) {
         <meta name="twitter:image" content={ogImg} />
         {/* JSON-LD */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        />
       </Head>
 
       <article className="max-w-3xl mx-auto px-4 md:px-6 py-6">
@@ -101,6 +118,8 @@ export default function NewsArticle({ ok, post }: Props) {
             <Link href="/" className="hover:underline">Home</Link>
             <span>·</span>
             <span>{fmtDate(publishedAt)}</span>
+            <span>·</span>
+            <span>{rt.minutes} min read</span>
             {post.isBreaking && (<><span>·</span><span className="px-2 py-0.5 rounded-full bg-red-600/10 text-red-700 font-medium">Breaking</span></>)}
           </div>
           <h1 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
@@ -118,6 +137,7 @@ export default function NewsArticle({ ok, post }: Props) {
               <img src={coverImage} alt="" className="w-full h-auto object-cover" />
             </div>
           ) : null}
+          <ShareRow title={title} url={fullUrl} />
         </header>
 
         <section className="mt-6 prose prose-neutral max-w-none">
@@ -126,6 +146,7 @@ export default function NewsArticle({ ok, post }: Props) {
 
         <footer className="mt-8 border-t pt-6">
           <RelatedRail slug={slug} tags={tags} title={title} />
+          <PrevNext prev={post.__prev} next={post.__next} />
         </footer>
       </article>
     </>
@@ -139,15 +160,29 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   if (!doc) {
     return { props: { ok: false } };
   }
+  // prev/next neighbors
+  const prev = await Post.findOne({ publishedAt: { $lt: doc.publishedAt } })
+    .sort({ publishedAt: -1 })
+    .select({ slug: 1, title: 1 })
+    .lean();
+  const next = await Post.findOne({ publishedAt: { $gt: doc.publishedAt } })
+    .sort({ publishedAt: 1 })
+    .select({ slug: 1, title: 1 })
+    .lean();
+
   // minimal serialization
   const post = {
     ...doc,
     _id: String(doc._id),
     publishedAt: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
+    __prev: prev ? { slug: prev.slug, title: prev.title } : null,
+    __next: next ? { slug: next.slug, title: next.title } : null,
   };
   return { props: { ok: true, post: JSON.parse(JSON.stringify(post)) } };
 };
 
 // Local component import placed at bottom to avoid SSR circular deps
 import RelatedRail from "@/components/RelatedRail";
+import ShareRow from "@/components/ShareRow";
+import PrevNext from "@/components/PrevNext";
 
