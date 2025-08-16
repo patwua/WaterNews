@@ -128,7 +128,7 @@ export default function ModerationNotesPage() {
     await fetch(`/api/moderation/notes/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, assignee }),
+      body: JSON.stringify({ action, assignee, actorId: me || null }),
     });
     fetchNotes(page);
   }
@@ -153,7 +153,10 @@ export default function ModerationNotesPage() {
   return (
     <main className="max-w-7xl mx-auto p-4">
       <header className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Moderation Notes</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold">Moderation Notes</h1>
+          <a href="/admin/moderation/queue" className="text-sm text-blue-600 hover:underline">Open Moderation Queue</a>
+        </div>
         <div className="text-sm text-neutral-600">{total} total</div>
       </header>
 

@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { dbConnect } from "@/lib/server/db";
 import Event from "@/models/Event";
 import { redact, stableHash } from "@/lib/server/redact";
+import Audit from "@/models/Audit";
 
 /**
  * POST /api/ingest/events
@@ -33,6 +34,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     category: category || null,
     ...(type === "moderation_note" ? { status: "open", secondReview: false } : {}),
   });
+
+  // Audit creation of moderation notes
+  if (type === "moderation_note" && visibility === "internal") {
+    await Audit.create({
+      action: "ingest_create",
+      actorId: actorId || null,
+      targetKind: "event",
+      targetId: String(doc._id),
+      next: { status: doc.status, assignedTo: doc.assignedTo ?? null, secondReview: !!doc.secondReview },
+      meta: { type, visibility },
+    });
+  }
 
   return res.json({ ok: true, id: String(doc._id) });
 }
