@@ -31,6 +31,9 @@ const EventSchema = new Schema<EventDoc>(
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
+EventSchema.index({ type: 1, visibility: 1, createdAt: -1 });
+EventSchema.index({ targetId: 1, createdAt: -1 });
+EventSchema.index({ actorId: 1, createdAt: -1 });
 
 export default (mongoose.models.Event as mongoose.Model<EventDoc>) ||
   mongoose.model<EventDoc>("Event", EventSchema);
