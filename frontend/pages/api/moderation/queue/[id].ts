@@ -4,10 +4,8 @@ import Event from "@/models/Event";
 import Audit from "@/models/Audit";
 
 /**
- * PATCH /api/moderation/notes/[id]
- * Body:
- *   { action: "assign"|"release"|"flag_second"|"resolve"|"reopen",
- *     assignee?: string, actorId?: string }
+ * PATCH /api/moderation/queue/[id]
+ * Body: { action: "assign"|"release"|"flag_second"|"resolve"|"reopen", assignee?: string, actorId?: string }
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "PATCH") return res.status(405).json({ error: "Method not allowed" });
@@ -18,8 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!id || !action) return res.status(400).json({ error: "id and action required" });
 
   const doc = await Event.findById(id);
-  if (!doc || doc.type !== "moderation_note" || doc.visibility !== "internal") {
-    return res.status(404).json({ error: "Note not found" });
+  if (!doc || doc.visibility !== "internal") {
+    return res.status(404).json({ error: "Item not found" });
   }
 
   const prev = { status: doc.status, assignedTo: doc.assignedTo ?? null, secondReview: !!doc.secondReview };
@@ -62,5 +60,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     meta: { type: doc.type },
   });
 
-  return res.json({ ok: true, note: doc.toObject() });
+  return res.json({ ok: true, item: doc.toObject() });
 }
