@@ -7,9 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await dbConnect();
 
   if (req.method === "GET") {
-    const { q, status = "draft" } = req.query as { q?: string; status?: string };
+    const { q, status } = req.query as { q?: string; status?: string };
     const find: any = {};
-    if (status) find.status = status;
+    if (status && status !== "all") find.status = status;
     if (q) find.title = { $regex: q, $options: "i" };
     const rows = await Draft.find(find).sort({ updatedAt: -1 }).limit(200).lean();
     return res.json({ rows });

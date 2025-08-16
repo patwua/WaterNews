@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { dbConnect } from "@/lib/server/db";
 import Draft from "@/models/Draft";
+import { publishDraftById } from "@/lib/server/publish";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await dbConnect();
@@ -25,14 +26,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.json({ ok: true });
   }
 
-  // Simple publish stub (promote to "published")
   if (req.method === "POST") {
     const action = (req.query as any).action;
     if (action === "publish") {
-      const doc = await Draft.findByIdAndUpdate(id, { status: "published", scheduledFor: null }, { new: true });
-      if (!doc) return res.status(404).json({ error: "Not found" });
-      // TODO: create a Post document / trigger feed reindex
-      return res.json({ ok: true, draft: doc });
+      try {
+        const out = await publishDraftById(id);
+        return res.json({ ok: true, ...out });
+      } catch (e: any) {
+        return res.status(400).json({ error: e.message || "Publish failed" });
+      }
     }
     return res.status(400).json({ error: "Unknown action" });
   }

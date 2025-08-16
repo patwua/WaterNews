@@ -53,17 +53,18 @@ export default function EditorPage() {
   }
 
   async function publish() {
-    if (!draftId) {
-      await save();
+    let realId = draftId;
+    if (!realId) {
+      const created = await api<{ draft: any; ok: boolean }>(`/api/newsroom/drafts`, {
+        method: "POST",
+        body: JSON.stringify({ id: null, title, summary, body, coverImage, tags, type, status }),
+      });
+      realId = created.draft._id;
+      setDraftId(realId);
     }
-    const realId = draftId ?? (await api<{ draft: any; ok: boolean }>(`/api/newsroom/drafts`, {
-      method: "POST",
-      body: JSON.stringify({ title, summary, body, coverImage, tags, type, status }),
-    })).draft._id;
 
-    await api(`/api/newsroom/drafts/${realId}?action=publish`, { method: "POST" });
-    // Redirect to the public news page (assumes /news/[slug])
-    const slug = slugify(title);
+    const res = await api<{ ok: boolean; postSlug: string }>(`/api/newsroom/drafts/${realId}?action=publish`, { method: "POST" });
+    const slug = res.postSlug || slugify(title);
     router.push(`/news/${slug}`);
   }
 
