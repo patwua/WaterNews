@@ -174,7 +174,7 @@ export default function HomePage() {
         {loading
           ? <div className="text-gray-500 text-sm mt-4" role="status">Loading latest stories…</div>
           : <div className="mt-3">
-              <MasonryFeed articles={articles} />
+              <MasonryFeed items={articles} />
             </div>
         }
       </main>

@@ -13,12 +13,12 @@ type Props = {
     publishedAt?: string;
     author?: { name: string; slug?: string };
   };
-  variantSeed: number;
+  variantSeed?: number;
   density?: "cozy" | "compact";
   clamp?: 2 | 3;
 };
 
-export default function MasonryCard({ item, variantSeed, density = "compact", clamp = 2 }: Props) {
+export default function MasonryCard({ item, variantSeed = 0, density = "compact", clamp = 2 }: Props) {
   const ratioClass = useMemo(() => {
     const v = variantSeed % 4;
     if (v === 0) return "aspect-[4/3]";

@@ -3,16 +3,18 @@ import { useEffect, useState } from "react";
 type FetchFn = (ts?: number) => Promise<any[]>;
 type FetchAllFn = () => Promise<any[]>;
 
-export default function NotificationsBellMenu({ fetchSince, fetchAll }: { fetchSince?: FetchFn; fetchAll?: FetchAllFn }) {
+export default function NotificationsBellMenu({
+  fetchSince = async () => [],
+  fetchAll = async () => [],
+}: { fetchSince?: FetchFn; fetchAll?: FetchAllFn }) {
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [sinceItems, setSinceItems] = useState<any[]>([]);
   const lastVisitKey = "wn:lastVisit";
 
   useEffect(() => {
-    const fn: FetchFn = fetchSince ?? (async () => []);
     const last = Number((typeof window !== "undefined" && localStorage.getItem(lastVisitKey)) || 0);
-    fn(last || undefined)
+    fetchSince(last || undefined)
       .then(rows => { setSinceItems(rows || []); setUnread((rows || []).length); })
       .catch(() => { setSinceItems([]); setUnread(0); });
   }, []);
