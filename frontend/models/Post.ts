@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+const { Schema, models, model } = (mongoose as any);
 
 export type PostDoc = {
   _id: string;
@@ -15,7 +16,7 @@ export type PostDoc = {
   isBreaking?: boolean;
 };
 
-const PostSchema = new Schema<PostDoc>(
+const PostSchema = new (Schema as any)(
   {
     slug: { type: String, required: true, index: true, unique: true },
     title: { type: String, required: true },
@@ -37,5 +38,5 @@ PostSchema.index({ tags: 1, publishedAt: -1 });
 PostSchema.index({ title: "text", excerpt: "text" }); // requires MongoDB text index support
 PostSchema.index({ slug: 1 }, { unique: true });
 
-export default (mongoose.models.Post as mongoose.Model<PostDoc>) ||
-  mongoose.model<PostDoc>("Post", PostSchema);
+export default (models && (models as any).Post) ||
+  (model as any)("Post", PostSchema);

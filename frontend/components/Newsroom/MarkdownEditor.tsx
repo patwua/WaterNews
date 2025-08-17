@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { marked } from "marked";
+import marked from "marked";
 
 export default function MarkdownEditor({
   value,
@@ -12,7 +12,8 @@ export default function MarkdownEditor({
 
   const html = useMemo(() => {
     try {
-      return marked.parse(value || "");
+      const m: any = marked as any;
+      return m.parse ? m.parse(value || "") : m(value || "");
     } catch {
       return "<p>Preview unavailable.</p>";
     }

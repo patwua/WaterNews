@@ -10,6 +10,7 @@ import PrevNext from "@/components/PrevNext";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
 import ImageLightbox from "@/components/ImageLightbox";
+import { useLowData } from "@/utils/useLowData";
 
 type Props = {
   post: any | null;
@@ -19,6 +20,7 @@ type Props = {
 
 export default function NewsArticlePage({ post, prev, next }: Props) {
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
+  const lowData = useLowData();
   if (!post) {
     return (
       <main className="max-w-3xl mx-auto p-4">
@@ -108,6 +110,32 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
             {/* If body is markdown-rendered elsewhere, keep it. Here we assume HTML-safe content */}
             <div dangerouslySetInnerHTML={{ __html: post.contentHtml || "" }} />
           </div>
+          {/* Optional gallery */}
+          {Array.isArray(post?.images) && post.images.length > 1 ? (
+            <section className="mt-6">
+              <h2 className="text-sm font-semibold text-neutral-700">Gallery</h2>
+              <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2">
+                {post.images.map((src: string, i: number) => (
+                  <button
+                    key={src + i}
+                    type="button"
+                    className="group block rounded-lg overflow-hidden ring-1 ring-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600"
+                    onClick={() => setZoomSrc(src)}
+                    aria-label="Open image"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt=""
+                      className="aspect-video object-cover group-hover:opacity-90"
+                      loading="lazy"
+                      fetchpriority="low"
+                    />
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <ShareRow className="mt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded" />
         </article>
