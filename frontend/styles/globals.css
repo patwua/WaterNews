@@ -17,3 +17,34 @@ p { line-height: var(--leading-normal); }
 .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .line-clamp-4 { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
+
+/* --- Global focus visibility (WCAG 2.4.7 / 2.4.13) --- */
+:focus-visible {
+  outline: 2px solid #2563EB; /* blue-600 */
+  outline-offset: 2px;
+}
+
+/* --- Skip to main content --- */
+.skip-to-main {
+  position: absolute;
+  top: -40px;
+  left: 1rem;
+  background: #ffffff;
+  color: #111827; /* neutral-900 */
+  padding: 0.5rem 0.75rem;
+  z-index: 100;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  transition: top 0.2s ease;
+}
+.skip-to-main:focus-visible {
+  top: 1rem;
+}
+
+/* --- Optional comfortable reading measure (use as needed) --- */
+.prose-body {
+  max-width: 66ch;
+  margin: 0 auto;
+}

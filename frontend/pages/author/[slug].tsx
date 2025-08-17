@@ -132,24 +132,18 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     .lean()
     .catch(() => null as any);
 
-  // Find posts that match author by slug or approximate name
-  const nameRegex = new RegExp("^" + slug.replace(/-/g, "\\s+"), "i");
-  const posts = await Post.find({
-    $or: [{ authorSlug: slug }, { author: nameRegex }, { byline: nameRegex }],
-  })
-    .sort({ publishedAt: -1 })
-    .limit(50)
-    .select("slug title publishedAt tags author byline")
-    .lean();
+  // Find posts that match by authorId if user exists
+  let posts: any[] = [];
+  if (user?._id) {
+    posts = await Post.find({ authorId: user._id })
+      .sort({ publishedAt: -1 })
+      .limit(50)
+      .select("slug title publishedAt tags")
+      .lean();
+  }
 
-  const derivedName: string =
-    user?.name ||
-    posts[0]?.author ||
-    posts[0]?.byline ||
-    slug
-      .split("-")
-      .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
-      .join(" ");
+  const derivedName: string = user?.name ||
+    slug.split("-").map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
 
   const author = {
     name: derivedName,
