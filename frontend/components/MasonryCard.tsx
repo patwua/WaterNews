@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { useLowData } from "@/utils/useLowData";
 
 type Props = {
   slug: string;
   title: string;
   excerpt?: string;
   coverImage?: string;
+  coverVideo?: string;
   tags?: string[];
   publishedAt?: string | Date;
 };
@@ -14,15 +16,35 @@ export default function MasonryCard({
   title,
   excerpt,
   coverImage,
+  coverVideo,
   tags = [],
   publishedAt,
 }: Props) {
+  const lowData = useLowData();
   return (
     <article className="rounded-xl overflow-hidden ring-1 ring-black/5 bg-white hover:bg-neutral-50 transition-colors wn-fade-in-up">
-      {coverImage ? (
+      {coverVideo && !lowData ? (
+        <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src={coverVideo}
+            preload="metadata"
+            playsInline
+            controls
+            poster={coverImage || ""}
+          />
+        </div>
+      ) : coverImage ? (
         <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={coverImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src={coverImage}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            fetchpriority="low"
+          />
         </div>
       ) : null}
       <div className="p-3">

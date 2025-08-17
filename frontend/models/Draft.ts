@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+const { Schema, models, model } = (mongoose as any);
 
 export type DraftSource = {
   kind: "thread" | "post" | "note" | "external";
@@ -24,14 +25,14 @@ export type DraftDoc = {
   updatedAt: Date;
 };
 
-const DraftSourceSchema = new Schema<DraftSource>({
+const DraftSourceSchema = new (Schema as any)({
   kind: { type: String, enum: ["thread", "post", "note", "external"], required: true },
   refId: { type: String, required: true },
   hash: { type: String, required: true },
   label: { type: String },
 });
 
-const DraftSchema = new Schema<DraftDoc>(
+const DraftSchema = new (Schema as any)(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, index: true, unique: true },
@@ -48,5 +49,5 @@ const DraftSchema = new Schema<DraftDoc>(
   { timestamps: true }
 );
 
-export default (mongoose.models.Draft as mongoose.Model<DraftDoc>) ||
-  mongoose.model<DraftDoc>("Draft", DraftSchema);
+export default (models && (models as any).Draft) ||
+  (model as any)("Draft", DraftSchema);

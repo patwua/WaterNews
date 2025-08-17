@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useMemo } from "react";
+import { useLowData } from "@/utils/useLowData";
 
 /** Minimal article shape for hero */
 export type Article = {
@@ -7,6 +8,7 @@ export type Article = {
   title: string;
   excerpt?: string;
   coverImage?: string;
+  coverVideo?: string;
   tags?: string[];
   engagementScore?: number;
   publishedAt?: string | Date;
@@ -58,6 +60,7 @@ function useNormalized(props: Props) {
 }
 
 export default function Hero(props: Props) {
+  const lowData = useLowData();
   const { primary, rail } = useNormalized(props);
   if (!primary) return null;
 
@@ -68,7 +71,16 @@ export default function Hero(props: Props) {
         <article className="md:col-span-2 rounded-2xl overflow-hidden ring-1 ring-black/5 bg-white">
           {/* Fixed visual ratio to reduce layout shift */}
           <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-            {primary.coverImage ? (
+            {primary.coverVideo && !lowData ? (
+              <video
+                className="absolute inset-0 w-full h-full object-cover"
+                src={primary.coverVideo}
+                controls
+                preload="metadata"
+                playsInline
+                poster={primary.coverImage || ""}
+              />
+            ) : primary.coverImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={primary.coverImage}

@@ -25,7 +25,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Resolve any post slugs referenced by events (lightweight join)
   const postIds = events.map((e: any) => e.targetId).filter(Boolean);
-  const posts = await Post.find({ _id: { $in: postIds } })
+  const posts: any[] = await (Post as any)
+    .find({ _id: { $in: postIds } })
     .select("_id slug title tags")
     .lean();
   const postMap = new Map(posts.map((p: any) => [String(p._id), p]));
