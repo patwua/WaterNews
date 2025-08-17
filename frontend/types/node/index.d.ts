@@ -5,3 +5,4 @@ declare namespace NodeJS {
 declare var process: NodeJS.Process;
 declare var __dirname: string;
 declare var module: any;
+declare var global: any;

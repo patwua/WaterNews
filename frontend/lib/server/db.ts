@@ -7,18 +7,17 @@ if (!MONGODB_URI) {
   console.warn("⚠️  MONGODB_URI is not set");
 }
 
-let cached = (global as any)._mongooseCached;
-if (!cached) {
-  cached = (global as any)._mongooseCached = { conn: null, promise: null };
-}
+let cached = (global as any).db || { conn: null, promise: null };
 
 export async function dbConnect() {
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
+    // Loosen option typing to keep typecheck green without Mongoose types
     cached.promise = mongoose
-      .connect(MONGODB_URI, { dbName: process.env.MONGODB_DB || "patwua" })
+      .connect(MONGODB_URI, { dbName: process.env.MONGODB_DB || "patwua" } as any)
       .then((m) => m);
   }
   cached.conn = await cached.promise;
+  (global as any).db = cached;
   return cached.conn;
 }
