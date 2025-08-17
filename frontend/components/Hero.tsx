@@ -62,7 +62,7 @@ export default function Hero(props: Props) {
   if (!primary) return null;
 
   return (
-    <section className="mb-6">
+    <section className="mb-6 wn-fade-in-up">
       <div className="grid md:grid-cols-3 gap-4">
         {/* Primary */}
         <article className="md:col-span-2 rounded-2xl overflow-hidden ring-1 ring-black/5 bg-white">

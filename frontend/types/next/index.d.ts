@@ -20,6 +20,7 @@ declare module "next-auth/react" {
   export const useSession: any;
   export const signIn: any;
   export const signOut: any;
+  export const SessionProvider: any;
 }
 declare module "next" {
   export interface NextApiRequest {
@@ -33,6 +34,7 @@ declare module "next" {
     json: (b: any) => void;
     setHeader: (k: string, v: any) => void;
     end: (b?: any) => void;
+    send: (b?: any) => void;
   }
   export type GetStaticPaths = any;
   export type GetStaticProps = any;

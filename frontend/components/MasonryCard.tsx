@@ -18,7 +18,7 @@ export default function MasonryCard({
   publishedAt,
 }: Props) {
   return (
-    <article className="rounded-xl overflow-hidden ring-1 ring-black/5 bg-white hover:bg-neutral-50">
+    <article className="rounded-xl overflow-hidden ring-1 ring-black/5 bg-white hover:bg-neutral-50 transition-colors wn-fade-in-up">
       {coverImage ? (
         <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

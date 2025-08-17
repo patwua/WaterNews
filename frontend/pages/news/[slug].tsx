@@ -1,6 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
 import RelatedRail from "@/components/RelatedRail";
@@ -8,6 +9,7 @@ import ShareRow from "@/components/ShareRow";
 import PrevNext from "@/components/PrevNext";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
+import ImageLightbox from "@/components/ImageLightbox";
 
 type Props = {
   post: any | null;
@@ -16,6 +18,7 @@ type Props = {
 };
 
 export default function NewsArticlePage({ post, prev, next }: Props) {
+  const [zoomSrc, setZoomSrc] = useState<string | null>(null);
   if (!post) {
     return (
       <main className="max-w-3xl mx-auto p-4">
@@ -24,10 +27,33 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
       </main>
     );
   }
-
   const read = readingTime(post?.content || "").minutes;
   const authorName: string | undefined = post?.author || post?.byline;
   const authorSlug = authorName ? slugify(authorName) : null;
+
+  // Attach click-to-zoom on images inside the article body
+  useEffect(() => {
+    const root = document.getElementById("article-body");
+    if (!root) return;
+    const imgs = Array.from(root.querySelectorAll("img"));
+    for (const img of imgs) {
+      (img as HTMLImageElement).style.cursor = "zoom-in";
+      img.setAttribute("tabindex", "0");
+      img.setAttribute("role", "button");
+      img.setAttribute("aria-label", "Open image");
+      const open = () => setZoomSrc((img as HTMLImageElement).src);
+      img.addEventListener("click", open);
+      img.addEventListener("keypress", (e: any) => {
+        if (e.key === "Enter" || e.key === " ") open();
+      });
+    }
+    return () => {
+      for (const img of imgs) {
+        const open = () => setZoomSrc((img as HTMLImageElement).src);
+        img.removeEventListener("click", open);
+      }
+    };
+  }, [post?.slug]);
 
   return (
     <>
@@ -38,7 +64,7 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
       </Head>
 
       <main className="max-w-3xl mx-auto px-4 py-6">
-        <article>
+        <article className="wn-fade-in-up">
           <header className="mb-4">
             <h1 className="text-3xl md:text-4xl font-bold leading-tight">{post.title}</h1>
             <div className="mt-2 text-sm text-neutral-600 flex flex-wrap items-center gap-2">
@@ -78,7 +104,7 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
           ) : null}
 
           {/* Body copy — comfortable measure */}
-          <div className="prose max-w-prose">
+          <div id="article-body" className="prose max-w-prose">
             {/* If body is markdown-rendered elsewhere, keep it. Here we assume HTML-safe content */}
             <div dangerouslySetInnerHTML={{ __html: post.contentHtml || "" }} />
           </div>
@@ -93,6 +119,7 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
         <nav className="mt-8">
           <PrevNext prev={prev} next={next} />
         </nav>
+        {zoomSrc ? <ImageLightbox src={zoomSrc} onClose={() => setZoomSrc(null)} /> : null}
       </main>
     </>
   );
