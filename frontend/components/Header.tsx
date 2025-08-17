@@ -16,7 +16,6 @@ export default function Header() {
 
         <nav className="ml-2 flex items-center gap-4">
           <SmartMenu />
-          <a href="/search" className="hidden md:inline-block text-sm text-neutral-700 hover:underline">Search</a>
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
