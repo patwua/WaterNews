@@ -3,6 +3,7 @@ import Link from "next/link";
 import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
 import User from "@/models/User";
+import { getFollowedAuthors, toggleFollowAuthor } from "@/utils/follow";
 
 type Props = {
   author: {
@@ -43,7 +44,7 @@ export default function AuthorProfile({ author, posts }: Props) {
               : ""}
           </div>
           {/* Local follow toggle (visitors use localStorage; no auth required) */}
-          <FollowButton name={author.name} />
+          <FollowButton name={author.name} slug={author.slug} />
         </div>
       </header>
 
@@ -95,42 +96,24 @@ export default function AuthorProfile({ author, posts }: Props) {
   );
 }
 
-function FollowButton({ name }: { name: string }) {
-  // Minimal localStorage follow; merge with server later if user logs in
-  const key = "waternews_follows_authors";
-  const id = `author:${name.toLowerCase()}`;
+function FollowButton({ name, slug }: { name: string; slug?: string }) {
   const isBrowser = typeof window !== "undefined";
-  const followed = isBrowser
-    ? (() => {
-        try {
-          const raw = localStorage.getItem(key);
-          const arr = raw ? (JSON.parse(raw) as string[]) : [];
-          return arr.includes(id);
-        } catch {
-          return false;
-        }
-      })()
-    : false;
+  const id = (slug || name || "").toLowerCase().trim() || "unknown";
+  const followed = isBrowser ? getFollowedAuthors().has(id) : false;
 
   function toggle() {
-    if (!isBrowser) return;
-    try {
-      const raw = localStorage.getItem(key);
-      const arr = raw ? (JSON.parse(raw) as string[]) : [];
-      const set = new Set(arr);
-      if (set.has(id)) set.delete(id);
-      else set.add(id);
-      localStorage.setItem(key, JSON.stringify([...set]));
-      // quick visual feedback; in real UI, this would re-render
-      alert(set.has(id) ? "Followed" : "Unfollowed");
-    } catch {}
+    const nowFollowing = toggleFollowAuthor(id);
+    if (isBrowser) {
+      // quick feedback; page doesn’t re-render automatically
+      alert(nowFollowing ? "Followed" : "Unfollowed");
+    }
   }
-
   return (
     <button
       type="button"
       onClick={toggle}
       className="mt-2 inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium bg-white ring-1 ring-black/10 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
+      aria-pressed={followed}
     >
       {followed ? "Following" : "Follow"}
     </button>
