@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useMemo } from "react";
 
 type TickerItem = {
   slug: string;
@@ -8,36 +9,47 @@ type TickerItem = {
 };
 
 type Props = {
-  /** Optional list of items to show. If omitted/empty, the ticker hides. */
+  /** Optional list of items to show. If empty, we render a placeholder. */
   items?: TickerItem[];
+  /** Optional placeholder text when there are no items */
+  emptyText?: string;
 };
 
-export default function BreakingTicker({ items = [] }: Props) {
-  if (!Array.isArray(items) || items.length === 0) return null;
+export default function BreakingTicker({ items = [], emptyText = "No breaking updates" }: Props) {
+  // Prioritize #breaking / #alert / isBreaking
+  const prioritized = useMemo(() => {
+    const score = (it: TickerItem) => {
+      const tags = (it.tags || []).map((t) => t.toLowerCase());
+      let s = 0;
+      if (it.isBreaking) s += 5;
+      if (tags.includes("breaking") || tags.includes("#breaking")) s += 4;
+      if (tags.includes("alert") || tags.includes("#alert")) s += 3;
+      return s;
+    };
+    return [...items].sort((a, b) => score(b) - score(a));
+  }, [items]);
+
+  const hasItems = prioritized.length > 0;
+
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-red-600 text-white">
-      <div className="px-3 py-2 text-xs font-semibold tracking-wide uppercase bg-red-700 inline-flex items-center gap-2 rounded-br-xl">
-        <span>Breaking</span>
-        <span aria-hidden>•</span>
-        <span className="text-white/80">Live</span>
+    <div className="w-full border-b bg-neutral-50">
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-2 flex items-center gap-3 overflow-x-auto no-scrollbar">
+        <span className="text-xs font-semibold uppercase tracking-wide text-red-700">Breaking</span>
+        {hasItems ? (
+          <ul className="flex items-center gap-4 text-sm">
+            {prioritized.map((it) => (
+              <li key={it.slug} className="shrink-0">
+                <Link href={`/news/${it.slug}`} className="hover:underline">
+                  {it.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span className="text-sm text-neutral-600">{emptyText}</span>
+        )}
       </div>
-      <div className="whitespace-nowrap overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-        <div className="inline-flex gap-6 animate-[ticker_24s_linear_infinite] will-change-transform">
-          {items.map((it) => (
-            <Link key={it.slug} href={`/news/${it.slug}`} className="py-2 px-4 inline-block hover:underline focus:outline-none focus:ring-2 focus:ring-white/70 rounded">
-              {it.title}
-            </Link>
-          ))}
-          {items.map((it, i) => (
-            <Link key={`${it.slug}-dup-${i}`} href={`/news/${it.slug}`} className="py-2 px-4 inline-block hover:underline rounded">
-              {it.title}
-            </Link>
-          ))}
-        </div>
-      </div>
-      <style jsx>{`
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-      `}</style>
     </div>
   );
 }
+
