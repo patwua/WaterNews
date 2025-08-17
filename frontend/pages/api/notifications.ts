@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const postMap = new Map(posts.map((p: any) => [String(p._id), p]));
 
   const items = events.slice(0, limit).map((e: any) => {
-    const p = postMap.get(String(e.targetId));
+    const p = postMap.get(String(e.targetId)) as any;
     return {
       id: String(e._id),
       type: e.type,

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, models, model, type Model } from "mongoose";
 
 export type DraftSource = {
   kind: "thread" | "post" | "note" | "external";
@@ -48,5 +48,5 @@ const DraftSchema = new Schema<DraftDoc>(
   { timestamps: true }
 );
 
-export default (mongoose.models.Draft as mongoose.Model<DraftDoc>) ||
-  mongoose.model<DraftDoc>("Draft", DraftSchema);
+export default (models.Draft as Model<DraftDoc>) ||
+  model<DraftDoc>("Draft", DraftSchema);

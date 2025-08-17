@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, models, model, type Model } from "mongoose";
 
 export type PostDoc = {
   _id: string;
@@ -37,5 +37,5 @@ PostSchema.index({ tags: 1, publishedAt: -1 });
 PostSchema.index({ title: "text", excerpt: "text" }); // requires MongoDB text index support
 PostSchema.index({ slug: 1 }, { unique: true });
 
-export default (mongoose.models.Post as mongoose.Model<PostDoc>) ||
-  mongoose.model<PostDoc>("Post", PostSchema);
+export default (models.Post as Model<PostDoc>) ||
+  model<PostDoc>("Post", PostSchema);

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, models, model, type Model } from "mongoose";
 
 export type EventDoc = {
   _id: string;
@@ -50,5 +50,5 @@ EventSchema.index({ actorId: 1, createdAt: -1 });
 EventSchema.index({ status: 1, updatedAt: -1 });
 EventSchema.index({ assignedTo: 1, status: 1 });
 
-export default (mongoose.models.Event as mongoose.Model<EventDoc>) ||
-  mongoose.model<EventDoc>("Event", EventSchema);
+export default (models.Event as Model<EventDoc>) ||
+  model<EventDoc>("Event", EventSchema);
