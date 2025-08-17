@@ -1,49 +1,42 @@
 import Link from "next/link";
 import { useMemo } from "react";
 
-/** Minimal shape used by the hero scoring & rendering */
+/** Minimal article shape for hero */
 export type Article = {
   slug: string;
   title: string;
   excerpt?: string;
   coverImage?: string;
   tags?: string[];
-  engagementScore?: number;      // optional: used if provided
-  publishedAt?: string | Date;   // ISO or Date
+  engagementScore?: number;
+  publishedAt?: string | Date;
   isBreaking?: boolean;
 };
 
 type HeroPropsV1 = {
-  /** Legacy shape: already-picked articles */
   primary: Article;
   rail: Article[];
 };
 
 type HeroPropsV2 = {
-  /** New shape: let Hero pick the primary/rail from a list, with optional category hint */
   category?: string | null;
   articles: Article[];
 };
 
 type Props = HeroPropsV1 | HeroPropsV2;
 
-/** Basic weighted scoring — recency + engagement + category/tag boost */
+/** Weighted scoring — recency + engagement + category/tag boost + breaking */
 function scoreArticle(a: Article, category?: string | null) {
   const now = Date.now();
   const ts = a.publishedAt ? new Date(a.publishedAt).getTime() : now;
   const hoursOld = Math.max(1, (now - ts) / (1000 * 60 * 60));
-  const recency = 1 / hoursOld; // fresher → higher
-  const engagement = (a.engagementScore ?? 0) / 100; // scale down if huge
-  const tags = (a.tags || []).map(t => String(t).toLowerCase());
+  const recency = 1 / hoursOld;
+  const engagement = (a.engagementScore ?? 0) / 100;
+  const tags = (a.tags || []).map((t) => String(t).toLowerCase());
   const cat = (category || "").toLowerCase();
-  const tagBoost =
-    cat && tags.some(t => t === cat || t === `#${cat}`) ? 0.6 : 0;
-
+  const tagBoost = cat && tags.some((t) => t === cat || t === `#${cat}`) ? 0.6 : 0;
   const breakingBoost =
-    a.isBreaking || tags.includes("breaking") || tags.includes("#breaking")
-      ? 0.8
-      : 0;
-
+    a.isBreaking || tags.includes("breaking") || tags.includes("#breaking") ? 0.8 : 0;
   return recency * 1.2 + engagement * 1.0 + tagBoost + breakingBoost;
 }
 
@@ -51,17 +44,13 @@ function scoreArticle(a: Article, category?: string | null) {
 function useNormalized(props: Props) {
   return useMemo(() => {
     if ("primary" in props && "rail" in props) {
-      // Legacy callers pass pre-selected articles
       return { primary: props.primary, rail: props.rail.slice(0, 4) };
     }
-    // New callers pass a pool to select from
-    const pool = (props.articles || []).slice();
-    // Score & sort
+    const pool = (props as HeroPropsV2).articles || [];
     const ranked = pool
-      .map(a => ({ a, s: scoreArticle(a, props.category) }))
+      .map((a) => ({ a, s: scoreArticle(a, (props as HeroPropsV2).category) }))
       .sort((x, y) => y.s - x.s)
-      .map(x => x.a);
-
+      .map((x) => x.a);
     const primary = ranked[0];
     const rail = ranked.slice(1, 5);
     return { primary, rail };
@@ -70,23 +59,24 @@ function useNormalized(props: Props) {
 
 export default function Hero(props: Props) {
   const { primary, rail } = useNormalized(props);
-
-  // Nothing to render
   if (!primary) return null;
 
   return (
     <section className="mb-6">
       <div className="grid md:grid-cols-3 gap-4">
-        {/* Primary story */}
+        {/* Primary */}
         <article className="md:col-span-2 rounded-2xl overflow-hidden ring-1 ring-black/5 bg-white">
-          {primary.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={primary.coverImage}
-              alt=""
-              className="w-full h-56 md:h-72 object-cover"
-            />
-          ) : null}
+          {/* Fixed visual ratio to reduce layout shift */}
+          <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+            {primary.coverImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={primary.coverImage}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            ) : null}
+          </div>
           <div className="p-4">
             <h2 className="text-xl md:text-2xl font-bold leading-tight">
               <Link href={`/news/${primary.slug}`} className="hover:underline">
@@ -94,9 +84,7 @@ export default function Hero(props: Props) {
               </Link>
             </h2>
             {primary.excerpt ? (
-              <p className="mt-2 text-neutral-700 line-clamp-3">
-                {primary.excerpt}
-              </p>
+              <p className="mt-2 text-neutral-700 line-clamp-3">{primary.excerpt}</p>
             ) : null}
             {primary.tags?.length ? (
               <div className="mt-3 flex flex-wrap gap-2">
@@ -126,9 +114,7 @@ export default function Hero(props: Props) {
                 </Link>
               </h3>
               {it.excerpt ? (
-                <p className="mt-1 text-xs text-neutral-700 line-clamp-2">
-                  {it.excerpt}
-                </p>
+                <p className="mt-1 text-xs text-neutral-700 line-clamp-2">{it.excerpt}</p>
               ) : null}
               {it.tags?.length ? (
                 <div className="mt-1 flex flex-wrap gap-1">
