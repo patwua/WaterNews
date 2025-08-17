@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 
@@ -21,7 +21,7 @@ export default function Profile() {
     load()
   }, [session])
 
-  const save = async (e: React.FormEvent) => {
+  const save = async (e: FormEvent) => {
     e.preventDefault()
     setMsg('')
     const res = await fetch('/api/users/update', {

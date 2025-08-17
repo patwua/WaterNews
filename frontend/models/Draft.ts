@@ -1,14 +1,13 @@
-import mongoose from "mongoose";
-const { Schema, models, model } = (mongoose as any);
+import mongoose, { Schema, models, model, type Model } from "mongoose";
 
-export type DraftSource = {
+export interface DraftSource {
   kind: "thread" | "post" | "note" | "external";
   refId: string;      // e.g., thread id, post id, URL, etc.
   hash: string;       // stable hash of source payload
   label?: string;     // human label shown in UI
-};
+}
 
-export type DraftDoc = {
+export interface DraftDoc {
   _id: string;
   title: string;
   slug: string;
@@ -23,16 +22,16 @@ export type DraftDoc = {
   sources?: DraftSource[]; // NEW
   createdAt: Date;
   updatedAt: Date;
-};
+}
 
-const DraftSourceSchema = new (Schema as any)({
+const DraftSourceSchema = new Schema<DraftSource>({
   kind: { type: String, enum: ["thread", "post", "note", "external"], required: true },
   refId: { type: String, required: true },
   hash: { type: String, required: true },
   label: { type: String },
 });
 
-const DraftSchema = new (Schema as any)(
+const DraftSchema = new Schema<DraftDoc>(
   {
     title: { type: String, required: true },
     slug: { type: String, required: true, index: true, unique: true },
@@ -49,5 +48,5 @@ const DraftSchema = new (Schema as any)(
   { timestamps: true }
 );
 
-export default (models && (models as any).Draft) ||
-  (model as any)("Draft", DraftSchema);
+const Draft = (models.Draft as Model<DraftDoc>) || model<DraftDoc>("Draft", DraftSchema);
+export default Draft;

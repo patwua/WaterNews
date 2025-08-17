@@ -1,4 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 
 function useDebounced<T>(value: T, delay = 250) {
   const [v, setV] = useState(value);
@@ -74,7 +79,7 @@ export default function SearchBox() {
     };
   }, []);
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const onKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
     if (!open || !items.length) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();

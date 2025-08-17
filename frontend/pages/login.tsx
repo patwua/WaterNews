@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useState, type FormEvent } from 'react'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 
@@ -17,7 +17,7 @@ export default function Login() {
 
   useEffect(() => setErr(''), [mode])
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setErr('')
 
