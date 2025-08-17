@@ -48,3 +48,33 @@ p { line-height: var(--leading-normal); }
   max-width: 66ch;
   margin: 0 auto;
 }
+
+/* Smooth in-page scrolling (anchors, scrollIntoView) */
+html { scroll-behavior: smooth; } /* MDN confirms wide support */
+
+/* Headings offset when scrolled to via anchors (helps fixed headers) */
+h1, h2, h3, h4, h5, h6 { scroll-margin-top: 72px; }
+
+/* Gentle entrance animations */
+@keyframes wn-fade-in-up {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.wn-fade-in-up { animation: wn-fade-in-up 320ms ease-out both; will-change: transform, opacity; }
+
+/* Print styles — cleaner pages for readers */
+@media print {
+  /* basic colors on white background */
+  html, body { background: #fff !important; color: #000 !important; }
+  /* hide chrome/navigation that isn't useful on paper */
+  header, nav, .NotificationsBellMenu, .SearchBox, .RelatedRail, .SmartMenu,
+  .no-print, .btn, .button, .pagination { display: none !important; }
+  /* make links show their URLs */
+  a[href^="http"]:after { content: " (" attr(href) ")"; font-weight: normal; }
+  /* avoid page breaks inside important blocks */
+  article, section { break-inside: avoid; }
+  img, pre, blockquote { break-inside: avoid; }
+  /* maximize content width, remove shadows/rings */
+  .ring-1, .ring-2, .shadow, .shadow-sm, .shadow-md, .shadow-lg { box-shadow: none !important; }
+  .prose, .prose-body { max-width: none !important; }
+}
