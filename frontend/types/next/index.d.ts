@@ -16,12 +16,6 @@ declare module "next/router" {
   const _default: any;
   export default _default;
 }
-declare module "next-auth/react" {
-  export const useSession: any;
-  export const signIn: any;
-  export const signOut: any;
-  export const SessionProvider: any;
-}
 declare module "next" {
   export interface NextApiRequest {
     method?: string;

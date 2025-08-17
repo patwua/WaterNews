@@ -5,6 +5,9 @@ declare module 'next-auth' {
   export const getServerSession: any;
 }
 declare module 'next-auth/react' {
+  export const useSession: any;
+  export const signIn: any;
+  export const signOut: any;
   export const SessionProvider: any;
 }
 declare module 'next-auth/next' {
