@@ -1,4 +1,4 @@
-import { Schema, models, model, type Model } from "mongoose";
+import mongoose, { Schema, model, type Model } from "mongoose";
 
 export type AuditDoc = {
   _id: string;
@@ -34,5 +34,5 @@ const AuditSchema = new Schema<AuditDoc>(
 AuditSchema.index({ targetKind: 1, targetId: 1, createdAt: -1 });
 AuditSchema.index({ action: 1, createdAt: -1 });
 
-export default (models.Audit as Model<AuditDoc>) ||
+export default (mongoose.models.Audit as Model<AuditDoc>) ||
   model<AuditDoc>("Audit", AuditSchema);
