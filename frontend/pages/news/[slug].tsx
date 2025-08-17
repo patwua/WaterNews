@@ -87,7 +87,7 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
         </article>
 
         <aside className="mt-8">
-          <RelatedRail context={{ slug: post.slug, tags: post.tags || [] }} />
+          <RelatedRail slug={post.slug} title={post.title} tags={post.tags || []} />
         </aside>
 
         <nav className="mt-8">
