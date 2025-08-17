@@ -3,85 +3,47 @@ import { dbConnect } from "@/lib/server/db";
 import Event from "@/models/Event";
 import Post from "@/models/Post";
 
-/**
- * GET /api/notifications
- * Query:
- *   - since?: number (ms epoch)
- *   - limit?: number (1..50) default 20
- *
- * Returns lightweight items suitable for the bell and full page.
- * We surface public events only, and resolve post slugs for linking.
- */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
 
   await dbConnect();
+  // Pagination params
+  const limit = Math.min(
+    Math.max(parseInt(String(req.query.limit || "20"), 10) || 20, 5),
+    50
+  );
+  const cursor = String(req.query.cursor || "");
+  const before = cursor ? new Date(cursor) : undefined;
 
-  const limit = Math.max(1, Math.min(50, parseInt(String(req.query.limit ?? "20"), 10) || 20));
-  const since = req.query.since ? new Date(Number(req.query.since)) : null;
+  const find: any = { visibility: { $in: ["public", "reader"] } };
+  if (!isNaN(before?.getTime?.() || NaN)) find.createdAt = { $lt: before };
 
-  const allowedTypes = ["article_published", "thread_hot", "follow", "like"] as const;
-
-  const match: any = {
-    visibility: "public",
-    type: { $in: allowedTypes },
-  };
-  if (since && !isNaN(since.getTime())) {
-    match.createdAt = { $gt: since };
-  }
-
-  // Pull events newest first
-  const events = await Event.find(match)
+  const events = await Event.find(find)
     .sort({ createdAt: -1 })
-    .limit(limit)
+    .limit(limit + 1) // fetch one extra to know if there's a next page
     .lean();
 
-  // Resolve posts for any targetIds that are posts
-  const targetIds = events.map((e: any) => e.targetId).filter(Boolean);
-  const posts = targetIds.length
-    ? await Post.find({ _id: { $in: targetIds } }).select("_id slug title").lean()
-    : [];
-  const postById = new Map(posts.map((p: any) => [String(p._id), p]));
+  // Resolve any post slugs referenced by events (lightweight join)
+  const postIds = events.map((e: any) => e.targetId).filter(Boolean);
+  const posts = await Post.find({ _id: { $in: postIds } })
+    .select("_id slug title tags")
+    .lean();
+  const postMap = new Map(posts.map((p: any) => [String(p._id), p]));
 
-  const items = events.map((e: any) => {
-    const createdAt = e.createdAt instanceof Date ? e.createdAt : new Date(e.createdAt);
-    const base = {
-      id: String(e._id),
-      type: e.type as string,
-      createdAt: createdAt.toISOString(),
-    };
-
-    // Try resolve to a post href/title
-    const p = e.targetId ? postById.get(String(e.targetId)) : null;
-    if (p) {
-      return {
-        ...base,
-        href: `/news/${p.slug}`,
-        title: p.title,
-        summary:
-          e.type === "article_published"
-            ? "New story published"
-            : e.type === "thread_hot"
-            ? "Trending story update"
-            : e.redactedText || "",
-      };
-    }
-
-    // Fallback: non-post event or unresolved target
+  const items = events.slice(0, limit).map((e: any) => {
+    const p = postMap.get(String(e.targetId));
     return {
-      ...base,
-      href: null as string | null,
-      title:
-        e.type === "follow"
-          ? "New follow activity"
-          : e.type === "like"
-          ? "Someone liked a story you follow"
-          : "Update",
-      summary: e.redactedText || "",
+      id: String(e._id),
+      type: e.type,
+      createdAt: e.createdAt,
+      title: p?.title || e.title || "Update",
+      slug: p?.slug || e.slug || "",
+      tags: p?.tags || e.tags || [],
     };
   });
 
-  // Small CDN-friendly cache
-  res.setHeader("Cache-Control", "s-maxage=30, stale-while-revalidate=60");
-  res.json({ items });
+  const nextCursor = events.length > limit ? events[limit].createdAt.toISOString() : null;
+
+  res.setHeader("Cache-Control", "private, max-age=30"); // short client cache
+  return res.status(200).json({ items, nextCursor });
 }

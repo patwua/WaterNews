@@ -1,149 +1,134 @@
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { bucketForDate, BucketKey } from "@/utils/date";
 
-type Notice = {
+type Item = {
   id: string;
   type: string;
-  createdAt: string; // ISO
-  href: string | null;
+  createdAt: string;
   title: string;
-  summary?: string;
+  slug?: string;
+  tags?: string[];
 };
 
 export default function NotificationsPage() {
-  const [items, setItems] = useState<Notice[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<Item[] | null>(null);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    let alive = true;
     (async () => {
-      setLoading(true);
       try {
-        const res = await fetch("/api/notifications?limit=50");
+        const res = await fetch("/api/notifications");
         const json = await res.json();
-        if (!alive) return;
-        setItems(Array.isArray(json.items) ? json.items : []);
+        setItems(json.items || []);
+        setCursor(json.nextCursor || null);
       } catch {
-        if (!alive) return;
-        setItems([]);
-      } finally {
-        if (alive) setLoading(false);
+        setError("Could not load notifications.");
       }
     })();
-    return () => {
-      alive = false;
-    };
   }, []);
 
-  const groups = useMemo(() => {
-    // Hook for future grouping (Today / This week). For now, single flat list.
-    return [{ label: null as string | null, items: items || [] }];
-  }, [items]);
+  async function loadMore() {
+    if (!cursor) return;
+    setLoadingMore(true);
+    setError("");
+    try {
+      const url = new URL("/api/notifications", window.location.origin);
+      url.searchParams.set("cursor", cursor);
+      url.searchParams.set("limit", "20");
+      const res = await fetch(url.toString());
+      const json = await res.json();
+      setItems((prev) => [ ...(prev || []), ...(json.items || []) ]);
+      setCursor(json.nextCursor || null);
+    } catch {
+      setError("Could not load more notifications.");
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  function grouped() {
+    const buckets: Record<BucketKey, Item[]> = { today: [], thisWeek: [], earlier: [] };
+    for (const it of items || []) {
+      const b = bucketForDate(new Date(it.createdAt));
+      buckets[b].push(it);
+    }
+    return buckets;
+  }
+
+  if (!items) {
+    return (
+      <main className="max-w-3xl mx-auto p-4">
+        <div className="rounded-2xl ring-1 ring-black/5 bg-white p-6">
+          <div className="h-6 w-40 bg-neutral-200 rounded animate-pulse" />
+          <div className="mt-3 h-4 w-72 bg-neutral-200 rounded animate-pulse" />
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-6">
-      <header className="mb-4">
-        <h1 className="text-2xl font-semibold">Notifications</h1>
-        <p className="text-sm text-neutral-600">
-          Important updates from authors you follow and story alerts.
-        </p>
-      </header>
-
-      {loading ? (
-        <div aria-busy="true" className="space-y-2" role="status">
-          <div className="h-16 rounded-xl bg-neutral-200 animate-pulse" />
-          <div className="h-16 rounded-xl bg-neutral-200 animate-pulse" />
-          <div className="h-16 rounded-xl bg-neutral-200 animate-pulse" />
+    <main className="max-w-3xl mx-auto p-4">
+      <h1 className="text-2xl font-semibold">Notifications</h1>
+      <div aria-live="polite" className="sr-only">{error ? error : ""}</div>
+      {error ? (
+        <div className="mt-4 rounded-2xl bg-red-50 text-red-800 text-sm px-3 py-2 ring-1 ring-red-200">
+          {error}
         </div>
-      ) : !items || items.length === 0 ? (
-        <EmptyState />
+      ) : null}
+      {items.length === 0 ? (
+        <div className="mt-4 rounded-2xl ring-1 ring-black/5 bg-white p-6 text-sm text-neutral-700">
+          No updates yet. Check back later, or follow tags/authors to see updates here.
+          <div className="mt-3">
+            <Link href="/" className="text-blue-700 underline">Browse latest stories</Link>
+          </div>
+        </div>
       ) : (
-        <div className="space-y-4">
-          {groups.map((g, idx) => (
-            <section key={idx}>
-              {g.label ? (
-                <h2 className="text-sm font-semibold text-neutral-700 mb-2">{g.label}</h2>
-              ) : null}
-              <ul className="space-y-2">
-                {g.items.map((n) => (
-                  <li
-                    key={n.id}
-                    className={["rounded-xl ring-1 ring-black/5 bg-white p-3 hover:bg-neutral-50","focus-within:ring-2 focus-within:ring-neutral-400"].join(" ")}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium line-clamp-1">
-                          {n.href ? (
-                            <Link
-                              href={n.href}
-                              className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
-                            >
-                              {n.title}
-                            </Link>
-                          ) : (
-                            n.title
-                          )}
-                        </div>
-                        {n.summary ? (
-                          <div className="text-xs text-neutral-600 line-clamp-2 mt-0.5">
-                            {n.summary}
-                          </div>
-                        ) : null}
-                      </div>
-                      <time
-                        className="shrink-0 text-[11px] text-neutral-500"
-                        dateTime={n.createdAt}
-                        title={new Date(n.createdAt).toLocaleString()}
+        <>
+          {(["today","thisWeek","earlier"] as BucketKey[]).map((key) => {
+            const bucket = grouped()[key];
+            if (!bucket.length) return null;
+            const label = key === "today" ? "Today" : key === "thisWeek" ? "This week" : "Earlier";
+            return (
+              <section key={key} className="mt-6">
+                <h2 className="text-lg font-semibold">{label}</h2>
+                <ul className="mt-2 space-y-2">
+                  {bucket.map((it) => (
+                    <li
+                      key={it.id}
+                      className="rounded-xl p-3 ring-1 ring-black/5 bg-white hover:bg-neutral-50 transition-colors"
+                    >
+                      <Link
+                        href={it.slug ? `/news/${it.slug}` : "#"}
+                        className="font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
                       >
-                        {timeAgo(n.createdAt)}
-                      </time>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+                        {it.title}
+                      </Link>
+                      <div className="text-[11px] text-neutral-500">
+                        {new Date(it.createdAt).toLocaleString()}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+          <div className="mt-6">
+            {cursor ? (
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium bg-white ring-1 ring-black/10 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
+              >
+                {loadingMore ? "Loading…" : "Load more"}
+              </button>
+            ) : null}
+          </div>
+        </>
       )}
     </main>
   );
 }
-
-function EmptyState() {
-  return (
-    <div className="rounded-2xl ring-1 ring-black/5 bg-white p-6">
-      <h2 className="text-lg font-semibold">You’re all caught up</h2>
-      <p className="text-sm text-neutral-600 mt-1">
-        When authors you follow publish or a story trends, updates will appear here.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link
-          href="/"
-          className="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-        >
-          Browse latest stories
-        </Link>
-        <Link
-          href="/profile"
-          className="inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium bg-white ring-1 ring-black/10 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-        >
-          Follow tags & authors
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function timeAgo(iso: string) {
-  const then = new Date(iso).getTime();
-  const now = Date.now();
-  const s = Math.max(1, Math.floor((now - then) / 1000));
-  if (s < 60) return `${s}s ago`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.floor(h / 24);
-  return `${d}d ago`;
-}
-
