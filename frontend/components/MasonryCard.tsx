@@ -1,73 +1,54 @@
 import Link from "next/link";
-import { useMemo } from "react";
 
 type Props = {
-  item: {
-    id: string;
-    slug: string;
-    title: string;
-    excerpt: string;
-    image?: string;
-    tags?: string[];
-    engagementScore?: number;
-    publishedAt?: string;
-    author?: { name: string; slug?: string };
-  };
-  variantSeed?: number;
-  density?: "cozy" | "compact";
-  clamp?: 2 | 3;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  coverImage?: string;
+  tags?: string[];
+  publishedAt?: string | Date;
 };
 
-export default function MasonryCard({ item, variantSeed = 0, density = "compact", clamp = 2 }: Props) {
-  const ratioClass = useMemo(() => {
-    const v = variantSeed % 4;
-    if (v === 0) return "aspect-[4/3]";
-    if (v === 1) return "aspect-[16/9]";
-    if (v === 2) return "aspect-[3/4]";
-    return "aspect-square";
-  }, [variantSeed]);
-
-  const pad = density === "compact" ? "p-3" : "p-4";
-  const titleSize = density === "compact" ? "text-base" : "text-lg";
-  const excerptSize = density === "compact" ? "text-sm" : "text-[15px]";
-
+export default function MasonryCard({
+  slug,
+  title,
+  excerpt,
+  coverImage,
+  tags = [],
+  publishedAt,
+}: Props) {
   return (
-    <article className={`group rounded-2xl shadow-sm ring-1 ring-black/5 bg-white overflow-hidden hover:shadow-md transition-shadow`}>
-      {item.image ? (
-        <div className={`w-full ${ratioClass} overflow-hidden`}>
+    <article className="rounded-xl overflow-hidden ring-1 ring-black/5 bg-white hover:bg-neutral-50">
+      {coverImage ? (
+        <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={item.image}
-            alt={item.title}
-            className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform"
-            loading="lazy"
-          />
+          <img src={coverImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
         </div>
       ) : null}
-      <div className={`${pad} grid gap-2`}>
-        <h3 className={`${titleSize} font-semibold leading-snug line-clamp-2`}>
-          <Link href={`/news/${item.slug}`} className="outline-none focus:ring-2 focus:ring-blue-500 rounded">
-            {item.title}
+      <div className="p-3">
+        <h3 className="text-sm font-semibold leading-snug">
+          <Link href={`/news/${slug}`} className="hover:underline">
+            {title}
           </Link>
         </h3>
-
-        <p className={`${excerptSize} text-neutral-700 line-clamp-${clamp}`}>
-          {item.excerpt}
-        </p>
-
-        <div className="mt-1 flex items-center justify-between">
-          <div className="flex flex-wrap gap-1">
-            {item.tags?.slice(0, 3).map(t => (
-              <span key={t} className="text-xs px-2 py-0.5 bg-neutral-100 rounded-full">{t}</span>
+        {excerpt ? <p className="mt-1 text-xs text-neutral-700 line-clamp-2">{excerpt}</p> : null}
+        {tags.length ? (
+          <div className="mt-1 flex flex-wrap gap-1">
+            {tags.slice(0, 3).map((t) => (
+              <span
+                key={t}
+                className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-700"
+              >
+                #{String(t).replace(/^#/, "")}
+              </span>
             ))}
           </div>
-          {item.publishedAt ? (
-            <time className="text-xs text-neutral-500" dateTime={item.publishedAt}>
-              {new Date(item.publishedAt).toLocaleDateString()}
-            </time>
-          ) : null}
+        ) : null}
+        <div className="mt-1 text-[11px] text-neutral-500">
+          {publishedAt ? new Date(publishedAt).toLocaleDateString() : ""}
         </div>
       </div>
     </article>
   );
 }
+

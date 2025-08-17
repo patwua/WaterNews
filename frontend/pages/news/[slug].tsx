@@ -1,194 +1,138 @@
+import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
-import type { GetStaticPaths, GetStaticProps } from "next";
+import Link from "next/link";
 import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
-import type { PostDoc } from "@/models/Post";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import RelatedRail from "@/components/RelatedRail";
+import ShareRow from "@/components/ShareRow";
+import PrevNext from "@/components/PrevNext";
 import { readingTime } from "@/lib/readingTime";
+import { slugify } from "@/lib/slugify";
 
 type Props = {
-  ok: boolean;
-  post?: any;
+  post: any | null;
+  prev: any | null;
+  next: any | null;
 };
 
-function fmtDate(d?: string | Date) {
-  if (!d) return "";
-  const dt = new Date(d);
-  return dt.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function Markdown({ source }: { source: string }) {
-  // lightweight client-side markdown render using marked (already in pkg.json per your logs)
-  const [html, setHtml] = useState<string>("");
-  useEffect(() => {
-    (async () => {
-      const { marked } = await import("marked");
-      setHtml(marked.parse(source || "", { breaks: true }) as string);
-    })();
-  }, [source]);
-  // eslint-disable-next-line react/no-danger
-  return <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: html }} />;
-}
-
-export default function NewsArticle({ ok, post }: Props) {
-  if (!ok || !post) {
+export default function NewsArticlePage({ post, prev, next }: Props) {
+  if (!post) {
     return (
-      <main className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-semibold">Article not found</h1>
-        <p className="mt-2 text-neutral-600">This story may have been removed or unpublished.</p>
-        <div className="mt-6"><Link href="/" className="text-blue-600 hover:underline">Back to home</Link></div>
+      <main className="max-w-3xl mx-auto p-4">
+        <h1 className="text-2xl font-semibold">Story unavailable</h1>
+        <p className="text-neutral-600">This article could not be found.</p>
       </main>
     );
   }
 
-  const {
-    title,
-    excerpt,
-    body,
-    coverImage,
-    tags = [],
-    slug,
-    publishedAt,
-  } = post as PostDoc;
-
-  const rt = readingTime(`${post.title || ""} ${post.excerpt || ""} ${post.body || ""}`);
-
-  const canonical = `/news/${slug}`;
-  const site = "https://waternews.patwua.com"; // change to your prod origin
-  const fullUrl = `${site}${canonical}`;
-  const ogImg = coverImage || `${site}/og-default.jpg`;
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: title,
-    datePublished: new Date(publishedAt || Date.now()).toISOString(),
-    dateModified: new Date(publishedAt || Date.now()).toISOString(),
-    description: excerpt,
-    mainEntityOfPage: fullUrl,
-    image: ogImg,
-    author: post.authorId ? { "@type": "Person", name: String(post.authorId) } : undefined,
-    articleSection: post.category || "news",
-    keywords: (tags || []).join(", "),
-  };
-
-  const breadcrumbLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: site + "/" },
-      { "@type": "ListItem", position: 2, name: "News", item: site + "/news" },
-      { "@type": "ListItem", position: 3, name: title, item: fullUrl },
-    ],
-  };
+  const read = readingTime(post?.content || "").minutes;
+  const authorName: string | undefined = post?.author || post?.byline;
+  const authorSlug = authorName ? slugify(authorName) : null;
 
   return (
     <>
       <Head>
-        <title>{title} — WaterNews</title>
-        <link rel="canonical" href={fullUrl} />
-        {/* OpenGraph / Twitter */}
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={excerpt || title} />
-        <meta property="og:url" content={fullUrl} />
-        <meta property="og:image" content={ogImg} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={excerpt || title} />
-        <meta name="twitter:image" content={ogImg} />
-        {/* JSON-LD */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-        />
+        <title>{post.title} — WaterNewsGY</title>
+        <link rel="canonical" href={`https://waternews.onrender.com/news/${post.slug}`} />
+        {/* OG/Twitter/meta remain as you set elsewhere */}
       </Head>
 
-      <article className="max-w-3xl mx-auto px-4 md:px-6 py-6">
-        <header className="mb-4">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-600">
-            <Link href="/" className="hover:underline">Home</Link>
-            <span>·</span>
-            <span>{fmtDate(publishedAt)}</span>
-            <span>·</span>
-            <span>{rt.minutes} min read</span>
-            {post.isBreaking && (<><span>·</span><span className="px-2 py-0.5 rounded-full bg-red-600/10 text-red-700 font-medium">Breaking</span></>)}
-          </div>
-          <h1 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
-          {excerpt ? <p className="mt-2 text-neutral-700">{excerpt}</p> : null}
-          {tags?.length ? (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {tags.map((t: string) => (
-                <span key={t} className="text-xs px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-700">#{t.replace(/^#/, "")}</span>
-              ))}
+      <main className="max-w-3xl mx-auto px-4 py-6">
+        <article>
+          <header className="mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold leading-tight">{post.title}</h1>
+            <div className="mt-2 text-sm text-neutral-600 flex flex-wrap items-center gap-2">
+              <time dateTime={post.publishedAt}>
+                {post.publishedAt ? new Date(post.publishedAt).toLocaleString() : ""}
+              </time>
+              <span>•</span>
+              <span>{read} min read</span>
+              {authorName ? (
+                <>
+                  <span>•</span>
+                  {authorSlug ? (
+                    <Link
+                      href={`/author/${authorSlug}`}
+                      className="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
+                    >
+                      {authorName}
+                    </Link>
+                  ) : (
+                    <span>{authorName}</span>
+                  )}
+                </>
+              ) : null}
             </div>
-          ) : null}
-          {coverImage ? (
-            <div className="mt-4 rounded-2xl overflow-hidden ring-1 ring-black/5">
+          </header>
+
+          {/* Cover image, if any, with stable ratio */}
+          {post.coverImage ? (
+            <div className="relative w-full mb-4" style={{ paddingTop: "56.25%" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={coverImage} alt="" className="w-full h-auto object-cover" />
+              <img
+                src={post.coverImage}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover rounded-xl ring-1 ring-black/5"
+              />
             </div>
           ) : null}
-          <ShareRow title={title} url={fullUrl} />
-        </header>
 
-        <section className="mt-6 prose prose-neutral max-w-none">
-          <Markdown source={body || ""} />
-        </section>
+          {/* Body copy — comfortable measure */}
+          <div className="prose max-w-prose">
+            {/* If body is markdown-rendered elsewhere, keep it. Here we assume HTML-safe content */}
+            <div dangerouslySetInnerHTML={{ __html: post.contentHtml || "" }} />
+          </div>
 
-        <footer className="mt-8 border-t pt-6">
-          <RelatedRail slug={slug} tags={tags} title={title} />
-          <PrevNext prev={post.__prev} next={post.__next} />
-        </footer>
-      </article>
+          <ShareRow className="mt-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded" />
+        </article>
+
+        <aside className="mt-8">
+          <RelatedRail context={{ slug: post.slug, tags: post.tags || [] }} />
+        </aside>
+
+        <nav className="mt-8">
+          <PrevNext prev={prev} next={next} />
+        </nav>
+      </main>
     </>
   );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // Start with no prebuilt paths; build on-demand
-  return { paths: [], fallback: "blocking" };
-};
-
-export const getStaticProps: GetStaticProps<Props> = async (ctx) => {
-  const slug = String(ctx.params?.slug || "");
   await dbConnect();
-  const doc = await Post.findOne({ slug }).lean();
-  if (!doc) return { notFound: true, revalidate: 30 };
-
-  const prev = await Post.findOne({ publishedAt: { $lt: doc.publishedAt } })
-    .sort({ publishedAt: -1 })
-    .select({ slug: 1, title: 1 })
-    .lean();
-  const next = await Post.findOne({ publishedAt: { $gt: doc.publishedAt } })
-    .sort({ publishedAt: 1 })
-    .select({ slug: 1, title: 1 })
-    .lean();
-
-  const post = {
-    ...doc,
-    _id: String(doc._id),
-    publishedAt: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
-    __prev: prev ? { slug: prev.slug, title: prev.title } : null,
-    __next: next ? { slug: next.slug, title: next.title } : null,
-  };
+  const slugs = await Post.find({}).select("slug -_id").lean();
   return {
-    props: { ok: true, post: JSON.parse(JSON.stringify(post)) },
-    // Rebuild every 2 minutes (adjust to your newsroom cadence)
-    revalidate: 120,
+    paths: slugs.map((s: any) => ({ params: { slug: s.slug } })),
+    fallback: "blocking",
   };
 };
 
-// Local component import placed at bottom to avoid SSR circular deps
-import RelatedRail from "@/components/RelatedRail";
-import ShareRow from "@/components/ShareRow";
-import PrevNext from "@/components/PrevNext";
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  await dbConnect();
+  const slug = String(params?.slug || "");
+  const post = await Post.findOne({ slug }).lean();
+
+  if (!post) {
+    return { notFound: true, revalidate: 30 };
+  }
+
+  // Basic prev/next by date
+  const prev = await Post.findOne({ publishedAt: { $lt: post.publishedAt } })
+    .sort({ publishedAt: -1 })
+    .select("slug title")
+    .lean();
+  const next = await Post.findOne({ publishedAt: { $gt: post.publishedAt } })
+    .sort({ publishedAt: 1 })
+    .select("slug title")
+    .lean();
+
+  return {
+    props: {
+      post: JSON.parse(JSON.stringify(post)),
+      prev: prev ? JSON.parse(JSON.stringify(prev)) : null,
+      next: next ? JSON.parse(JSON.stringify(next)) : null,
+    },
+    revalidate: 60,
+  };
+};
 

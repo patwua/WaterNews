@@ -1,19 +1,22 @@
 import MasonryCard from "./MasonryCard";
-import { useMemo } from "react";
 
-export default function MasonryFeed({ items = [], loading }: { items?: any[]; loading?: boolean }) {
-  const skeletons = useMemo(() => Array.from({ length: 8 }), []);
+type Item = {
+  slug: string;
+  title: string;
+  excerpt?: string;
+  coverImage?: string;
+  tags?: string[];
+  publishedAt?: string | Date;
+};
+
+export default function MasonryFeed({ items = [] as Item[] }) {
+  if (!items.length) return null;
   return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 2xl:columns-4 gap-4 [column-fill:_balance]">
-      {(loading ? skeletons : items).map((it, i) => (
-        <div key={loading ? i : it.id} className="mb-4 break-inside-avoid">
-          {loading ? (
-            <div className="animate-pulse rounded-2xl bg-neutral-100 h-64" />
-          ) : (
-            <MasonryCard item={it} variantSeed={it.variantSeed} density="compact" clamp={2} />
-          )}
-        </div>
+    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {items.map((it) => (
+        <MasonryCard key={it.slug} {...it} />
       ))}
-    </div>
+    </section>
   );
 }
+
