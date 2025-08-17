@@ -29,11 +29,9 @@ export default function SearchPage() {
       <h1 className="text-2xl font-semibold mb-3">Search</h1>
 
       {!q ? (
-        <p className="text-neutral-600">
-          Use the header search to find stories.
-        </p>
+        <p className="text-neutral-600">Use the header search to find stories.</p>
       ) : loading ? (
-        <div className="space-y-2">
+        <div className="space-y-2" aria-busy="true" role="status">
           <div className="h-16 rounded-xl bg-neutral-200 animate-pulse" />
           <div className="h-16 rounded-xl bg-neutral-200 animate-pulse" />
         </div>
@@ -43,7 +41,10 @@ export default function SearchPage() {
         <ul className="space-y-2">
           {items.map((it) => (
             <li key={it.slug} className="p-3 rounded-xl ring-1 ring-black/5 hover:bg-neutral-50">
-              <a href={`/news/${it.slug}`} className="block">
+              <a
+                href={`/news/${it.slug}`}
+                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
+              >
                 <div className="text-sm font-medium">{it.title}</div>
                 {it.excerpt ? <div className="text-xs text-neutral-600 line-clamp-2">{it.excerpt}</div> : null}
                 <div className="mt-1 text-[11px] text-neutral-500">
@@ -57,4 +58,3 @@ export default function SearchPage() {
     </main>
   );
 }
-
