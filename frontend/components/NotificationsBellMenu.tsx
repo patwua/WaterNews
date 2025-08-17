@@ -57,10 +57,15 @@ export default function NotificationsBellMenu({
                 </a>
               </li>
             ))}
+            <li className="px-3 py-2 text-sm">
+              <Link
+                href="/notifications"
+                className="text-blue-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
+              >
+                Open all
+              </Link>
+            </li>
           </ul>
-          <footer className="p-2 text-right">
-            <Link href="/notifications" className="text-sm text-blue-700 hover:underline">Open all</Link>
-          </footer>
         </div>
       )}
     </div>

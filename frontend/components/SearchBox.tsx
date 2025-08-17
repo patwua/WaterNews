@@ -27,8 +27,9 @@ export default function SearchBox() {
   const dq = useDebounced(q, 250);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const listboxId = "searchbox-listbox";
+  const optionId = (i: number) => `searchbox-option-${i}`;
 
-  // Fetch results for minimal dropdown
   useEffect(() => {
     const run = async () => {
       if (!dq) {
@@ -92,17 +93,23 @@ export default function SearchBox() {
     <div ref={rootRef} className="relative w-full max-w-md">
       <input
         ref={inputRef}
-        className="w-full rounded-xl border px-3 py-2"
+        className="w-full rounded-xl border px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
         placeholder="Search headlines…"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onFocus={() => { if (items.length) setOpen(true); }}
         onKeyDown={onKeyDown}
         aria-label="Search stories"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={open}
+        aria-controls={open ? listboxId : undefined}
+        aria-activedescendant={open ? optionId(active) : undefined}
       />
 
       {open && (
         <div
+          id={listboxId}
           role="listbox"
           aria-label="Search results"
           className="absolute z-40 mt-2 w-full rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden"
@@ -112,13 +119,11 @@ export default function SearchBox() {
           </div>
           <ul className="max-h-96 overflow-auto">
             {items.map((it, i) => (
-              <li key={it.slug}>
+              <li key={it.slug} id={optionId(i)} role="option" aria-selected={i === active}>
                 <a
                   href={`/news/${it.slug}`}
-                  className={`block px-3 py-2 text-sm ${i === active ? "bg-neutral-50" : ""}`}
+                  className={["block px-3 py-2 text-sm", i === active ? "bg-neutral-50" : "", "focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"].join(" ")}
                   onMouseEnter={() => setActive(i)}
-                  role="option"
-                  aria-selected={i === active}
                 >
                   <div className="font-medium line-clamp-1">{it.title}</div>
                   {it.excerpt ? (
@@ -139,4 +144,3 @@ export default function SearchBox() {
     </div>
   );
 }
-
