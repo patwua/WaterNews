@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type FetchFn = (ts?: number) => Promise<any[]>;
@@ -58,7 +59,7 @@ export default function NotificationsBellMenu({
             ))}
           </ul>
           <footer className="p-2 text-right">
-            <a href="/notifications" className="text-sm text-blue-600 hover:underline">Open all</a>
+            <Link href="/notifications" className="text-sm text-blue-700 hover:underline">Open all</Link>
           </footer>
         </div>
       )}
