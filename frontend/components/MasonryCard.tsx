@@ -43,7 +43,6 @@ export default function MasonryCard({
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
             referrerPolicy="no-referrer"
-            fetchpriority="low"
           />
         </div>
       ) : null}
