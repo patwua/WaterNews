@@ -129,7 +129,6 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
                       alt=""
                       className="aspect-video object-cover group-hover:opacity-90"
                       loading="lazy"
-                      fetchpriority="low"
                     />
                   </button>
                 ))}
