@@ -1,104 +1,109 @@
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
-type MenuKey = 'latest' | 'trending' | 'following'
-const EXTRA_CATEGORIES = ['Regional', 'Politics', 'Sports', 'Business', 'Tech', 'Entertainment'] as const
-export type ExtraCategory = typeof EXTRA_CATEGORIES[number]
+// Root and "More" panels
+const ROOT_ITEMS = [
+  { label: "Latest", href: "/?sort=latest" },
+  { label: "Trending", href: "/?sort=trending" },
+  { label: "Following", href: "/?tab=following" },
+];
+
+const MORE_ITEMS = [
+  { label: "Sports", href: "/?cat=sports" },
+  { label: "Business", href: "/?cat=business" },
+  { label: "Politics", href: "/?cat=politics" },
+  { label: "Tech", href: "/?cat=tech" },
+  { label: "Weather", href: "/?cat=weather" },
+  { label: "Health", href: "/?cat=health" },
+];
+
+type Panel = "root" | "more";
 
 /**
- * Pill-style smart menu with extra categories:
- * - Emits 'wn-menu-change' when main sort changes
- * - Emits 'wn-category-change' when a category is selected
+ * SmartMenu with sliding panels:
+ * - Forward arrow (→) reveals "More" categories (slides left).
+ * - Back arrow (←) returns to root.
+ * - Reduced motion honors prefers-reduced-motion.
  */
 export default function SmartMenu() {
-  const router = useRouter()
-  const initial = (router.query.sort as string) as MenuKey
-  const [active, setActive] = useState<MenuKey>(initial || 'latest')
-  const [moreOpen, setMoreOpen] = useState(false)
-  const [category, setCategory] = useState<ExtraCategory | null>((router.query.category as ExtraCategory) || null)
+  const [panel, setPanel] = useState<Panel>("root");
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
-    const q = (router.query.sort as string) as MenuKey
-    if (q && q !== active) setActive(q)
-    const cat = (router.query.category as ExtraCategory) || null
-    if (cat !== category) setCategory(cat)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.query.sort, router.query.category])
-
-  const click = (key: MenuKey) => {
-    setActive(key)
-    router.replace(
-      { pathname: router.pathname, query: { ...router.query, sort: key } },
-      undefined,
-      { shallow: true }
-    )
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('wn-menu-change', { detail: key }))
+    if (typeof window !== "undefined" && "matchMedia" in window) {
+      setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     }
-  }
+  }, []);
 
-  const clickCategory = (cat: ExtraCategory | null) => {
-    setCategory(cat)
-    router.replace(
-      { pathname: router.pathname, query: { ...router.query, category: cat || undefined } },
-      undefined,
-      { shallow: true }
-    )
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('wn-category-change', { detail: cat }))
-    }
-  }
-
-  const pill = (key: MenuKey, label: string) => (
-    <button
-      key={key}
-      onClick={() => click(key)}
-      className={[
-        'px-4 py-2 text-sm font-medium rounded-md transition-colors',
-        active === key ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-blue-700'
-      ].join(' ')}
-      aria-pressed={active === key}
-    >
-      {label}
-    </button>
-  )
+  const transition = reduced ? "" : "transition-transform duration-300 ease-out";
+  const offset = panel === "root" ? "translate-x-0" : "-translate-x-full";
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex bg-gray-100 rounded-full p-1">
-        {pill('latest', 'Latest')}
-        {pill('trending', 'Trending')}
-        {pill('following', 'Following')}
-      </div>
-      <div className="relative">
-        <button
-          onClick={() => setMoreOpen(o => !o)}
-          className="px-3 py-2 text-sm rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50"
-          aria-expanded={moreOpen}
-          aria-haspopup="true"
+    <nav aria-label="Sections" className="relative overflow-hidden">
+      {/* Viewport */}
+      <div className={`w-[420px] sm:w-[520px] md:w-[640px] overflow-hidden`}>
+        <div
+          className={`flex ${transition}`}
+          style={{ transform: panel === "root" ? "translateX(0)" : "translateX(-100%)" }}
         >
-          More ▾
-        </button>
-        {moreOpen && (
-          <div className="absolute z-20 mt-2 bg-white border rounded-md shadow p-2 grid grid-cols-2 gap-2 min-w-[220px]">
-            <button
-              className={`px-3 py-2 text-sm rounded ${!category ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
-              onClick={() => { clickCategory(null); setMoreOpen(false) }}
-            >
-              All
-            </button>
-            {EXTRA_CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                className={`px-3 py-2 text-sm rounded ${category === cat ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-50'}`}
-                onClick={() => { clickCategory(cat); setMoreOpen(false) }}
-              >
-                {cat}
-              </button>
+          {/* ROOT PANEL */}
+          <ul className="flex items-center gap-3 min-w-[420px] sm:min-w-[520px] md:min-w-[640px]">
+            {ROOT_ITEMS.map(item => (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  className="px-2 py-1.5 text-sm rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2"
+                >
+                  {item.label}
+                </Link>
+              </li>
             ))}
-          </div>
-        )}
+            <li>
+              <button
+                type="button"
+                aria-label="More sections"
+                onClick={() => setPanel("more")}
+                className="px-2 py-1.5 text-sm rounded inline-flex items-center gap-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2"
+              >
+                {/* Forward arrow */}
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M13 5l7 7-7 7M5 12h14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </li>
+          </ul>
+
+          {/* MORE PANEL */}
+          <ul
+            aria-label="More sections"
+            className="flex items-center gap-3 min-w-[420px] sm:min-w-[520px] md:min-w-[640px]"
+          >
+            <li>
+              <button
+                type="button"
+                aria-label="Back to main sections"
+                onClick={() => setPanel("root")}
+                className="px-2 py-1.5 text-sm rounded inline-flex items-center gap-1 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2"
+              >
+                {/* Back arrow */}
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M11 19l-7-7 7-7M19 12H5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </li>
+            {MORE_ITEMS.map(item => (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  className="px-2 py-1.5 text-sm rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2"
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </div>
-  )
+    </nav>
+  );
 }
