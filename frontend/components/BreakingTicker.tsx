@@ -124,8 +124,8 @@ export default function BreakingTicker({ items: propItems = [] as TickerItem[] }
         </div>
       </div>
 
-      {/* Inline styles for the marquee animation + pause */}
-      <style jsx>{`
+      {/* Inline styles for the marquee animation + pause (global <style> to avoid styled-jsx typings) */}
+      <style>{`
         @keyframes ticker {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
