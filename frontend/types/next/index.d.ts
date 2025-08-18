@@ -19,6 +19,15 @@ declare module "next/router" {
 declare module "next/app" {
   export type AppProps = any;
 }
+declare module "next/document" {
+  export const Html: any;
+  export const Head: any;
+  export const Main: any;
+  export const NextScript: any;
+  export default class Document {
+    render(): any;
+  }
+}
 declare module "next" {
   export interface NextApiRequest {
     method?: string;
