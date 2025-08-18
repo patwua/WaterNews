@@ -107,12 +107,16 @@ export default function MastheadPage() {
           <div className="grid gap-4 md:grid-cols-3">
             {people.map((p) => (
               <article key={p.name} className="rounded-2xl bg-white p-5 shadow">
-                <div className="grid min-h-[120px] place-items-center rounded-md border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff]">
-                  {p.headshot ? (
-                    <Image src={p.headshot} alt={p.name} width={160} height={160} className="rounded-md object-cover" />
-                  ) : (
-                    <p className="text-xs text-slate-600">[Headshot placeholder]</p>
-                  )}
+                <div className="relative h-[220px] w-full overflow-hidden rounded-xl">
+                  <Image
+                    src={
+                      p.headshot ||
+                      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop"
+                    }
+                    alt={p.headshot ? p.name : "Headshot placeholder"}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <h3 className="mt-3 text-base font-semibold">{p.name}</h3>
                 <p className="m-0 text-[13px] text-slate-600">{p.role}</p>
