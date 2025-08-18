@@ -35,7 +35,7 @@ const PostSchema = new Schema<PostDoc>(
 PostSchema.index({ publishedAt: -1 });
 PostSchema.index({ tags: 1, publishedAt: -1 });
 PostSchema.index({ title: "text", excerpt: "text" }); // requires MongoDB text index support
-PostSchema.index({ slug: 1 }, { unique: true });
+// (Removed duplicate schema-level slug index; keep the field-level unique/index instead)
 
 const Post = (models.Post as Model<PostDoc>) || model<PostDoc>("Post", PostSchema);
 export default Post;

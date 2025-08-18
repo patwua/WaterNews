@@ -48,5 +48,6 @@ const DraftSchema = new Schema<DraftDoc>(
   { timestamps: true }
 );
 
+// (Removed duplicate schema-level slug index; keep the field-level unique/index instead)
 const Draft = (models.Draft as Model<DraftDoc>) || model<DraftDoc>("Draft", DraftSchema);
 export default Draft;
