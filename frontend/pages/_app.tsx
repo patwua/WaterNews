@@ -4,6 +4,7 @@ import '@/styles/globals.css';
 import Head from 'next/head';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BreakingTicker from '@/components/BreakingTicker';
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
@@ -22,6 +23,8 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
           Skip to main content
         </a>
         <Header />
+        {/* Global ticker under header on all routes */}
+        <BreakingTicker />
         <main id="main">
           <Component {...pageProps} />
         </main>

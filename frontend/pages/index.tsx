@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import BreakingTicker from '../components/BreakingTicker'
 import Hero from '../components/Hero'
 import MasonryFeed from '../components/MasonryFeed'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
@@ -148,10 +145,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-
-      <BreakingTicker />
-      <main className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
+      <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
         {/* Contextual hero */}
         <Hero
           category={activeCategory}
@@ -177,9 +171,7 @@ export default function HomePage() {
               <MasonryFeed items={articles} />
             </div>
         }
-      </main>
-
-      <Footer />
+      </div>
     </div>
   )
 }
