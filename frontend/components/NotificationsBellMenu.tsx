@@ -7,7 +7,8 @@ type FetchAllFn = () => Promise<any[]>;
 export default function NotificationsBellMenu({
   fetchSince = async () => [],
   fetchAll = async () => [],
-}: { fetchSince?: FetchFn; fetchAll?: FetchAllFn }) {
+  variant = "outline",
+}: { fetchSince?: FetchFn; fetchAll?: FetchAllFn; variant?: string }) {
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [sinceItems, setSinceItems] = useState<any[]>([]);
@@ -28,12 +29,15 @@ export default function NotificationsBellMenu({
   return (
     <div className="relative">
       <button
-        aria-label="Notifications"
+        type="button"
+        aria-label="Open notifications"
         aria-expanded={open}
         onClick={onToggle}
-        className="relative rounded-full p-2 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-9 h-9 inline-flex items-center justify-center hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-6 w-6"><path d="M12 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 005 15h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6zM8 16a4 4 0 008 0H8z"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14 20a2 2 0 1 1-4 0m8-8a6 6 0 1 0-12 0c0 1.886-.664 3.056-1.414 3.707-.44.377-.66.565-.651.827.009.262.244.466.715.873.902.784 2.214 1.593 4.35 1.593h6c2.136 0 3.448-.809 4.35-1.593.471-.407.706-.611.715-.873.009-.262-.211-.45-.651-.827C16.664 15.056 16 13.886 16 12Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
         {unread > 0 && (
           <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center text-[10px] min-w-[18px] h-[18px] px-1 rounded-full bg-blue-600 text-white">
             {unread}

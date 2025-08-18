@@ -18,10 +18,12 @@ type Item = {
 };
 
 type Props = {
-  iconOnly?: boolean; // new: renders a button that expands to input
+  iconOnly?: boolean;
+  align?: "right-expand-left" | "inline";
 };
 
 export default function SearchBox(props: Props) {
+  const { iconOnly, align = "inline" } = props;
   const [q, setQ] = useState("");
   const [items, setItems] = useState<Item[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -103,88 +105,89 @@ export default function SearchBox(props: Props) {
 
   const close = () => setOpen(false);
 
-  if (props.iconOnly) {
+  if (iconOnly) {
+    const container = align === "right-expand-left" ? "relative flex items-center" : "relative";
     return (
-      <div ref={rootRef} className="relative">
+      <div ref={rootRef} className={container}>
         {!open && (
           <button
             type="button"
             aria-label="Open search"
             onClick={() => setOpen(true)}
-            className="w-9 h-9 inline-flex items-center justify-center rounded-full ring-1 ring-black/10 dark:ring-white/10 hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2"
+            className="w-9 h-9 inline-flex items-center justify-center hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+              <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
             </svg>
           </button>
         )}
+
         {open && (
-          <div className="absolute right-0 top-0 w-[70vw] max-w-md">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-full ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-neutral-900 shadow-md">
-              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              </svg>
-              <input
-                ref={inputRef}
-                type="search"
-                role="combobox"
-                aria-expanded={dropdownOpen}
-                aria-controls={dropdownOpen ? listboxId : undefined}
-                aria-autocomplete="list"
-                placeholder="Search WaterNews"
-                className="flex-1 bg-transparent outline-none text-sm placeholder:opacity-70"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                onBlur={(e) => {
-                  setTimeout(() => setOpen(false), 100);
-                }}
-                onKeyDown={onKeyDown}
-              />
-              <button
-                type="button"
-                onClick={close}
-                aria-label="Close search"
-                className="w-7 h-7 inline-flex items-center justify-center rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="flex items-center gap-2 ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-neutral-900 rounded-full px-3 py-2 shadow-md origin-right transition-[width] duration-200 ease-out" style={{ width: "18rem" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
                 </svg>
-              </button>
-            </div>
-            {dropdownOpen && (
-              <div
-                id={listboxId}
-                role="listbox"
-                aria-label="Search results"
-                className="absolute z-40 mt-2 w-full rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden"
-              >
-                <div className="px-3 py-2 text-xs text-neutral-600 border-b">
-                  {loading ? "Searching…" : items.length ? `Results (${items.length})` : "No results"}
-                </div>
-                <ul className="max-h-96 overflow-auto">
-                  {items.map((it, i) => (
-                    <li key={it.slug} id={optionId(i)} role="option" aria-selected={i === active}>
-                      <a
-                        href={`/news/${it.slug}`}
-                        className={["block px-3 py-2 text-sm", i === active ? "bg-neutral-50" : "", "focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"].join(" ")}
-                        onMouseEnter={() => setActive(i)}
-                      >
-                        <div className="font-medium line-clamp-1">{it.title}</div>
-                        {it.excerpt ? (
-                          <div className="text-xs text-neutral-600 line-clamp-2">{it.excerpt}</div>
-                        ) : null}
-                        <div className="mt-0.5 text-[11px] text-neutral-500">
-                          {it.publishedAt ? new Date(it.publishedAt).toLocaleString() : ""}
-                        </div>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <div className="px-3 py-2 text-xs text-neutral-600 border-t">
-                  Press <kbd className="border px-1 rounded">↵</kbd> to open
-                </div>
+                <input
+                  ref={inputRef}
+                  type="search"
+                  placeholder="Search WaterNews"
+                  className="flex-1 bg-transparent outline-none text-sm placeholder:opacity-70"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  onBlur={() => setTimeout(() => setOpen(false), 120)}
+                  onKeyDown={onKeyDown}
+                  aria-expanded={dropdownOpen}
+                  aria-controls={dropdownOpen ? listboxId : undefined}
+                  aria-autocomplete="list"
+                />
+                <button
+                  type="button"
+                  aria-label="Close search"
+                  onClick={() => setOpen(false)}
+                  className="w-7 h-7 inline-flex items-center justify-center hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
+                  </svg>
+                </button>
               </div>
-            )}
+              {dropdownOpen && (
+                <div
+                  id={listboxId}
+                  role="listbox"
+                  aria-label="Search results"
+                  className="absolute right-0 z-40 mt-2 w-full rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden"
+                >
+                  <div className="px-3 py-2 text-xs text-neutral-600 border-b">
+                    {loading ? "Searching…" : items.length ? `Results (${items.length})` : "No results"}
+                  </div>
+                  <ul className="max-h-96 overflow-auto">
+                    {items.map((it, i) => (
+                      <li key={it.slug} id={optionId(i)} role="option" aria-selected={i === active}>
+                        <a
+                          href={`/news/${it.slug}`}
+                          className={["block px-3 py-2 text-sm", i === active ? "bg-neutral-50" : "", "focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"].join(" ")}
+                          onMouseEnter={() => setActive(i)}
+                        >
+                          <div className="font-medium line-clamp-1">{it.title}</div>
+                          {it.excerpt ? (
+                            <div className="text-xs text-neutral-600 line-clamp-2">{it.excerpt}</div>
+                          ) : null}
+                          <div className="mt-0.5 text-[11px] text-neutral-500">
+                            {it.publishedAt ? new Date(it.publishedAt).toLocaleString() : ""}
+                          </div>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="px-3 py-2 text-xs text-neutral-600 border-t">
+                    Press <kbd className="border px-1 rounded">↵</kbd> to open
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
