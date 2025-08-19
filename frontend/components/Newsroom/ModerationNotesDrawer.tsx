@@ -46,7 +46,7 @@ export default function ModerationNotesDrawer({
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50 mb-16">
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl p-4 grid grid-rows-[auto,1fr,auto]">
             <header className="flex items-center justify-between">
