@@ -4,29 +4,43 @@ import SearchBox from "@/components/SearchBox";
 import NotificationsBellMenu from "@/components/NotificationsBellMenu";
 import BreakingTicker from "@/components/BreakingTicker";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-[60] border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:border-slate-800 dark:bg-slate-900/80">
+    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur dark:bg-neutral-950/80">
       {/* Top row: logo • SmartMenu • actions */}
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-3 md:h-16 md:px-4">
-        <Link href="/" aria-label="Home" className="inline-flex items-center">
-          <img src="/logo-waternews.svg" alt="WaterNews logo" className="h-8 w-auto md:h-10 lg:h-12" />
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
+        <Link
+          href="/"
+          aria-label="WaterNews — Home"
+          className="shrink-0 inline-flex items-center"
+        >
+          <Image
+            src="/logo-waternews.svg"
+            alt="WaterNews"
+            width={156}
+            height={28}
+            priority
+            className="h-7 w-auto"
+          />
         </Link>
 
         {/* center: SmartMenu */}
-        <div className="mx-auto hidden flex-1 md:block"><SmartMenu /></div>
+        <div className="flex-1 min-w-0">
+          <SmartMenu />
+        </div>
 
         {/* right actions: inline expanding search + bell + theme */}
-        <div className="ml-auto flex items-center gap-2">
-          <SearchBox mode="inline" />
-          <NotificationsBellMenu variant="outline" />
+        <div className="flex items-center gap-2">
+          <SearchBox />
+          <NotificationsBellMenu />
           <DarkModeToggle />
         </div>
       </div>
 
       {/* Bottom row: ticker inside header so it always sticks */}
-      <div className="border-t border-slate-200 bg-[#fffefc] dark:border-slate-800 dark:bg-slate-800">
+      <div className="border-t">
         <BreakingTicker />
       </div>
     </header>
