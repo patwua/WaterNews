@@ -16,16 +16,7 @@ export default function AboutPage() {
       {/* HERO */}
       <header
         className="relative grid min-h-[58vh] place-items-center overflow-hidden px-4 text-center text-white"
-        style={{
-          backgroundImage: `
-            radial-gradient(1200px 60% at 10% 10%, rgba(21,131,194,0.20), transparent 60%),
-            radial-gradient(1000px 70% at 80% 30%, rgba(15,108,173,0.18), transparent 60%),
-            linear-gradient(180deg, #0f6cad 0%, #0b5d95 40%, #0a4f7f 100%),
-            url(https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop)
-          `,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+        style={{ backgroundImage: "linear-gradient(to bottom, #0f6cad, #0b5d95, #0a4f7f)" }}
       >
         <div className="mb-4 flex items-center justify-center gap-4">
           <Image
@@ -101,14 +92,8 @@ export default function AboutPage() {
               </a>
             </div>
           </div>
-          <div className="relative h-[220px] w-full overflow-hidden rounded-xl">
-            <Image
-              src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?q=80&w=1200&auto=format&fit=crop"
-              alt="Newsroom"
-              fill
-              className="object-cover"
-              priority
-            />
+          <div className="grid min-h-[220px] place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4">
+            <Image src="/placeholders/newsroom.svg" alt="" width={420} height={220} />
           </div>
         </section>
 
@@ -228,13 +213,8 @@ export default function AboutPage() {
                 bridging local narratives with global relevance.
               </p>
             </div>
-            <div className="relative h-[220px] w-full overflow-hidden rounded-xl">
-              <Image
-                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop"
-                alt="Headshot placeholder"
-                fill
-                className="object-cover"
-              />
+            <div className="grid min-h-[220px] place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4">
+              <Image src="/placeholders/headshot.svg" alt="" width={220} height={220} />
             </div>
           </div>
         </section>

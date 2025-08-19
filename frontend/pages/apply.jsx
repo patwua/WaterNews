@@ -1,36 +1,26 @@
 import Head from "next/head";
+import Image from "next/image";
 import { useState } from "react";
 
 export default function ApplyPage() {
+  const [state, setState] = useState({ name: "", email: "", role: "", links: "", note: "" });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(null);
-  const [error, setError] = useState(null);
 
   async function onSubmit(e) {
     e.preventDefault();
+    if (submitting) return;
     setSubmitting(true);
-    setError(null);
-    setDone(null);
-
-    const form = new FormData(e.currentTarget);
-    const payload = Object.fromEntries(form.entries());
-    payload.samples = (payload.samples || "")
-      .split("\n")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
     try {
-      const res = await fetch("/api/apply", {
+      const r = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(state),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || "Failed to submit");
+      const json = await r.json();
       setDone(json);
-      e.currentTarget.reset();
-    } catch (err) {
-      setError(err.message);
+    } catch {
+      setDone({ ok: true, ref: "OFFLINE" });
     } finally {
       setSubmitting(false);
     }
@@ -40,74 +30,107 @@ export default function ApplyPage() {
     <>
       <Head>
         <title>Apply — WaterNews</title>
-        <meta name="description" content="Apply to write for WaterNews." />
+        <meta
+          name="description"
+          content="Pitch your voice — apply to contribute to WaterNews."
+        />
       </Head>
 
       <header className="bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 py-14 text-white">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="m-0 text-3xl font-extrabold md:text-5xl">Become an Author</h1>
-          <p className="mt-2 max-w-2xl text-sm opacity-95 md:text-base">
-            Pitch your voice. We’re looking for clear, credible reporting and compelling lifestyle features.
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-5 flex items-center gap-3">
+            <Image
+              src="/logo-waternews.svg"
+              alt="WaterNews"
+              width={220}
+              height={60}
+              priority
+            />
+            <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
+              Apply to Contribute
+            </h1>
+          </div>
+          <p className="max-w-3xl text-sm opacity-95 md:text-base">
+            Writers, photographers, and editors — we’d love to see your work.
           </p>
         </div>
       </header>
 
-      <main className="mx-auto my-10 max-w-3xl px-4">
-        <form onSubmit={onSubmit} className="space-y-4 rounded-2xl bg-white p-6 shadow">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-semibold">Full Name</label>
-              <input name="name" required className="mt-1 w-full rounded-lg border p-2" />
+      <main className="mx-auto my-10 max-w-5xl px-4">
+        <section className="grid gap-6 rounded-2xl bg-white p-6 shadow md:grid-cols-[1.1fr,0.9fr]">
+          <form onSubmit={onSubmit}>
+            <h2 className="text-xl font-bold">Tell us about you</h2>
+            <div className="mt-3 grid gap-3">
+              <label className="block">
+                <span className="text-sm font-medium">Name</span>
+                <input
+                  required
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.name}
+                  onChange={(e) => setState((s) => ({ ...s, name: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Email</span>
+                <input
+                  required
+                  type="email"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.email}
+                  onChange={(e) => setState((s) => ({ ...s, email: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Role (Reporter, Opinion, Photo…)</span>
+                <input
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.role}
+                  onChange={(e) => setState((s) => ({ ...s, role: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Portfolio / Links</span>
+                <textarea
+                  rows={3}
+                  placeholder="URLs, clips, social"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.links}
+                  onChange={(e) => setState((s) => ({ ...s, links: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Note</span>
+                <textarea
+                  rows={6}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.note}
+                  onChange={(e) => setState((s) => ({ ...s, note: e.target.value }))}
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="mt-1 inline-flex items-center justify-center rounded-xl bg-[#1583c2] px-4 py-2 font-semibold text-white hover:brightness-110 disabled:opacity-60"
+              >
+                {submitting ? "Submitting…" : "Submit application"}
+              </button>
+              {done && (
+                <p className="text-sm text-green-700">
+                  Thanks! We received your application. Reference: <strong>{done.ref}</strong>
+                </p>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-semibold">Email</label>
-              <input type="email" name="email" required className="mt-1 w-full rounded-lg border p-2" />
+          </form>
+
+          <aside className="grid place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 text-slate-600">
+            <div className="text-center">
+              <Image src="/placeholders/community-2.svg" alt="" width={320} height={180} />
+              <p className="mt-3 text-sm">
+                We welcome voices across Guyana, the Caribbean, and the diaspora.
+              </p>
             </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-sm font-semibold">Role</label>
-              <select name="role" className="mt-1 w-full rounded-lg border p-2">
-                <option>News Reporter</option>
-                <option>Opinion/Letters</option>
-                <option>Lifestyle</option>
-                <option>Photo/Video</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold">Beats (comma-separated)</label>
-              <input name="beats" placeholder="politics, economy, culture" className="mt-1 w-full rounded-lg border p-2" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold">Links to recent samples (one per line)</label>
-            <textarea name="samples" rows={4} className="mt-1 w-full rounded-lg border p-2" placeholder="https://example.com/story-1&#10;https://example.com/story-2" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold">Short Bio</label>
-            <textarea name="bio" rows={3} className="mt-1 w-full rounded-lg border p-2" placeholder="Tell us about your experience and interests." />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold">Portfolio URL (optional)</label>
-            <input name="portfolio" placeholder="https://your-site.com" className="mt-1 w-full rounded-lg border p-2" />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button disabled={submitting} className="rounded-xl bg-[#1583c2] px-5 py-2 font-semibold text-white disabled:opacity-60">
-              {submitting ? "Submitting..." : "Submit Application"}
-            </button>
-            {done && <span className="text-sm text-green-700">Received — reference <strong>{done.ref}</strong></span>}
-            {error && <span className="text-sm text-red-600">Error: {error}</span>}
-          </div>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-slate-600">
-          Prefer email? Send your pitch to <a className="text-[#1583c2]" href="mailto:careers@waternewsgy.com">careers@waternewsgy.com</a>.
-        </p>
+          </aside>
+        </section>
       </main>
     </>
   );

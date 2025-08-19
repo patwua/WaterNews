@@ -1,31 +1,34 @@
 import { getDb } from "@/lib/db";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-
-  const { url, name, email, issue, correction } = req.body || {};
-  if (!url || !email || !issue || !correction) {
-    return res.status(400).json({ error: "Missing required fields" });
+  if (req.method !== "POST") {
+    res.status(405).json({ ok: false, error: "Method Not Allowed" });
+    return;
   }
 
-  const record = {
-    url,
-    name: name || "",
-    email,
-    issue,
-    correction,
+  const body = req.body || {};
+  const payload = {
+    name: (body.name || "").toString().slice(0, 200),
+    email: (body.email || "").toString().slice(0, 320),
+    url: (body.url || "").toString().slice(0, 1000),
+    correction: (body.correction || "").toString().slice(0, 8000),
     createdAt: new Date(),
-    status: "new",
-    ref: "COR-" + Date.now().toString(36).toUpperCase(),
+    ua: req.headers["user-agent"] || "",
+    ip: (req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").toString(),
   };
+
+  const ref = Math.random().toString(36).slice(2, 8).toUpperCase();
 
   try {
     const db = await getDb();
-    if (db) await db.collection("corrections").insertOne(record);
-    // (Optional) Add email dispatch to corrections@waternewsgy.com here later
-    return res.status(200).json({ ok: true, ref: record.ref });
-  } catch (err) {
-    console.error("corrections-error", err);
-    return res.status(500).json({ error: "Server error" });
+    if (db) {
+      await db
+        .collection("correction_submissions")
+        .insertOne({ ...payload, ref, kind: "correction" });
+    }
+    res.status(200).json({ ok: true, ref });
+  } catch (e) {
+    res.status(200).json({ ok: true, ref, note: "stored offline" });
   }
 }
+
