@@ -19,6 +19,7 @@ mark {
   --brand-gold: #F2A300;
   --brand-wave-1: #1179C0;
   --brand-wave-2: #2DA6D9;
+  --wn-slogan: #1e7fdc; /* matches logo slogan color; used by ticker when not breaking */
 }
 h1,h2,h3 { line-height: var(--leading-tight); letter-spacing: -0.01em; }
 p { line-height: var(--leading-normal); }

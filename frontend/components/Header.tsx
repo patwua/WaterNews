@@ -1,4 +1,3 @@
-import DarkModeToggle from "@/components/DarkModeToggle";
 import SmartMenu from "@/components/SmartMenu";
 import SearchBox from "@/components/SearchBox";
 import NotificationsBellMenu from "@/components/NotificationsBellMenu";
@@ -8,7 +7,7 @@ import Image from "next/image";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur dark:bg-neutral-950/80">
+    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
       {/* Top row: logo • SmartMenu • actions */}
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
         <Link
@@ -16,14 +15,8 @@ export default function Header() {
           aria-label="WaterNews — Home"
           className="shrink-0 inline-flex items-center"
         >
-          <Image
-            src="/logo-waternews.svg"
-            alt="WaterNews"
-            width={156}
-            height={28}
-            priority
-            className="h-7 w-auto"
-          />
+          {/* Use SVG logo directly, larger for readability */}
+          <Image src="/logo-waternews.svg" alt="WaterNews" width={240} height={40} priority className="h-10 w-auto" />
         </Link>
 
         {/* center: SmartMenu */}
@@ -31,11 +24,10 @@ export default function Header() {
           <SmartMenu />
         </div>
 
-        {/* right actions: inline expanding search + bell + theme */}
+        {/* right actions: inline expanding search + bell */}
         <div className="flex items-center gap-2">
           <SearchBox />
           <NotificationsBellMenu />
-          <DarkModeToggle />
         </div>
       </div>
 

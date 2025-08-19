@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type FetchFn = (ts?: number) => Promise<any[]>;
 type FetchAllFn = () => Promise<any[]>;
@@ -10,6 +10,7 @@ export default function NotificationsBellMenu({
   variant = "outline" as any,
 }: { fetchSince?: FetchFn; fetchAll?: FetchAllFn; variant?: "solid" | "outline" }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
   const [unread, setUnread] = useState(0);
   const [sinceItems, setSinceItems] = useState<any[]>([]);
   const lastVisitKey = "wn:lastVisit";
@@ -33,8 +34,18 @@ export default function NotificationsBellMenu({
     if (next && typeof window !== "undefined") localStorage.setItem(lastVisitKey, String(Date.now()));
   };
 
+  // Close when clicking outside
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <button
         type="button"
         aria-label="Open notifications"

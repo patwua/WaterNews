@@ -10,21 +10,7 @@ export default class MyDocument extends Document {
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         </Head>
         <body>
-          {/* No-flash theme initializer: reads localStorage + system and applies .dark on <html> before paint */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-(function(){
-  try {
-    var ls = localStorage.getItem('wn-theme');
-    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var shouldDark = ls ? (ls === 'dark') : prefersDark;
-    var html = document.documentElement;
-    if (shouldDark) html.classList.add('dark'); else html.classList.remove('dark');
-  } catch(e){}
-})();`,
-            }}
-          />
+          {/* Removed early dark-mode initializer: force light theme until tokens are fixed */}
           <Main />
           <NextScript />
         </body>
