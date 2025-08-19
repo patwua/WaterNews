@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { KeyboardEventHandler } from "react";
 import { readingTime } from "@/lib/readingTime";
 
 export default function MarkdownEditor({ draft, onChange }: { draft: any; onChange: (val: string) => void }) {
@@ -52,14 +52,14 @@ export default function MarkdownEditor({ draft, onChange }: { draft: any; onChan
     });
   }
 
-  function onKeyDown(e: ReactKeyboardEvent<HTMLTextAreaElement>) {
+  const onKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     const mod = e.metaKey || e.ctrlKey;
     if (!mod) return;
     if (e.key.toLowerCase() === "b") { e.preventDefault(); wrap("**"); }
     if (e.key.toLowerCase() === "i") { e.preventDefault(); wrap("_"); }
     if (e.key.toLowerCase() === "k") { e.preventDefault(); insertSnippet("[](https://)"); }
     if (["1","2","3"].includes(e.key)) { e.preventDefault(); heading(Number(e.key) as 1|2|3); }
-  }
+  };
 
   function wrap(token: string) {
     const el = taRef.current; if (!el) return;

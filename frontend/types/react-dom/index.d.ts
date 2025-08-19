@@ -1,3 +1,4 @@
+// Minimal ReactDOM types
 declare module "react-dom" {
   export const version: string;
   export function render(...args: any[]): any;
