@@ -5,6 +5,8 @@ import EditorBar from "@/components/Newsroom/EditorBar";
 import MarkdownEditor from "@/components/Newsroom/MarkdownEditor";
 import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
 import ModerationNotesDrawer from "@/components/Newsroom/ModerationNotesDrawer";
+import LinkCheckerPanel from "@/components/Newsroom/LinkCheckerPanel";
+import SimilarityDrawer from "@/components/Newsroom/SimilarityDrawer";
 import { slugify } from "@/lib/slugify";
 
 // Helper to pull follow affinities from local (merged elsewhere by your boot util)
@@ -34,6 +36,8 @@ export default function EditorPage() {
   const [type, setType] = useState<"news" | "vip" | "post" | "ads">("news");
   const [status, setStatus] = useState<"draft" | "scheduled" | "published">("draft");
   const [body, setBody] = useState("");
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [similarOpen, setSimilarOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -106,6 +110,8 @@ export default function EditorPage() {
         }}
         onSave={save}
         onPublish={publish}
+        onOpenLinkChecker={() => setLinkOpen(true)}
+        onOpenSimilarity={() => setSimilarOpen(true)}
       />
 
       {coverImage ? (
@@ -117,7 +123,7 @@ export default function EditorPage() {
 
       <section className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-4">
         <div className="max-w-4xl">
-          <MarkdownEditor value={body} onChange={setBody} />
+          <MarkdownEditor draft={{ id: draftId, body }} onChange={setBody} />
           <div className="mt-4 flex gap-3">
             <button onClick={save} className="rounded-xl border px-4 py-2 hover:bg-neutral-50">Save Draft</button>
             <button onClick={publish} className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">Publish</button>
@@ -137,6 +143,20 @@ export default function EditorPage() {
 
       {/* Moderation notes (internal) */}
       <ModerationNotesDrawer targetId={draftId} />
+
+      {linkOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setLinkOpen(false)} />
+          <div className="relative z-10 max-w-lg w-full bg-white p-4 rounded shadow">
+            <div className="mb-2 flex justify-end">
+              <button onClick={() => setLinkOpen(false)} className="text-sm">Close</button>
+            </div>
+            <LinkCheckerPanel value={body} />
+          </div>
+        </div>
+      ) : null}
+
+      <SimilarityDrawer open={similarOpen} value={body} onClose={() => setSimilarOpen(false)} />
     </main>
   );
 }

@@ -5,6 +5,8 @@ export default function EditorBar({
   onChange,
   onSave,
   onPublish,
+  onOpenLinkChecker,
+  onOpenSimilarity,
 }: {
   value: {
     title: string;
@@ -18,6 +20,8 @@ export default function EditorBar({
   onChange: (patch: Partial<typeof value>) => void;
   onSave: () => void;
   onPublish: () => void;
+  onOpenLinkChecker?: () => void;
+  onOpenSimilarity?: () => void;
 }) {
   const tagText = useMemo(() => value.tags.join(", "), [value.tags]);
   return (
@@ -59,6 +63,8 @@ export default function EditorBar({
         </select>
         <button onClick={onSave} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Save</button>
         <button onClick={onPublish} className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">Publish</button>
+        <button onClick={onOpenLinkChecker} className="rounded-md border px-2 py-1 text-xs">Link checker</button>
+        <button onClick={onOpenSimilarity} className="rounded-md border px-2 py-1 text-xs">Similarity</button>
       </div>
     </div>
   );

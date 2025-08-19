@@ -65,3 +65,8 @@ export function applyAffinityBoosts(base: number, opts: {
 
   return score;
 }
+
+// Simple stub returning no similar items; real implementation may query a datastore.
+export async function topSimilarForText(_text: string, _limit = 5) {
+  return [] as any[];
+}
