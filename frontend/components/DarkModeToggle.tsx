@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 
 /**
  * Minimal dark-mode toggle.
- * - Persists to localStorage("theme") = "dark" | "light"
+ * - Persists to localStorage("wn-theme") = "dark" | "light"
  * - Applies/removes the "dark" class on <html>
  */
-export default function DarkModeToggle({ variant = "icon" }: { variant?: "icon" | "button" }) {
+export default function DarkModeToggle() {
   const [ready, setReady] = useState(false);
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
     // SSR guard
     if (typeof window === "undefined" || typeof document === "undefined") return;
-    const saved = (localStorage.getItem("theme") || "").toLowerCase();
+    const saved = (localStorage.getItem("wn-theme") || "").toLowerCase();
     const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
     const next = saved ? saved === "dark" : prefersDark;
     setDark(next);
@@ -27,7 +27,7 @@ export default function DarkModeToggle({ variant = "icon" }: { variant?: "icon" 
       document.documentElement.classList.toggle("dark", next);
     }
     if (typeof localStorage !== "undefined") {
-      localStorage.setItem("theme", next ? "dark" : "light");
+      localStorage.setItem("wn-theme", next ? "dark" : "light");
     }
   };
 
@@ -41,7 +41,7 @@ export default function DarkModeToggle({ variant = "icon" }: { variant?: "icon" 
       type="button"
       aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
       onClick={toggle}
-      className="w-9 h-9 inline-flex items-center justify-center hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
     >
       {dark ? (
         <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V5a1 1 0 0 1 1-1Zm7 7a1 1 0 0 1 1 1 8 8 0 1 1-8-8 1 1 0 1 1 0 2 6 6 0 1 0 6 6 1 1 0 0 1 1-1Z" fill="currentColor"/></svg>

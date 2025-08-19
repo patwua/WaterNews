@@ -59,7 +59,7 @@ export default function SmartMenu() {
 
   const transition = reduced ? "" : "transition-transform duration-300 ease-out";
   const baseItem =
-    "px-2 py-1.5 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50";
+    "rounded-full px-3 py-1 bg-white/40 ring-1 ring-slate-200 hover:bg-brand/10 hover:text-brand dark:bg-slate-900/40 dark:ring-slate-700 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50";
 
   return (
     <nav aria-label="Sections" className="relative">
