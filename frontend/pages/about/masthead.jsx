@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import Script from "next/script";
 
 const contacts = [
   {
@@ -63,6 +64,35 @@ export default function MastheadPage() {
         />
       </Head>
 
+      <Script
+        id="newsroom-jsonld"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "NewsMediaOrganization",
+            name: "WaterNews",
+            url: "https://waternews.onrender.com",
+            logo: "https://waternews.onrender.com/logo-waternews.svg",
+            slogan: "Dive Into Current Stories",
+            foundingLocation: "Georgetown, Guyana",
+            contactPoint: [
+              { "@type": "ContactPoint", contactType: "News Tips", email: "tips@waternewsgy.com" },
+              { "@type": "ContactPoint", contactType: "Corrections", email: "corrections@waternewsgy.com" },
+              { "@type": "ContactPoint", contactType: "General", email: "hello@waternewsgy.com" },
+            ],
+            employee: [
+              {
+                "@type": "Person",
+                name: "Tatiana Chow",
+                jobTitle: "Editor-in-Chief",
+                email: "editor@waternewsgy.com",
+              },
+            ],
+          }),
+        }}
+      />
+
       <header className="bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 py-14 text-white">
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 flex items-center gap-3">
@@ -107,15 +137,13 @@ export default function MastheadPage() {
           <div className="grid gap-4 md:grid-cols-3">
             {people.map((p) => (
               <article key={p.name} className="rounded-2xl bg-white p-5 shadow">
-                <div className="relative h-[220px] w-full overflow-hidden rounded-xl">
+                <div className="grid min-h-[120px] place-items-center rounded-md border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff]">
                   <Image
-                    src={
-                      p.headshot ||
-                      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=900&auto=format&fit=crop"
-                    }
-                    alt={p.headshot ? p.name : "Headshot placeholder"}
-                    fill
-                    className="object-cover"
+                    src={p.headshot || "/placeholders/headshot.svg"}
+                    alt={p.name}
+                    width={160}
+                    height={160}
+                    className="rounded-md object-cover"
                   />
                 </div>
                 <h3 className="mt-3 text-base font-semibold">{p.name}</h3>
@@ -145,6 +173,12 @@ export default function MastheadPage() {
               className="inline-flex items-center gap-2 rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-2 text-sm font-semibold text-[#1583c2]"
             >
               Back to About WaterNews
+            </Link>
+            <Link
+              href="/contact"
+              className="ml-2 inline-flex items-center gap-2 rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-2 text-sm font-semibold text-[#1583c2]"
+            >
+              Contact Us
             </Link>
           </div>
         </section>
