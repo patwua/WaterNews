@@ -19,6 +19,10 @@ declare module "next/router" {
 declare module "next/app" {
   export type AppProps = any;
 }
+declare module "next/image" {
+  const Image: any;
+  export default Image;
+}
 declare module "next/document" {
   export const Html: any;
   export const Head: any;
