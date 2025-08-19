@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useNotificationsSocket } from "@/lib/useNotificationsSocket";
 
 type FetchFn = (ts?: number) => Promise<any[]>;
 type FetchAllFn = () => Promise<any[]>;
@@ -11,7 +12,7 @@ export default function NotificationsBellMenu({
 }: { fetchSince?: FetchFn; fetchAll?: FetchAllFn; variant?: "solid" | "outline" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const [unread, setUnread] = useState(0);
+  const { connected, unread, setUnread } = useNotificationsSocket();
   const [sinceItems, setSinceItems] = useState<any[]>([]);
   const lastVisitKey = "wn:lastVisit";
 
@@ -73,8 +74,11 @@ export default function NotificationsBellMenu({
 
       {open && (
         <div role="menu" className="absolute right-0 mt-2 w-96 max-w-[92vw] rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden">
-          <header className="px-4 py-2 text-xs font-semibold tracking-wide text-neutral-600 border-b">
-            Since last visit ({sinceItems.length})
+          <header className="flex justify-between px-4 py-2 text-xs font-semibold tracking-wide text-neutral-600 border-b">
+            <span>Since last visit ({sinceItems.length})</span>
+            <span className="font-normal text-[10px] text-neutral-500">
+              {connected ? "Live" : "Offline"}
+            </span>
           </header>
           <ul className="max-h-80 overflow-auto divide-y">
             {sinceItems.length === 0 ? (
@@ -89,13 +93,20 @@ export default function NotificationsBellMenu({
                 </li>
               ))
             )}
-            <li className="px-3 py-2 text-sm">
+            <li className="px-3 py-2 text-sm flex justify-between gap-2">
               <Link
                 href="/notifications"
                 className="text-blue-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
               >
                 Open all
               </Link>
+              <button
+                onClick={() => setUnread(0)}
+                className="text-neutral-600 hover:underline"
+                aria-label="Mark all as read"
+              >
+                Mark all as read
+              </button>
             </li>
           </ul>
         </div>
