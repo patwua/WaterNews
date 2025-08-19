@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, KeyboardEvent } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { readingTime } from "@/lib/readingTime";
 
 export default function MarkdownEditor({ draft, onChange }: { draft: any; onChange: (val: string) => void }) {
@@ -51,7 +52,7 @@ export default function MarkdownEditor({ draft, onChange }: { draft: any; onChan
     });
   }
 
-  function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+  function onKeyDown(e: ReactKeyboardEvent<HTMLTextAreaElement>) {
     const mod = e.metaKey || e.ctrlKey;
     if (!mod) return;
     if (e.key.toLowerCase() === "b") { e.preventDefault(); wrap("**"); }

@@ -7,6 +7,7 @@ export default function EditorBar({
   onPublish,
   onOpenLinkChecker,
   onOpenSimilarity,
+  onOpenSummary,
 }: {
   value: {
     title: string;
@@ -22,6 +23,7 @@ export default function EditorBar({
   onPublish: () => void;
   onOpenLinkChecker?: () => void;
   onOpenSimilarity?: () => void;
+  onOpenSummary?: () => void;
 }) {
   const tagText = useMemo(() => value.tags.join(", "), [value.tags]);
   return (
@@ -65,6 +67,7 @@ export default function EditorBar({
         <button onClick={onPublish} className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">Publish</button>
         <button onClick={onOpenLinkChecker} className="rounded-md border px-2 py-1 text-xs">Link checker</button>
         <button onClick={onOpenSimilarity} className="rounded-md border px-2 py-1 text-xs">Similarity</button>
+        <button onClick={onOpenSummary} className="rounded-md border px-2 py-1 text-xs">Summary</button>
       </div>
     </div>
   );
