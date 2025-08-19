@@ -1,268 +1,150 @@
 import { useEffect, useMemo, useState } from "react";
-import AuditTimelineDrawer from "@/components/Admin/AuditTimelineDrawer";
-
-type Item = {
-  _id: string;
-  type: string;
-  visibility: "internal";
-  actorId?: string | null;
-  targetId?: string | null;
-  redactedText?: string;
-  tags?: string[];
-  createdAt: string;
-  updatedAt?: string;
-  status?: "open" | "in_review" | "flagged" | "resolved";
-  assignedTo?: string | null;
-  secondReview?: boolean;
-};
-
-function StatusBadge({ s }: { s?: Item["status"] }) {
-  const map: Record<string, string> = {
-    open: "bg-neutral-100 text-neutral-700",
-    in_review: "bg-blue-100 text-blue-700",
-    flagged: "bg-amber-100 text-amber-800",
-    resolved: "bg-green-100 text-green-700",
-  };
-  const cls = map[s || "open"] || map.open;
-  const label = (s || "open").replace("_", " ");
-  return <span className={`px-2 py-0.5 rounded-full text-xs ${cls}`}>{label}</span>;
-}
+import { useRouter } from "next/router";
 
 export default function ModerationQueuePage() {
-  const [q, setQ] = useState("");
-  const [type, setType] = useState("");
-  const [status, setStatus] = useState("");
-  const [assignedTo, setAssignedTo] = useState("");
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [me, setMe] = useState("");
-
-  const [rows, setRows] = useState<Item[]>([]);
-  const [pages, setPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-
+  const [items, setItems] = useState<any[]>([]);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [auditOpen, setAuditOpen] = useState(false);
-  const [auditEventId, setAuditEventId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const assignee = (router.query.assignee as string) || "all"; // "me" | "unassigned" | "all"
 
-  async function fetchQueue(nextPage = 1) {
+  async function load() {
     setLoading(true);
     try {
-      const qs = new URLSearchParams({
-        q, type, status, assignedTo, page: String(nextPage), limit: String(limit),
-      });
-      const res = await fetch(`/api/moderation/queue?${qs}`);
-      const json = await res.json();
-      setRows(json.rows || []);
-      setPages(json.pages || 1);
-      setTotal(json.total || 0);
-      setPage(json.page || nextPage);
-      setSelected({}); // clear selection on refresh
-    } catch {
-      setRows([]); setPages(1); setTotal(0); setPage(1); setSelected({});
+      const q = new URLSearchParams();
+      if (assignee && assignee !== "all") q.set("assignee", assignee);
+      const res = await fetch(`/api/moderation/queue?${q.toString()}`);
+      const data = await res.json();
+      setItems(Array.isArray(data?.items) ? data.items : []);
+      setSelected({});
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { fetchQueue(1); }, [type, status, assignedTo, limit]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assignee]);
 
-  function resetFilters() {
-    setQ(""); setType(""); setStatus(""); setAssignedTo(""); setLimit(20);
-    fetchQueue(1);
+  const allSelected = useMemo(
+    () => items.length > 0 && items.every((it) => selected[it.id]),
+    [items, selected]
+  );
+  const anySelected = useMemo(
+    () => Object.values(selected).some(Boolean),
+    [selected]
+  );
+
+  function toggleAll() {
+    if (allSelected) return setSelected({});
+    const next: Record<string, boolean> = {};
+    for (const it of items) next[it.id] = true;
+    setSelected(next);
   }
 
-  async function doAction(id: string, action: "assign"|"release"|"flag_second"|"resolve"|"reopen", assignee?: string) {
-    await fetch(`/api/moderation/queue/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, assignee, actorId: me || null }),
-    });
-    fetchQueue(page);
+  function toggleOne(id: string) {
+    setSelected((s) => ({ ...s, [id]: !s[id] }));
   }
 
-  async function doBulk(action: "assign"|"release"|"flag_second"|"resolve"|"reopen") {
-    const ids = Object.keys(selected).filter(k => selected[k]);
+  async function runBulk(action: "approve" | "archive" | "second_review") {
+    const ids = Object.entries(selected).filter(([, v]) => v).map(([k]) => k);
     if (!ids.length) return;
-    await fetch(`/api/moderation/queue/bulk`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids, action, assignee: action === "assign" ? me || "" : undefined, actorId: me || null }),
-    });
-    fetchQueue(page);
+    setLoading(true);
+    try {
+      await fetch("/api/moderation/queue/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ids }),
+      });
+      await load();
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function openTarget(targetId?: string | null) {
-    if (!targetId) return;
-    const res = await fetch(`/api/moderation/resolve-target?id=${encodeURIComponent(String(targetId))}`);
-    const json = await res.json();
-    if (json?.href) window.open(json.href, "_blank");
+  async function runInline(action: "approve" | "archive" | "second_review", id: string) {
+    setLoading(true);
+    try {
+      await fetch(`/api/moderation/queue/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      await load();
+    } finally {
+      setLoading(false);
+    }
   }
-
-  const pager = useMemo(() => {
-    const items = [];
-    const max = Math.min(pages, 7);
-    let start = Math.max(1, page - Math.floor(max / 2));
-    let end = Math.min(pages, start + max - 1);
-    if (end - start + 1 < max) start = Math.max(1, end - max + 1);
-    for (let i = start; i <= end; i++) items.push(i);
-    return items;
-  }, [page, pages]);
-
-  const allChecked = rows.length > 0 && rows.every(r => selected[r._id]);
-  const anyChecked = rows.some(r => selected[r._id]);
 
   return (
-    <main className="max-w-7xl mx-auto p-4">
-      <header className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Moderation Queue</h1>
-        <div className="text-sm text-neutral-600">{total} total</div>
-      </header>
-
-      <section className="grid md:grid-cols-6 gap-3 mb-3">
-        <input className="rounded-xl border px-3 py-2 md:col-span-2" placeholder="Search text…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select className="rounded-xl border px-3 py-2" value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="">All types</option>
-          <option value="moderation_note">Moderation note</option>
-          <option value="thread_hot">Hot thread</option>
-          <option value="follow">Follow</option>
-          <option value="like">Like</option>
-          <option value="article_published">Published article</option>
+    <div className="mx-auto max-w-6xl p-4">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold">Moderation Queue</h1>
+        <select
+          className="rounded-md border px-2 py-1 text-sm"
+          value={assignee}
+          onChange={(e) =>
+            router.replace({ pathname: router.pathname, query: { ...router.query, assignee: e.target.value } }, undefined, { shallow: true })
+          }
+        >
+          <option value="all">All</option>
+          <option value="me">Assigned to me</option>
+          <option value="unassigned">Unassigned</option>
         </select>
-        <select className="rounded-xl border px-3 py-2" value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">Active (open/in_review/flagged)</option>
-          <option value="open">Open</option>
-          <option value="in_review">In review</option>
-          <option value="flagged">Flagged</option>
-          <option value="resolved">Resolved</option>
-        </select>
-        <input className="rounded-xl border px-3 py-2" placeholder="Assigned to" value={assignedTo} onChange={(e) => setAssignedTo(e.target.value)} />
-        <select className="rounded-xl border px-3 py-2" value={limit} onChange={(e) => setLimit(parseInt(e.target.value, 10))}>
-          {[10,20,50,100].map(n => <option key={n} value={n}>{n}/page</option>)}
-        </select>
-        <div className="flex items-center gap-2">
-          <button onClick={() => fetchQueue(1)} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Apply</button>
-          <button onClick={resetFilters} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Reset</button>
-        </div>
-        <div className="md:col-span-6 flex flex-wrap items-center gap-2">
-          <input className="rounded-xl border px-3 py-2" placeholder="Me (id/email)" value={me} onChange={(e) => setMe(e.target.value)} />
-          <button onClick={() => { setAssignedTo(me); fetchQueue(1); }} className="rounded-xl border px-3 py-2 hover:bg-neutral-50">Assigned to me</button>
+      </div>
 
-          {/* Bulk actions toolbar */}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            <span className={`text-sm ${anyChecked ? "text-neutral-800" : "text-neutral-400"}`}>{Object.keys(selected).filter(k => selected[k]).length} selected</span>
-            <button onClick={() => doBulk("assign")} disabled={!anyChecked || !me} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Assign to me</button>
-            <button onClick={() => doBulk("release")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Release</button>
-            <button onClick={() => doBulk("flag_second")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Flag 2nd</button>
-            <button onClick={() => doBulk("resolve")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Resolve</button>
-            <button onClick={() => doBulk("reopen")} disabled={!anyChecked} className="rounded-xl border px-3 py-2 hover:bg-neutral-50 disabled:opacity-50">Reopen</button>
-          </div>
-        </div>
-      </section>
-
-      <section className="overflow-auto rounded-2xl border">
-        <table className="min-w-[1220px] w-full">
-          <thead className="bg-neutral-50 text-left text-sm">
+      <div className="overflow-hidden rounded-lg border">
+        <table className="w-full table-fixed text-sm">
+          <thead className="bg-neutral-50">
             <tr>
-              <th className="p-3 w-[36px]">
-                <input
-                  type="checkbox"
-                  aria-label="Select all"
-                  checked={allChecked}
-                  onChange={(e) => {
-                    const next: Record<string, boolean> = {};
-                    rows.forEach(r => next[r._id] = e.target.checked);
-                    setSelected(next);
-                  }}
-                />
+              <th className="w-10 p-2">
+                <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" />
               </th>
-              <th className="p-3 w-[160px]">Updated</th>
-              <th className="p-3 w-[120px]">Type</th>
-              <th className="p-3 w-[120px]">Status</th>
-              <th className="p-3 w-[180px]">Assigned</th>
-              <th className="p-3 w-[160px]">Actor</th>
-              <th className="p-3 w-[200px]">Target</th>
-              <th className="p-3">Summary (redacted)</th>
-              <th className="p-3 w-[360px]">Actions</th>
+              <th className="p-2 text-left">Item</th>
+              <th className="w-40 p-2 text-left">Submitted</th>
+              <th className="w-56 p-2 text-left">Actions</th>
             </tr>
           </thead>
-          <tbody className="text-sm">
-            {loading ? (
-              Array.from({ length: 6 }).map((_, i) => (
-                <tr key={i} className="border-t">
-                  <td className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
-                  {Array.from({ length: 8 }).map((__, j) => (
-                    <td key={j} className="p-3"><div className="h-4 bg-neutral-200 rounded animate-pulse" /></td>
-                  ))}
-                </tr>
-              ))
-            ) : rows.length === 0 ? (
-              <tr><td className="p-6 text-neutral-600" colSpan={9}>No items found.</td></tr>
-            ) : (
-              rows.map((r) => (
-                <tr key={r._id} className="border-t align-top">
-                  <td className="p-3 align-middle">
-                    <input
-                      type="checkbox"
-                      checked={!!selected[r._id]}
-                      onChange={(e) => setSelected(prev => ({ ...prev, [r._id]: e.target.checked }))}
-                    />
-                  </td>
-                  <td className="p-3">{new Date(r.updatedAt || r.createdAt).toLocaleString()}</td>
-                  <td className="p-3">{r.type}</td>
-                  <td className="p-3"><StatusBadge s={r.status} /></td>
-                  <td className="p-3">{r.assignedTo || <span className="text-neutral-400">—</span>}</td>
-                  <td className="p-3">{r.actorId || <span className="text-neutral-400">—</span>}</td>
-                  <td className="p-3">
-                    {r.targetId ? (
-                      <button onClick={() => openTarget(r.targetId)} className="text-blue-600 hover:underline">
-                        {r.targetId}
-                      </button>
-                    ) : <span className="text-neutral-400">—</span>}
-                  </td>
-                  <td className="p-3 whitespace-pre-wrap">{r.redactedText || ""}</td>
-                  <td className="p-3">
-                    <div className="flex flex-wrap gap-2">
-                      {!r.assignedTo ? (
-                        <button onClick={() => doAction(r._id, "assign", me)} disabled={!me} className="rounded-lg border px-2 py-1 hover:bg-neutral-50 disabled:opacity-50">Assign</button>
-                      ) : (
-                        <button onClick={() => doAction(r._id, "release")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Release</button>
-                      )}
-                      {!r?.secondReview ? (
-                        <button onClick={() => doAction(r._id, "flag_second")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Flag 2nd</button>
-                      ) : (
-                        <span className="px-2 py-1 rounded bg-amber-100 text-amber-800 text-xs">2nd review</span>
-                      )}
-                      {r.status !== "resolved" ? (
-                        <button onClick={() => doAction(r._id, "resolve")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Resolve</button>
-                      ) : (
-                        <button onClick={() => doAction(r._id, "reopen")} className="rounded-lg border px-2 py-1 hover:bg-neutral-50">Reopen</button>
-                      )}
-                      <button
-                        onClick={() => { setAuditEventId(r._id); setAuditOpen(true); }}
-                        className="rounded-lg border px-2 py-1 hover:bg-neutral-50"
-                      >
-                        Audit
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+          <tbody>
+            {items.map((it) => (
+              <tr key={it.id} className="border-t">
+                <td className="p-2 align-top">
+                  <input type="checkbox" checked={!!selected[it.id]} onChange={() => toggleOne(it.id)} aria-label={`Select ${it.title || it.id}`} />
+                </td>
+                <td className="p-2">
+                  <div className="font-medium">{it.title || it.slug || it.id}</div>
+                  <div className="mt-1 line-clamp-2 text-xs text-neutral-500">{it.preview || it.excerpt || ""}</div>
+                </td>
+                <td className="p-2 align-top text-xs text-neutral-500">{it.createdAt ? new Date(it.createdAt).toLocaleString() : "-"}</td>
+                <td className="p-2 align-top">
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={() => runInline("approve", it.id)} className="rounded-md border px-2 py-1 text-xs">Approve</button>
+                    <button onClick={() => runInline("archive", it.id)} className="rounded-md border px-2 py-1 text-xs">Archive</button>
+                    <button onClick={() => runInline("second_review", it.id)} className="rounded-md border px-2 py-1 text-xs">2nd review</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {!items.length && (
+              <tr><td colSpan={4} className="p-6 text-center text-sm text-neutral-500">{loading ? "Loading…" : "No items in queue."}</td></tr>
             )}
           </tbody>
         </table>
-      </section>
+      </div>
 
-      <nav className="mt-3 flex items-center justify-center gap-1">
-        <button onClick={() => fetchQueue(Math.max(1, page - 1))} className="rounded-lg border px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50" disabled={page <= 1 || loading}>Prev</button>
-        {pager.map((n) => (
-          <button key={n} onClick={() => fetchQueue(n)} className={`rounded-lg border px-3 py-1.5 hover:bg-neutral-50 ${n === page ? "bg-neutral-100" : ""}`} disabled={loading}>{n}</button>
-        ))}
-        <button onClick={() => fetchQueue(Math.min(pages, page + 1))} className="rounded-lg border px-3 py-1.5 hover:bg-neutral-50 disabled:opacity-50" disabled={page >= pages || loading}>Next</button>
-      </nav>
-      {/* Audit timeline drawer */}
-      <AuditTimelineDrawer eventId={auditEventId} open={auditOpen} onClose={() => setAuditOpen(false)} />
-    </main>
+      <div className={[
+        "pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center transition-opacity",
+        anySelected ? "opacity-100" : "opacity-0"
+      ].join(" ")}>
+        <div className="pointer-events-auto flex items-center gap-2 rounded-full border bg-white/90 px-3 py-2 shadow-lg backdrop-blur">
+          <span className="text-xs text-neutral-600">{Object.values(selected).filter(Boolean).length} selected</span>
+          <button onClick={() => runBulk("approve")} className="rounded-full border px-3 py-1 text-xs">Approve</button>
+          <button onClick={() => runBulk("archive")} className="rounded-full border px-3 py-1 text-xs">Archive</button>
+          <button onClick={() => runBulk("second_review")} className="rounded-full border px-3 py-1 text-xs">2nd review</button>
+        </div>
+      </div>
+    </div>
   );
 }
+
