@@ -11,6 +11,7 @@ import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
 import ImageLightbox from "@/components/ImageLightbox";
 import { useLowData } from "@/utils/useLowData";
+import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript } from "@/lib/seo";
 
 type Props = {
   post: any | null;
@@ -32,6 +33,28 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
   const read = readingTime(post?.content || "").minutes;
   const authorName: string | undefined = post?.author || post?.byline;
   const authorSlug = authorName ? slugify(authorName) : null;
+  const origin =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
+      : window.location.origin;
+  const canonicalPath = `/news/${post.slug}`;
+  const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
+    { name: "Home", url: "/" },
+    { name: "News", url: "/news" },
+    { name: post.title, url: canonicalPath },
+  ]);
+  const articleLd = buildNewsArticleJsonLd({
+    origin,
+    url: canonicalPath,
+    headline: post.title,
+    description: post.excerpt || post.description || undefined,
+    image: post.coverImage || post.image || undefined,
+    datePublished: post.publishedAt || post.createdAt,
+    dateModified: post.updatedAt || undefined,
+    section: post.category || post.section || undefined,
+    keywords: Array.isArray(post.tags) ? post.tags : undefined,
+    authorName,
+  });
 
   // Attach click-to-zoom on images inside the article body
   useEffect(() => {
@@ -61,8 +84,12 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
     <>
       <Head>
         <title>{post.title} — WaterNewsGY</title>
-        <link rel="canonical" href={`https://waternews.onrender.com/news/${post.slug}`} />
+        <link rel="canonical" href={`${origin}${canonicalPath}`} />
         {/* OG/Twitter/meta remain as you set elsewhere */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript([breadcrumbs, articleLd]) }}
+        />
       </Head>
 
       <main className="max-w-3xl mx-auto px-4 py-6">

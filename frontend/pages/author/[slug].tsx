@@ -1,9 +1,11 @@
 import { GetServerSideProps } from "next";
+import Head from "next/head";
 import Link from "next/link";
 import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
 import User from "@/models/User";
 import { getFollowedAuthors, toggleFollowAuthor } from "@/utils/follow";
+import { buildBreadcrumbsJsonLd, buildPersonJsonLd, jsonLdScript } from "@/lib/seo";
 
 type Props = {
   author: {
@@ -17,8 +19,33 @@ type Props = {
 };
 
 export default function AuthorProfile({ author, posts }: Props) {
+  const origin =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
+      : window.location.origin;
+  const canonicalPath = `/author/${author.slug}`;
+  const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
+    { name: "Home", url: "/" },
+    { name: "Authors", url: "/author" },
+    { name: author.name, url: canonicalPath },
+  ]);
+  const personLd = buildPersonJsonLd({
+    origin,
+    slugUrl: canonicalPath,
+    name: author.name,
+    description: author.bio || undefined,
+    image: author.avatarUrl || undefined,
+  });
+
   return (
-    <main className="max-w-4xl mx-auto px-4 py-6">
+    <>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript([breadcrumbs, personLd]) }}
+        />
+      </Head>
+      <main className="max-w-4xl mx-auto px-4 py-6">
       <header className="flex items-start gap-4 mb-6">
         {author.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -92,7 +119,8 @@ export default function AuthorProfile({ author, posts }: Props) {
           ))}
         </section>
       )}
-    </main>
+      </main>
+    </>
   );
 }
 
