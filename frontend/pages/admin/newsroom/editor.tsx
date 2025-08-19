@@ -7,6 +7,7 @@ import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
 import ModerationNotesDrawer from "@/components/Newsroom/ModerationNotesDrawer";
 import LinkCheckerPanel from "@/components/Newsroom/LinkCheckerPanel";
 import SimilarityDrawer from "@/components/Newsroom/SimilarityDrawer";
+import SummaryPanel from "@/components/Newsroom/SummaryPanel";
 import { slugify } from "@/lib/slugify";
 
 // Helper to pull follow affinities from local (merged elsewhere by your boot util)
@@ -38,6 +39,7 @@ export default function EditorPage() {
   const [body, setBody] = useState("");
   const [linkOpen, setLinkOpen] = useState(false);
   const [similarOpen, setSimilarOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -112,6 +114,7 @@ export default function EditorPage() {
         onPublish={publish}
         onOpenLinkChecker={() => setLinkOpen(true)}
         onOpenSimilarity={() => setSimilarOpen(true)}
+        onOpenSummary={() => setSummaryOpen(true)}
       />
 
       {coverImage ? (
@@ -157,6 +160,12 @@ export default function EditorPage() {
       ) : null}
 
       <SimilarityDrawer open={similarOpen} value={body} onClose={() => setSimilarOpen(false)} />
+      <SummaryPanel
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        body={body}
+        draftId={draftId || ""}
+      />
     </main>
   );
 }
