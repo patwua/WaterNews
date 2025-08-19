@@ -40,16 +40,16 @@ export default function BreakingTicker({ items: propItems = [] as TickerItem[] }
     if (mode === "breaking") {
       // Breaking = strong red
       return {
-        wrap: "bg-red-600 text-white border-b border-red-700",
+        wrap: "bg-red-600 text-white",
         label: "Breaking News",
         pill: "bg-white/15 text-white ring-white/20",
       };
     }
-    // NewsWave = warm amber/orange
+    // NewsWave = brand subtle
     return {
-      wrap: "bg-amber-500 text-black border-b border-amber-600 dark:text-black",
+      wrap: "bg-brand/5 text-slate-900 dark:bg-slate-700/40",
       label: "NewsWave",
-      pill: "bg-black/10 text-black ring-black/10",
+      pill: "bg-black/10 text-black ring-black/10 dark:bg-white/10 dark:text-white/90 dark:ring-white/20",
     };
   }, [mode]);
 
@@ -70,7 +70,7 @@ export default function BreakingTicker({ items: propItems = [] as TickerItem[] }
       <div
         className={`${theme.wrap} text-sm`}
         role="region"
-        aria-label="Live headlines"
+        aria-label={mode === "breaking" ? "Breaking News" : "NewsWave headlines"}
         aria-live="polite"
       >
         <div className="max-w-7xl mx-auto px-3 md:px-4 h-9 flex items-center gap-3">
@@ -87,7 +87,7 @@ export default function BreakingTicker({ items: propItems = [] as TickerItem[] }
     <div
       className={`${theme.wrap} text-sm`}
       role="region"
-      aria-label="Live headlines"
+      aria-label={mode === "breaking" ? "Breaking News" : "NewsWave headlines"}
       aria-live="polite"
     >
       <div className="max-w-7xl mx-auto px-3 md:px-4 h-9 flex items-center gap-3 overflow-hidden">

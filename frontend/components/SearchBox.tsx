@@ -1,251 +1,70 @@
 import { useEffect, useRef, useState } from "react";
 
-function useDebounced<T>(value: T, delay = 250) {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
-  return v;
-}
-
-type Item = {
-  slug: string;
-  title: string;
-  excerpt?: string;
-  publishedAt?: string;
-  tags?: string[];
-};
-
 type Props = {
-  iconOnly?: boolean;
-  align?: "right-expand-left" | "inline";
+  /** "inline" keeps the input in the header and expands its width on focus/click. */
+  mode?: "default" | "inline";
 };
 
-export default function SearchBox(props: Props) {
-  const { iconOnly, align = "inline" } = props;
-  const [q, setQ] = useState("");
-  const [items, setItems] = useState<Item[]>([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [active, setActive] = useState(0);
+export default function SearchBox({ mode = "default" }: Props) {
   const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
 
-  const dq = useDebounced(q, 250);
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const listboxId = "searchbox-listbox";
-  const optionId = (i: number) => `searchbox-option-${i}`;
+  const inline = mode === "inline";
 
   useEffect(() => {
-    const run = async () => {
-      if (!dq) {
-        setItems([]);
-        setDropdownOpen(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const qs = new URLSearchParams();
-        qs.set("q", dq);
-        qs.set("limit", "8");
-        const res = await fetch(`/api/search?${qs}`);
-        const json = await res.json();
-        setItems(json.items || []);
-        setDropdownOpen(true);
-        setActive(0);
-      } catch {
-        setItems([]);
-        setDropdownOpen(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-    run();
-  }, [dq]);
+    if (open && inline && ref.current) ref.current.focus();
+  }, [open, inline]);
 
-  // Close on outside click / ESC
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (!rootRef.current) return;
-      if (!rootRef.current.contains(e.target as Node)) setDropdownOpen(false);
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setDropdownOpen(false);
-    }
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, []);
-
-  // Loosen typing to avoid duplicate React module type mismatch in CI
-  const onKeyDown = (e: any) => {
-    if (!dropdownOpen || !items.length) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActive((i) => Math.min(items.length - 1, i + 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActive((i) => Math.max(0, i - 1));
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      const it = items[active];
-      if (it) window.location.href = `/news/${it.slug}`;
-    }
-  };
-
-  useEffect(() => {
-    if (open) {
-      inputRef.current?.focus();
-    }
-  }, [open]);
-
-  const close = () => setOpen(false);
-
-  if (iconOnly) {
-    const container = align === "right-expand-left" ? "relative flex items-center" : "relative";
+  if (inline) {
     return (
-      <div ref={rootRef} className={container}>
-        {!open && (
-          <button
-            type="button"
-            aria-label="Open search"
-            onClick={() => setOpen(true)}
-            className="w-9 h-9 inline-flex items-center justify-center hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-            </svg>
-          </button>
-        )}
-
-        {open && (
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <div className="flex items-center gap-2 ring-1 ring-black/10 dark:ring-white/10 bg-white dark:bg-neutral-900 rounded-full px-3 py-2 shadow-md origin-right transition-[width] duration-200 ease-out" style={{ width: "18rem" }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M21 21l-4.35-4.35M10 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                </svg>
-                <input
-                  ref={inputRef}
-                  type="search"
-                  placeholder="Search WaterNews"
-                  className="flex-1 bg-transparent outline-none text-sm placeholder:opacity-70"
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  onBlur={() => setTimeout(() => setOpen(false), 120)}
-                  onKeyDown={onKeyDown}
-                  aria-expanded={dropdownOpen}
-                  aria-controls={dropdownOpen ? listboxId : undefined}
-                  aria-autocomplete="list"
-                />
-                <button
-                  type="button"
-                  aria-label="Close search"
-                  onClick={() => setOpen(false)}
-                  className="w-7 h-7 inline-flex items-center justify-center hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-                  </svg>
-                </button>
-              </div>
-              {dropdownOpen && (
-                <div
-                  id={listboxId}
-                  role="listbox"
-                  aria-label="Search results"
-                  className="absolute right-0 z-40 mt-2 w-full rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden"
-                >
-                  <div className="px-3 py-2 text-xs text-neutral-600 border-b">
-                    {loading ? "Searching…" : items.length ? `Results (${items.length})` : "No results"}
-                  </div>
-                  <ul className="max-h-96 overflow-auto">
-                    {items.map((it, i) => (
-                      <li key={it.slug} id={optionId(i)} role="option" aria-selected={i === active}>
-                        <a
-                          href={`/news/${it.slug}`}
-                          className={["block px-3 py-2 text-sm", i === active ? "bg-neutral-50" : "", "focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"].join(" ")}
-                          onMouseEnter={() => setActive(i)}
-                        >
-                          <div className="font-medium line-clamp-1">{it.title}</div>
-                          {it.excerpt ? (
-                            <div className="text-xs text-neutral-600 line-clamp-2">{it.excerpt}</div>
-                          ) : null}
-                          <div className="mt-0.5 text-[11px] text-neutral-500">
-                            {it.publishedAt ? new Date(it.publishedAt).toLocaleString() : ""}
-                          </div>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="px-3 py-2 text-xs text-neutral-600 border-t">
-                    Press <kbd className="border px-1 rounded">↵</kbd> to open
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      <form role="search" className="group relative hidden items-center md:flex">
+        <label htmlFor="header-search" className="sr-only">
+          Search
+        </label>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          className="pointer-events-none absolute left-3 text-slate-500 dark:text-slate-400"
+        >
+          <path
+            fill="currentColor"
+            d="M21 20.3l-4.3-4.3a7.5 7.5 0 10-1.4 1.4L19.6 22 21 20.3zM4 10.5A6.5 6.5 0 1117 10.5 6.5 6.5 0 014 10.5z"
+          />
+        </svg>
+        <input
+          id="header-search"
+          ref={ref}
+          type="search"
+          aria-label="Search WaterNews"
+          placeholder="Search WaterNews"
+          className="w-32 md:w-40 lg:w-48 xl:w-56 transition-[width] duration-200 focus:w-60 md:focus:w-72 lg:focus:w-96 rounded-full border border-slate-300/70 bg-white pl-9 pr-3 py-1.5 text-sm outline-none ring-0 placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-400 dark:border-slate-700/70 dark:bg-slate-900"
+          value={q}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </form>
     );
   }
 
+  // default (full input used on /search page)
   return (
-    <div ref={rootRef} className="relative w-full max-w-md">
+    <form role="search" className="flex items-center gap-2">
+      <label htmlFor="search" className="sr-only">
+        Search
+      </label>
       <input
-        ref={inputRef}
-        className="w-full rounded-xl border px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-        placeholder="Search headlines…"
+        id="search"
+        type="search"
+        aria-label="Search WaterNews"
+        placeholder="Search WaterNews"
+        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-0 placeholder:text-slate-400 focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        onFocus={() => { if (items.length) setDropdownOpen(true); }}
-        onKeyDown={onKeyDown}
-        aria-label="Search stories"
-        role="combobox"
-        aria-autocomplete="list"
-        aria-expanded={dropdownOpen}
-        aria-controls={dropdownOpen ? listboxId : undefined}
-        aria-activedescendant={dropdownOpen ? optionId(active) : undefined}
       />
-
-      {dropdownOpen && (
-        <div
-          id={listboxId}
-          role="listbox"
-          aria-label="Search results"
-          className="absolute z-40 mt-2 w-full rounded-2xl bg-white shadow-lg ring-1 ring-black/5 overflow-hidden"
-        >
-          <div className="px-3 py-2 text-xs text-neutral-600 border-b">
-            {loading ? "Searching…" : items.length ? `Results (${items.length})` : "No results"}
-          </div>
-          <ul className="max-h-96 overflow-auto">
-            {items.map((it, i) => (
-              <li key={it.slug} id={optionId(i)} role="option" aria-selected={i === active}>
-                <a
-                  href={`/news/${it.slug}`}
-                  className={["block px-3 py-2 text-sm", i === active ? "bg-neutral-50" : "", "focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"].join(" ")}
-                  onMouseEnter={() => setActive(i)}
-                >
-                  <div className="font-medium line-clamp-1">{it.title}</div>
-                  {it.excerpt ? (
-                    <div className="text-xs text-neutral-600 line-clamp-2">{it.excerpt}</div>
-                  ) : null}
-                  <div className="mt-0.5 text-[11px] text-neutral-500">
-                    {it.publishedAt ? new Date(it.publishedAt).toLocaleString() : ""}
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <div className="px-3 py-2 text-xs text-neutral-600 border-t">
-            Press <kbd className="border px-1 rounded">↵</kbd> to open
-          </div>
-        </div>
-      )}
-    </div>
+    </form>
   );
 }
+
