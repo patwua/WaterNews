@@ -13,7 +13,9 @@ export default function Footer() {
           <nav className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/about">About</Link>
             <Link href="/contact">Contact</Link>
-            <Link href="/suggest">Suggest a Story</Link>
+            <Link href="/apply">Apply</Link>
+            <Link href="/corrections">Corrections</Link>
+            <Link href="/suggest-story">Suggest a Story</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/prefs">Preferences</Link>
             <Link href="/login">Login</Link>
