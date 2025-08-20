@@ -29,3 +29,14 @@ export async function uploadLocalFile(filepath, folder = "waternews/uploads") {
     format: res.format,
   };
 }
+
+// NEW: list media for library
+export async function listMedia({ prefix = "waternews", max_results = 40, next_cursor } = {}) {
+  const res = await cloudinary.search
+    .expression(`folder:${prefix}*`)
+    .sort_by("created_at", "desc")
+    .max_results(max_results)
+    .next_cursor(next_cursor || undefined)
+    .execute();
+  return res; // { resources, next_cursor }
+}
