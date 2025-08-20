@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["dom", "dom.iterable", "es2020"],
+    "lib": ["dom", "dom.iterable", "es2021"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -12,7 +12,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "baseUrl": ".",
     "paths": {
@@ -24,9 +24,9 @@
       "@/styles/*": ["styles/*"],
       "@/utils/*": ["utils/*"]
     },
-    "typeRoots": ["./types", "./node_modules/@types"],
-    "types": ["node", "react", "react-dom"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["react", "react-dom", "node"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": ["**/*"],
+  "exclude": ["node_modules", "types/react/**", "types/react-dom/**"]
 }

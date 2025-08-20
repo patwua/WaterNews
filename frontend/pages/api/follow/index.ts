@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from './auth/[...nextauth]'
-import { dbConnect } from '../../lib/mongodb'
-import User from '../../models/User'
+import { authOptions } from '../auth/[...nextauth]'
+import { dbConnect } from '../../../lib/mongodb'
+import User from '../../../models/User'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session: any = await getServerSession(req, res, authOptions as any)
