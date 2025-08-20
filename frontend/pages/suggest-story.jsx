@@ -1,12 +1,13 @@
 import { useState } from "react";
 import Head from "next/head";
+import { SUBJECTS } from "@/lib/cms-routing";
+import Toast from "@/components/Toast";
 
 export default function SuggestStory() {
   const [anonymous, setAnonymous] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+  const [toast, setToast] = useState(null);
   const [errors, setErrors] = useState({ name: "", email: "", story: "" });
 
   function validate(form) {
@@ -20,8 +21,6 @@ export default function SuggestStory() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    setError("");
-    setSuccess(false);
     const formEl = e.currentTarget;
     const fd = new FormData(formEl);
 
@@ -34,14 +33,14 @@ export default function SuggestStory() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/suggest-story", { method: "POST", body: fd });
+      const res = await fetch("/api/inbox/create", { method: "POST", body: fd });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "Failed to submit.");
-      setSuccess(true);
+      setToast({ type: "success", message: "Thank you — submitted." });
       formEl.reset();
       setAnonymous(false);
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setToast({ type: "error", message: err.message || "Something went wrong." });
     } finally {
       setSubmitting(false);
     }
@@ -66,17 +65,30 @@ export default function SuggestStory() {
         <div className="space-y-6 hidden lg:block">
           <InfoCard
             title="Your Privacy"
-            text="Anonymous tips are welcome. If Anonymous is on, we won’t publish or share your name as the source."
+            text="Anonymous tips are welcome. Your name is collected privately for newsroom verification and will not be published if you select Anonymous."
           />
           <InfoCard
             title="Secure Handling"
-            text="Only our editors see your private details for verification and legal review."
+            text="Only editors can view private details. We retain records solely for verification, legal review, and safety."
           />
         </div>
 
         {/* Form Card */}
         <div className="bg-white rounded-2xl shadow-lg p-8 lg:col-span-2">
           <form onSubmit={onSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Subject</label>
+              <select
+                name="subject"
+                className="mt-1 w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                {SUBJECTS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             {/* Name + Anonymous toggle */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -170,8 +182,6 @@ export default function SuggestStory() {
               >
                 {submitting ? "Submitting…" : "Submit Story"}
               </button>
-              {success && <span className="text-sm text-green-600">Thank you — your tip was submitted.</span>}
-              {error && <span className="text-sm text-red-600">{error}</span>}
             </div>
           </form>
         </div>
@@ -179,15 +189,13 @@ export default function SuggestStory() {
         {/* Right Info Cards */}
         <div className="space-y-6 hidden lg:block">
           <InfoCard
-            title="Why Share?"
-            text="Your tips help us uncover important stories that matter to the community."
-          />
-          <InfoCard
-            title="Editorial Standards"
-            text="We verify submissions and protect sources under industry best practices."
+            title="Responsible Journalism"
+            text="We verify submissions to reduce misinformation and protect the public interest."
           />
         </div>
       </main>
+
+      {toast && <Toast {...toast} onDone={() => setToast(null)} />}
 
       {/* WHY modal */}
       {showWhy && (

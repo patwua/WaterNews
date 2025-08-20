@@ -1,26 +1,31 @@
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
+import { SUBJECTS } from "@/lib/cms-routing";
+import Toast from "@/components/Toast";
 
 export default function ContactPage() {
-  const [state, setState] = useState({ name: "", email: "", subject: "", message: "" });
+  const [state, setState] = useState({ name: "", email: "", subject: "general", message: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(null);
+  const [toast, setToast] = useState(null);
 
   async function onSubmit(e) {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
     try {
-      const r = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(state),
-      });
+      const fd = new FormData();
+      fd.append("subject", state.subject);
+      fd.append("name", state.name);
+      fd.append("email", state.email);
+      fd.append("message", state.message);
+      const r = await fetch("/api/inbox/create", { method: "POST", body: fd });
       const json = await r.json();
-      setDone(json);
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setToast({ type: "success", message: "Thank you — submitted." });
+      setState({ name: "", email: "", subject: "general", message: "" });
     } catch (_e) {
-      setDone({ ok: true, ref: "OFFLINE" });
+      setToast({ type: "error", message: _e.message || "Something went wrong." });
     } finally {
       setSubmitting(false);
     }
@@ -113,11 +118,18 @@ export default function ContactPage() {
               </label>
               <label className="block">
                 <span className="text-sm font-medium">Subject</span>
-                <input
+                <select
                   className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
                   value={state.subject}
                   onChange={(e) => setState((s) => ({ ...s, subject: e.target.value }))}
-                />
+                  name="subject"
+                >
+                  {SUBJECTS.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="block">
                 <span className="text-sm font-medium">Message</span>
@@ -136,11 +148,6 @@ export default function ContactPage() {
               >
                 {submitting ? "Sending…" : "Send message"}
               </button>
-              {done && (
-                <p className="text-sm text-green-700">
-                  Thanks! We received your note. Reference: <strong>{done.ref}</strong>
-                </p>
-              )}
             </div>
           </form>
 
@@ -158,6 +165,8 @@ export default function ContactPage() {
           </aside>
         </section>
       </main>
+
+      {toast && <Toast {...toast} onDone={() => setToast(null)} />}
     </>
   );
 }
