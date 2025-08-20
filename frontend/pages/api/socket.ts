@@ -1,7 +1,6 @@
 import type { NextApiRequest } from "next";
-import type { Server as HTTPServer } from "http";
-import type { Socket as NetSocket } from "net";
-import type { Server as IOServer, Socket } from "socket.io";
+type IOServer = any;
+type Socket = any;
 
 // tiny cookie parser (no dep)
 function parseCookie(header: string | undefined): Record<string, string> {
@@ -16,15 +15,15 @@ function parseCookie(header: string | undefined): Record<string, string> {
 }
 
 type NextApiResponseWithSocket = {
-  socket: NetSocket & { server: HTTPServer & { io?: IOServer } };
+  socket: any & { server: any & { io?: IOServer } };
 } & any;
 
 export const config = { api: { bodyParser: false } };
 
-export default function handler(_req: NextApiRequest, res: NextApiResponseWithSocket) {
+export default async function handler(_req: NextApiRequest, res: NextApiResponseWithSocket) {
   if (!res.socket.server.io) {
     // Lazy-init a single Socket.IO server per instance
-    const { Server } = require("socket.io");
+    const { Server } = await import("socket.io");
     const io: IOServer = new Server(res.socket.server, {
       path: "/api/socket",
       addTrailingSlash: false,
@@ -43,8 +42,8 @@ export default function handler(_req: NextApiRequest, res: NextApiResponseWithSo
 
       // 2) If authenticated, also join per-user room (newsroom staff)
       try {
-        // next-auth JWT verification (no page req context here)
-        const { getToken } = require("next-auth/jwt");
+        // next-auth JWT verification via dynamic import
+        const { getToken } = await import("next-auth/jwt");
         const fakeReq = { headers: { cookie: cookieStr || "" } };
         const token = await getToken({ req: fakeReq, secret: process.env.NEXTAUTH_SECRET });
         const userId = token?.sub || token?.id;
