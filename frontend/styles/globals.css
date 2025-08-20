@@ -20,70 +20,12 @@ mark {
   --brand-wave-1: #1179C0;
   --brand-wave-2: #2DA6D9;
   --wn-slogan: #1e7fdc; /* matches logo slogan color; used by ticker when not breaking */
-
-  /* WaterNews surface & brand tints */
-  --wn-brand: 205 84% 37%;
-  --wn-surface: 0 0% 100%;
-  --wn-elev-1: 0 0% 0% / 0.06;  /* soft shadow */
-  --wn-elev-2: 0 0% 0% / 0.10;  /* medium shadow */
-  --wn-grad-hero-start: hsl(var(--wn-brand) / .10);
-  --wn-grad-hero: linear-gradient(180deg, var(--wn-grad-hero-start), transparent 60%);
 }
 h1,h2,h3 { line-height: var(--leading-tight); letter-spacing: -0.01em; }
 p { line-height: var(--leading-normal); }
 .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 .line-clamp-3 { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .line-clamp-4 { display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
-
-/* Elevation helpers */
-.wn-card {
-  background: hsl(var(--wn-surface));
-  border-radius: 1rem; /* rounded-2xl */
-  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 6px 24px hsla(0,0%,0%,.06);
-}
-.wn-card-lg {
-  background: hsl(var(--wn-surface));
-  border-radius: 1.25rem; /* rounded-3xl */
-  box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 12px 32px hsla(0,0%,0%,.10);
-}
-
-/* Float label pattern (no layout shift) */
-.wn-field {
-  position: relative;
-}
-.wn-field input, .wn-field textarea, .wn-field select {
-  padding-top: 1.25rem; /* room for label */
-}
-.wn-field label {
-  position: absolute;
-  left: .75rem;
-  top: .6rem;
-  font-size: .75rem; /* text-xs */
-  color: rgb(107 114 128); /* gray-500 */
-  pointer-events: none;
-  transition: opacity .15s ease;
-}
-
-/* Focus ring + subtle glow (AA-safe) */
-.wn-input {
-  transition: box-shadow .15s ease, transform .06s ease;
-}
-.wn-input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59,130,246,.5), 0 8px 24px rgba(59,130,246,.08);
-}
-
-/* Buttons micro-interactions */
-.wn-btn {
-  transition: box-shadow .15s ease, transform .08s ease;
-}
-.wn-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--wn-elev-1); }
-.wn-btn:active { transform: translateY(0); box-shadow: 0 4px 12px var(--wn-elev-1); }
-
-/* Reduced motion respect */
-@media (prefers-reduced-motion: reduce) {
-  .wn-btn, .wn-input { transition: none }
-}
 
 /* Brand utility helpers */
 .text-brand { color: var(--brand-blue); }

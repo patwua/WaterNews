@@ -1,35 +1,154 @@
-export default function Corrections() {
+import Head from "next/head";
+import Image from "next/image";
+import { useState } from "react";
+import { SUBJECTS } from "@/lib/cms-routing";
+import Toast from "@/components/Toast";
+
+export default function CorrectionsPage() {
+  const [state, setState] = useState({ name: "", email: "", url: "", correction: "", subject: "correction" });
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const fd = new FormData();
+      fd.append("subject", state.subject);
+      fd.append("name", state.name);
+      fd.append("email", state.email);
+      fd.append("message", `${state.correction}${state.url ? `\nURL: ${state.url}` : ""}`);
+      const r = await fetch("/api/inbox/create", { method: "POST", body: fd });
+      const json = await r.json();
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setToast({ type: "success", message: "Thank you — submitted." });
+      setState({ name: "", email: "", url: "", correction: "", subject: "correction" });
+    } catch (e) {
+      setToast({ type: "error", message: e.message || "Something went wrong." });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-16">
-      <div className="sticky top-0 -mx-4 mb-6 h-28 bg-[image:var(--wn-grad-hero)] bg-[length:100%_100%] bg-no-repeat" />
-      <section className="wn-card p-6">
-        <h1 className="mb-2 text-2xl font-semibold">Request a Correction</h1>
-        <p className="mb-6 text-sm text-neutral-600">Provide the URL and what needs to be fixed.</p>
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            const el = e.currentTarget.querySelector(":invalid");
-            if (el) { e.preventDefault(); el.scrollIntoView({ behavior: "smooth", block: "center" }); el.focus(); }
-          }}
-        >
-          <div className="wn-field">
-            <label htmlFor="r-url">Article URL</label>
-            <input id="r-url" name="url" type="url" required placeholder=" " className="wn-input w-full rounded-xl border p-3" />
+    <>
+      <Head>
+        <title>Request a Correction — WaterNews</title>
+        <meta name="description" content="Report an error and we’ll review promptly." />
+      </Head>
+
+      <header className="bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 py-14 text-white">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-5 flex items-center gap-3">
+            <Image
+              src="/logo-waternews.svg"
+              alt="WaterNews"
+              width={220}
+              height={60}
+              priority
+            />
+            <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
+              Request a Correction
+            </h1>
           </div>
-          <div className="wn-field">
-            <label htmlFor="r-name">Your name (optional)</label>
-            <input id="r-name" name="name" placeholder=" " className="wn-input w-full rounded-xl border p-3" />
-          </div>
-          <div className="wn-field">
-            <label htmlFor="r-details">What’s incorrect?</label>
-            <textarea id="r-details" name="details" rows={6} required placeholder=" " className="wn-input w-full rounded-xl border p-3" />
-          </div>
-          <div className="flex items-center justify-end">
-            <button className="wn-btn rounded-xl border px-4 py-2 font-medium">Send correction</button>
-          </div>
-        </form>
-      </section>
-    </main>
+          <p className="max-w-3xl text-sm opacity-95 md:text-base">
+            We correct the record. Share the link and what needs fixing.
+          </p>
+        </div>
+      </header>
+
+      <main className="mx-auto my-10 max-w-5xl px-4">
+        <section className="grid gap-6 rounded-2xl bg-white p-6 shadow md:grid-cols-[1.1fr,0.9fr]">
+          <form onSubmit={onSubmit}>
+            <h2 className="text-xl font-bold">Submit a correction</h2>
+            <div className="mt-3 grid gap-3">
+              <label className="block">
+                <span className="text-sm font-medium">Your name</span>
+                <input
+                  required
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.name}
+                  onChange={(e) => setState((s) => ({ ...s, name: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Email</span>
+                <input
+                  required
+                  type="email"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.email}
+                  onChange={(e) => setState((s) => ({ ...s, email: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Subject</span>
+                <select
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.subject}
+                  onChange={(e) => setState((s) => ({ ...s, subject: e.target.value }))}
+                  name="subject"
+                >
+                  {SUBJECTS.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">Story URL</span>
+                <input
+                  required
+                  type="url"
+                  placeholder="https://waternews…"
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.url}
+                  onChange={(e) => setState((s) => ({ ...s, url: e.target.value }))}
+                />
+              </label>
+              <label className="block">
+                <span className="text-sm font-medium">What should change?</span>
+                <textarea
+                  required
+                  rows={6}
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.correction}
+                  onChange={(e) => setState((s) => ({ ...s, correction: e.target.value }))}
+                />
+              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center justify-center rounded-xl bg-[#1583c2] px-4 py-2 font-semibold text-white hover:brightness-110 disabled:opacity-60"
+                >
+                  {submitting ? "Sending…" : "Send request"}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <aside className="grid place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 text-slate-600">
+            <div className="text-center">
+              <Image src="/placeholders/newsroom.svg" alt="" width={320} height={180} />
+              <p className="mt-3 text-sm">
+                Prefer email? Write {" "}
+                <a
+                  className="font-semibold text-[#1583c2]"
+                  href="mailto:corrections@waternewsgy.com"
+                >
+                  corrections@waternewsgy.com
+                </a>
+              </p>
+            </div>
+          </aside>
+        </section>
+      </main>
+
+      {toast && <Toast {...toast} onDone={() => setToast(null)} />}
+    </>
   );
 }
 
