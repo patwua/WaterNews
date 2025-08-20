@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "lib": ["dom", "dom.iterable", "es2021"],
+    "target": "ES2020",
+    "lib": ["dom", "dom.iterable", "es2020"],
     "allowJs": true,
+    // Avoid failing when external @types packages are unavailable
     "skipLibCheck": true,
     "strict": false,
     "forceConsistentCasingInFileNames": true,
@@ -24,9 +25,9 @@
       "@/styles/*": ["styles/*"],
       "@/utils/*": ["utils/*"]
     },
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["react", "react-dom", "node"]
+    // Prefer local shims and only use node_modules/@types if present
+    "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": ["**/*"],
-  "exclude": ["node_modules", "types/react/**", "types/react-dom/**"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
