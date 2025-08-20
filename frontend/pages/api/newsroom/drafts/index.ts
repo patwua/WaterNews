@@ -1,43 +1,44 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { dbConnect } from "@/lib/server/db";
-import Draft from "@/models/Draft";
-import { slugify } from "@/lib/slugify";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { getDb } from '@/lib/db';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await dbConnect();
+  const session = await getServerSession(req, res, authOptions as any);
+  const email = session?.user?.email || null;
+  if (!email) return res.status(401).json({ error: 'Unauthorized' });
 
-  if (req.method === "GET") {
-    const { q, status } = req.query as { q?: string; status?: string };
-    const find: any = {};
-    if (status && status !== "all") find.status = status;
-    if (q) find.title = { $regex: q, $options: "i" };
-    const rows = await Draft.find(find).sort({ updatedAt: -1 }).limit(200).lean();
-    return res.json({ rows });
+  const db = await getDb();
+  const col = db.collection('drafts');
+
+  const admin = (await isAdminEmail(email)) || (await isAdminUser(email));
+
+  if (req.method === 'GET') {
+    const { q, status, all } = req.query as Record<string, string>;
+    const filter: any = {};
+    if (!admin || all !== '1') filter.authorEmail = email.toLowerCase();
+    if (status) filter.status = status;
+    if (q) filter.title = { $regex: String(q), $options: 'i' };
+    const items = await col.find(filter).sort({ updatedAt: -1 }).limit(200).toArray();
+    return res.json({ items });
   }
 
-  if (req.method === "POST") {
-    const { id, title, summary, body, coverImage, tags = [], type, status, scheduledFor } = req.body || {};
-    if (!title) return res.status(400).json({ error: "title required" });
-
-    const slug = slugify(title);
+  if (req.method === 'POST') {
+    const now = new Date().toISOString();
     const payload = {
-      title,
-      slug,
-      summary: summary || "",
-      body: body || "",
-      coverImage: coverImage || "",
-      tags: Array.isArray(tags) ? tags : [],
-      type: type || "news",
-      status: status || "draft",
-      scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
+      title: req.body?.title ?? 'Untitled',
+      body: req.body?.body ?? '',
+      status: 'draft',
+      authorEmail: email.toLowerCase(),
+      createdAt: now,
+      updatedAt: now,
     };
-
-    const doc = id
-      ? await Draft.findByIdAndUpdate(id, payload, { new: true, upsert: false })
-      : await new Draft(payload).save();
-
-    return res.json({ ok: true, draft: doc });
+    const r = await col.insertOne(payload);
+    return res.json({ _id: r.insertedId, ...payload });
   }
 
-  return res.status(405).json({ error: "Method not allowed" });
+  res.setHeader('Allow', 'GET,POST');
+  res.status(405).end();
 }
+
