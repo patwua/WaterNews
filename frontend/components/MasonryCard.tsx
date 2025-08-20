@@ -9,6 +9,7 @@ type Props = {
   coverVideo?: string;
   tags?: string[];
   publishedAt?: string | Date;
+  key?: string;
 };
 
 export default function MasonryCard({
