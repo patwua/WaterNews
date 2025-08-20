@@ -87,6 +87,31 @@ export default function WriterDraftEditor() {
             <option value="scheduled">Scheduled</option>
             <option value="published">Published</option>
           </select>
+          <button
+            onClick={async () => {
+              const r = await fetch(`/api/newsroom/drafts/${id}/submit`, { method: 'POST' });
+              const d = await r.json();
+              if (!r.ok) return alert(d?.error || 'Failed to submit for review');
+              setDoc(d.draft || doc);
+              alert('Submitted for review');
+            }}
+            className="px-3 py-2 rounded bg-gray-100 text-sm"
+          >
+            Submit for review
+          </button>
+          <button
+            onClick={async () => {
+              if (!confirm('Publish now? (Admins only)')) return;
+              const r = await fetch(`/api/newsroom/drafts/${id}/publish`, { method: 'POST' });
+              const d = await r.json();
+              if (!r.ok) return alert(d?.error || 'Failed to publish');
+              alert('Published');
+              location.href = `/news/${d?.post?.slug}`;
+            }}
+            className="px-3 py-2 rounded bg-black text-white text-sm"
+          >
+            Publish now
+          </button>
         </div>
       </div>
 
@@ -144,6 +169,9 @@ export default function WriterDraftEditor() {
           queueSave({ ...doc, media });
         }}
       />
+      <div className="pt-6">
+        <a href="/newsroom/posts" className="text-sm underline underline-offset-4">See my published posts →</a>
+      </div>
     </div>
   );
 }
