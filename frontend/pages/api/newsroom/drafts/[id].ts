@@ -1,43 +1,44 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { dbConnect } from "@/lib/server/db";
-import Draft from "@/models/Draft";
-import { publishDraftById } from "@/lib/server/publish";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { ObjectId } from 'mongodb';
+import { getDb } from '@/lib/db';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await dbConnect();
+  const session = await getServerSession(req, res, authOptions as any);
+  const email = session?.user?.email || null;
+  if (!email) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { id } = req.query as { id: string };
+  const db = await getDb();
+  const col = db.collection('drafts');
+  const _id = new ObjectId(String(req.query.id));
 
-  if (req.method === "GET") {
-    const doc = await Draft.findById(id).lean();
-    if (!doc) return res.status(404).json({ error: "Not found" });
-    return res.json({ draft: doc });
+  const current = await col.findOne({ _id });
+  if (!current) return res.status(404).json({ error: 'Not found' });
+
+  const admin = (await isAdminEmail(email)) || (await isAdminUser(email));
+  const isOwner = current.authorEmail?.toLowerCase?.() === email.toLowerCase();
+  if (!admin && !isOwner) return res.status(403).json({ error: 'Forbidden' });
+
+  if (req.method === 'GET') {
+    return res.json(current);
   }
 
-  if (req.method === "PUT") {
-    const payload = req.body || {};
-    const doc = await Draft.findByIdAndUpdate(id, payload, { new: true });
-    if (!doc) return res.status(404).json({ error: "Not found" });
-    return res.json({ ok: true, draft: doc });
+  if (req.method === 'PATCH' || req.method === 'PUT') {
+    const allowed: any = {};
+    const body = req.body || {};
+    const whitelist = admin
+      ? ['title', 'body', 'tags', 'status', 'publishAt', 'media', 'ticketId', 'assigneeId', 'reviewerId', 'requireSecondReview']
+      : ['title', 'body', 'tags', 'status', 'publishAt', 'media'];
+    for (const k of whitelist) if (k in body) allowed[k] = body[k];
+    allowed.updatedAt = new Date().toISOString();
+    await col.updateOne({ _id }, { $set: allowed });
+    const doc = await col.findOne({ _id });
+    return res.json(doc);
   }
 
-  if (req.method === "DELETE") {
-    await Draft.findByIdAndDelete(id);
-    return res.json({ ok: true });
-  }
-
-  if (req.method === "POST") {
-    const action = (req.query as any).action;
-    if (action === "publish") {
-      try {
-        const out = await publishDraftById(id);
-        return res.json({ ok: true, ...out });
-      } catch (e: any) {
-        return res.status(400).json({ error: e.message || "Publish failed" });
-      }
-    }
-    return res.status(400).json({ error: "Unknown action" });
-  }
-
-  return res.status(405).json({ error: "Method not allowed" });
+  res.setHeader('Allow', 'GET,PATCH,PUT');
+  res.status(405).end();
 }
+
