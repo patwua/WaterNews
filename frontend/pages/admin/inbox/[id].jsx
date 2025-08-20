@@ -1,8 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { isAdminEmail, isAdminUser } from "@/lib/admin-auth";
+// Unified SSR admin guard (NextAuth + shared helper)
+import { requireAdminSSR } from '@/lib/admin-guard';
 
 export default function TicketDetail() {
   const router = useRouter();
@@ -43,11 +42,7 @@ export default function TicketDetail() {
 }
 
 export async function getServerSideProps(ctx) {
-  const session = await getServerSession(ctx.req, ctx.res, authOptions);
-  const email = session?.user?.email || null;
-  const ok = (await isAdminEmail(email)) || (await isAdminUser(email));
-  if (!ok) {
-    return { redirect: { destination: "/profile", permanent: false } };
-  }
+  const guard = await requireAdminSSR(ctx);
+  if (guard.redirect) return guard;
   return { props: {} };
 }
