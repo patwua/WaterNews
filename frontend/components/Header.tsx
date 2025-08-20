@@ -16,7 +16,14 @@ export default function Header() {
           className="shrink-0 inline-flex items-center"
         >
           {/* Use SVG logo directly, larger for readability */}
-          <Image src="/logo-waternews.svg" alt="WaterNews" width={240} height={40} priority className="h-10 w-auto" />
+          <Image
+            src="/logo-waternews.svg"
+            alt="WaterNews"
+            width={384}
+            height={64}
+            priority
+            className="h-16 w-auto"
+          />
         </Link>
 
         {/* center: SmartMenu */}
