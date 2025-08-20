@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { isAdminEmail, isAdminUser } from "@/lib/admin-auth";
 
 export default function TicketDetail() {
@@ -41,7 +43,8 @@ export default function TicketDetail() {
 }
 
 export async function getServerSideProps(ctx) {
-  const email = ctx.req?.headers["x-user-email"] || null;
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+  const email = session?.user?.email || null;
   const ok = (await isAdminEmail(email)) || (await isAdminUser(email));
   if (!ok) {
     return { redirect: { destination: "/profile", permanent: false } };
