@@ -16,6 +16,7 @@ export default function Footer() {
             <Link href="/apply">Apply</Link>
             <Link href="/corrections">Corrections</Link>
             <Link href="/suggest-story">Suggest a Story</Link>
+            <Link href="/editorial-standards">Editorial Standards</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/prefs">Preferences</Link>
             <Link href="/login">Login</Link>
