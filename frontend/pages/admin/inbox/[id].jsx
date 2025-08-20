@@ -13,10 +13,26 @@ export default function TicketDetail() {
       });
     }
   }, [id]);
+
+  async function createDraftFromTicket() {
+    const r = await fetch("/api/drafts/from-ticket", {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify({ ticketId: id })
+    });
+    const d = await r.json();
+    if (d.id) location.href = `/admin/drafts/${d.id}`;
+  }
+
   if (!ticket) return <div className="p-6">Loading...</div>;
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">{ticket.subject}</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">{ticket.subject}</h1>
+        <button onClick={createDraftFromTicket} className="px-3 py-1 rounded bg-blue-600 text-white">
+          Create Draft
+        </button>
+      </div>
       <p><strong>Name:</strong> {ticket.name}</p>
       <p><strong>Email:</strong> {ticket.email}</p>
       <p className="mt-4 whitespace-pre-line">{ticket.body}</p>
