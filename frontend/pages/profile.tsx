@@ -48,6 +48,20 @@ export default function Profile() {
         <button className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
         {msg && <span className="text-green-700 text-sm ml-3">{msg}</span>}
       </form>
+      {/* Writer tools */}
+      <section className="mt-6">
+        <h2 className="text-lg font-medium mb-3">Writer tools</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Link href="/newsroom" className="block border rounded-xl p-4 hover:shadow">
+            <div className="font-medium">Newsroom</div>
+            <div className="text-sm text-gray-600">Create drafts, edit, and schedule posts</div>
+          </Link>
+          <Link href="/newsroom" className="block border rounded-xl p-4 hover:shadow">
+            <div className="font-medium">My drafts</div>
+            <div className="text-sm text-gray-600">Jump back to your in-progress stories</div>
+          </Link>
+        </div>
+      </section>
       <div>
         <Link href="/" className="text-blue-700 underline">← Back to Home</Link>
       </div>
