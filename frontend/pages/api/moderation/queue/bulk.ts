@@ -16,6 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (!action) return res.status(400).json({ error: "action required" });
 
   const results: any[] = [];
+  const updatedItems: any[] = [];
   for (const id of ids) {
     const doc = await Event.findById(id);
     if (!doc || doc.visibility !== "internal") {
@@ -63,7 +64,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       meta: { type: doc.type, bulk: true },
     });
     results.push({ id, ok: true });
+    updatedItems.push(doc.toObject());
   }
+
+  // ---- Targeted realtime emits (assignee + author) and unread count
+  try {
+    // @ts-ignore
+    const io = (res.socket as any)?.server?.io;
+    if (io && Array.isArray(updatedItems)) {
+      await dbConnect();
+      for (const it of updatedItems) {
+        const itemId = String((it as any)?.id ?? (it as any)?._id ?? "");
+        const title =
+          (it as any)?.title ||
+          (it as any)?.slug ||
+          `Item ${itemId}`;
+        const assigneeId =
+          (it as any)?.assigneeId ||
+          (it as any)?.assignee?.id ||
+          (it as any)?.assignedTo ||
+          null;
+        const authorId =
+          (it as any)?.authorId ||
+          (it as any)?.author?.id ||
+          null;
+        const payload = {
+          id: `${itemId}:${Date.now()}`,
+          type: action || "update",
+          itemId,
+          title,
+          createdAt: new Date().toISOString(),
+        };
+        if (assigneeId) {
+          io.to(`user:${assigneeId}`).emit("notification:new", payload);
+          const openCount = await Event.countDocuments({
+            assignedTo: assigneeId,
+            status: { $in: ["open", "in_review", "flagged"] },
+          });
+          io
+            .to(`user:${assigneeId}`)
+            .emit("notification:count", { count: openCount });
+        }
+        if (authorId) {
+          io
+            .to(`user:${authorId}`)
+            .emit("notification:new", { ...payload, type: `${action || "update"}:author` });
+        }
+      }
+    }
+  } catch {}
 
   return res.json({ ok: true, results });
 }

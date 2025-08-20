@@ -60,5 +60,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     meta: { type: doc.type },
   });
 
+  // ---- Targeted realtime emits (assignee + author) and unread count
+  try {
+    // @ts-ignore
+    const io = (res.socket as any)?.server?.io;
+    if (io) {
+      const assigneeId =
+        (doc as any)?.assigneeId ||
+        (doc as any)?.assignee?.id ||
+        (doc as any)?.assignedTo ||
+        null;
+      const authorId =
+        (doc as any)?.authorId ||
+        (doc as any)?.author?.id ||
+        null;
+      const title =
+        (doc as any)?.title ||
+        (doc as any)?.slug ||
+        `Item ${id}`;
+      const payload = {
+        id: `${id}:${Date.now()}`,
+        type: action || "update",
+        itemId: String(id),
+        title,
+        createdAt: new Date().toISOString(),
+      };
+      if (assigneeId) {
+        io.to(`user:${assigneeId}`).emit("notification:new", payload);
+        await dbConnect();
+        const openCount = await Event.countDocuments({
+          assignedTo: assigneeId,
+          status: { $in: ["open", "in_review", "flagged"] },
+        });
+        io.to(`user:${assigneeId}`).emit("notification:count", {
+          count: openCount,
+        });
+      }
+      if (authorId) {
+        io
+          .to(`user:${authorId}`)
+          .emit("notification:new", { ...payload, type: `${action || "update"}:author` });
+      }
+    }
+  } catch {}
+
   return res.json({ ok: true, item: doc.toObject() });
 }
