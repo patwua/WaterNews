@@ -14,7 +14,7 @@ export default function MasonryFeed({ items = [] as Item[] }) {
   return (
     <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {items.map((it) => (
-        <MasonryCard key={it.slug} {...it} />
+        <MasonryCard {...it} key={it.slug} />
       ))}
     </section>
   );

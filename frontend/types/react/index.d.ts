@@ -4,18 +4,32 @@ declare namespace JSX {
   interface IntrinsicAttributes { key?: any }
 }
 
-declare module "react" {
-  export type ReactNode = any;
-  export type FC<P = {}> = (props: P & { children?: ReactNode }) => any;
-  export interface KeyboardEvent<T = Element> { key: string; metaKey?: boolean; ctrlKey?: boolean; target: T; preventDefault(): void; [key: string]: any }
-  export type KeyboardEventHandler<T = Element> = (event: KeyboardEvent<T>) => void;
-  export interface FormEvent<T = Element> { currentTarget: T; preventDefault(): void; [key: string]: any }
-  export interface SVGProps<T> { [key: string]: any }
-  export function useState<S = any>(initial?: S): [S, (s: S | ((p: S) => S)) => void];
-  export function useEffect(effect: (...args: any[]) => any, deps?: any[]): void;
-  export function useMemo<T = any>(factory: () => T, deps?: any[]): T;
-  export function useRef<T = any>(initial?: T): { current: T };
-  export function useId(): string;
-  const React: any;
-  export default React;
+declare namespace React {
+  type ReactNode = any;
+  type FC<P = {}> = (props: P & { children?: ReactNode }) => any;
+  interface KeyboardEvent<T = Element> {
+    key: string;
+    metaKey?: boolean;
+    ctrlKey?: boolean;
+    target: T;
+    preventDefault(): void;
+    [key: string]: any;
+  }
+  type KeyboardEventHandler<T = Element> = (event: KeyboardEvent<T>) => void;
+  interface FormEvent<T = Element> {
+    currentTarget: T;
+    preventDefault(): void;
+    [key: string]: any;
+  }
+  interface SVGProps<T> {
+    [key: string]: any;
+  }
+  function useState<S = any>(initial?: S): [S, (s: S | ((p: S) => S)) => void];
+  function useEffect(effect: (...args: any[]) => any, deps?: any[]): void;
+  function useMemo<T = any>(factory: () => T, deps?: any[]): T;
+  function useRef<T = any>(initial?: T): { current: T };
+  function useId(): string;
 }
+export = React;
+export as namespace React;
+

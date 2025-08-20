@@ -1,5 +1,5 @@
-// Use the React namespace for event types to avoid shim/version mismatches.
-import type * as React from 'react';
+// Avoid importing React event types from the module; rely on the local React shim's global namespace.
+// (No type imports from 'react' in this file to prevent mixed origins.)
 import { useEffect, useRef, useState } from "react";
 import { readingTime } from "@/lib/readingTime";
 
@@ -53,7 +53,7 @@ export default function MarkdownEditor({ draft, onChange }: { draft: any; onChan
     });
   }
 
-  const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const mod = e.metaKey || e.ctrlKey;
     if (!mod) return;
     if (e.key.toLowerCase() === "b") { e.preventDefault(); wrap("**"); }
