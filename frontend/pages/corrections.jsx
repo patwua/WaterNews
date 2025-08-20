@@ -1,26 +1,31 @@
 import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
+import { SUBJECTS } from "@/lib/cms-routing";
+import Toast from "@/components/Toast";
 
 export default function CorrectionsPage() {
-  const [state, setState] = useState({ name: "", email: "", url: "", correction: "" });
+  const [state, setState] = useState({ name: "", email: "", url: "", correction: "", subject: "correction" });
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(null);
+  const [toast, setToast] = useState(null);
 
   async function onSubmit(e) {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
     try {
-      const r = await fetch("/api/corrections", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(state),
-      });
+      const fd = new FormData();
+      fd.append("subject", state.subject);
+      fd.append("name", state.name);
+      fd.append("email", state.email);
+      fd.append("message", `${state.correction}${state.url ? `\nURL: ${state.url}` : ""}`);
+      const r = await fetch("/api/inbox/create", { method: "POST", body: fd });
       const json = await r.json();
-      setDone(json);
-    } catch {
-      setDone({ ok: true, ref: "OFFLINE" });
+      if (!json.ok) throw new Error(json.error || "Failed");
+      setToast({ type: "success", message: "Thank you — submitted." });
+      setState({ name: "", email: "", url: "", correction: "", subject: "correction" });
+    } catch (e) {
+      setToast({ type: "error", message: e.message || "Something went wrong." });
     } finally {
       setSubmitting(false);
     }
@@ -78,6 +83,21 @@ export default function CorrectionsPage() {
                 />
               </label>
               <label className="block">
+                <span className="text-sm font-medium">Subject</span>
+                <select
+                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                  value={state.subject}
+                  onChange={(e) => setState((s) => ({ ...s, subject: e.target.value }))}
+                  name="subject"
+                >
+                  {SUBJECTS.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block">
                 <span className="text-sm font-medium">Story URL</span>
                 <input
                   required
@@ -106,11 +126,6 @@ export default function CorrectionsPage() {
                 >
                   {submitting ? "Sending…" : "Send request"}
                 </button>
-                {done && (
-                  <p className="text-sm text-green-700">
-                    Got it — reference <strong>{done.ref}</strong>. We’ll review shortly.
-                  </p>
-                )}
               </div>
             </div>
           </form>
@@ -131,6 +146,8 @@ export default function CorrectionsPage() {
           </aside>
         </section>
       </main>
+
+      {toast && <Toast {...toast} onDone={() => setToast(null)} />}
     </>
   );
 }
