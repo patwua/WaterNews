@@ -91,7 +91,10 @@ export default function NewsroomHome() {
         </ul>
       )}
 
-      <div className="pt-4">
+      <div className="pt-4 flex items-center gap-6">
+        <Link href="/newsroom/posts" className="text-sm underline underline-offset-4">
+          My posts
+        </Link>
         <Link href="/profile" className="text-sm text-gray-600 underline underline-offset-4">
           Go to your profile
         </Link>

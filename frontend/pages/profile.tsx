@@ -56,9 +56,9 @@ export default function Profile() {
             <div className="font-medium">Newsroom</div>
             <div className="text-sm text-gray-600">Create drafts, edit, and schedule posts</div>
           </Link>
-          <Link href="/newsroom" className="block border rounded-xl p-4 hover:shadow">
+          <Link href="/newsroom/posts" className="block border rounded-xl p-4 hover:shadow">
             <div className="font-medium">My drafts</div>
-            <div className="text-sm text-gray-600">Jump back to your in-progress stories</div>
+            <div className="text-sm text-gray-600">View your published posts</div>
           </Link>
         </div>
       </section>
