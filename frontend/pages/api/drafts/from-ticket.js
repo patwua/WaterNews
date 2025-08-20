@@ -1,8 +1,15 @@
 import { getDb } from "@/lib/db";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
+import { isAdminEmail, isAdminUser } from "@/lib/admin-auth";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ ok: false });
+  const session = await getServerSession(req, res, authOptions);
+  const email = session?.user?.email || null;
+  const ok = (await isAdminEmail(email)) || (await isAdminUser(email));
+  if (!ok) return res.status(401).json({ ok: false });
   try {
     const db = await getDb();
     if (!db) return res.status(200).json({ ok: true, id: null });
