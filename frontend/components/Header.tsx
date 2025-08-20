@@ -31,10 +31,10 @@ export default function Header() {
           <SmartMenu />
         </div>
 
-        {/* right actions: newsroom link + inline expanding search + bell */}
+        {/* right actions: newsroom link (member area) + inline expanding search + bell */}
         <div className="flex items-center gap-2">
           <Link
-            href="/admin"
+            href="/newsroom"
             className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-700"
           >
             Newsroom
