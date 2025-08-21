@@ -40,6 +40,10 @@ export default function AdminHome() {
           <div className="font-medium">Tools</div>
           <div className="text-sm text-gray-600">Link check, similarity, summaries</div>
         </Link>
+        <Link href="/admin/moderation/drafts" className="block border rounded-xl p-4 hover:shadow">
+          <div className="font-medium">Draft Reviews</div>
+          <div className="text-sm text-gray-600">Approve, request changes, assign reviewers</div>
+        </Link>
       </div>
     </div>
   );
