@@ -3,7 +3,8 @@ import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
-import { slugify } from '@/lib/slugify';
+import slugify from '@/lib/slugify';
+import sendEmail from '@/lib/email';
 
 async function ensureUniqueSlug(col, base) {
   const s = slugify(base || 'untitled');
@@ -58,5 +59,15 @@ export default async function handler(req, res) {
   );
 
   const post = await posts.findOne({ _id: ins.insertedId });
+  // Notify author
+  try {
+    const to = draft.authorEmail || email.toLowerCase();
+    await sendEmail({
+      to,
+      subject: `Published: ${post?.title || 'Untitled'}`,
+      text: `Your story is live: ${(process.env.NEXTAUTH_URL || '')}/news/${post?.slug}`,
+      html: `<p>Your story is live:</p><p><a href="${(process.env.NEXTAUTH_URL || '')}/news/${post?.slug}">${post?.title || 'Untitled'}</a></p>`
+    });
+  } catch {}
   return res.json({ ok: true, post });
 }

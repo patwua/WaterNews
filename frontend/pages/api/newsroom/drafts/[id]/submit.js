@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
+import sendEmail from '@/lib/email';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -26,5 +27,21 @@ export default async function handler(req, res) {
   const now = new Date().toISOString();
   await drafts.updateOne({ _id }, { $set: { status: nextStatus, updatedAt: now } });
   const updated = await drafts.findOne({ _id });
+  // Notify editors/admins
+  try {
+    const list = (process.env.ADMIN_EMAILS || '')
+      .split(',').map(s=>s.trim()).filter(Boolean);
+    if (list.length) {
+      await sendEmail({
+        to: list,
+        subject: `Draft submitted: ${updated?.title || 'Untitled'}`,
+        text: `A draft was submitted for review.\nTitle: ${updated?.title}\nAuthor: ${doc?.authorEmail}\nLink: ${process.env.NEXTAUTH_URL || ''}/admin/drafts/${_id}`,
+        html: `<p>A draft was submitted for review.</p>
+               <p><b>Title:</b> ${updated?.title || 'Untitled'}</p>
+               <p><b>Author:</b> ${doc?.authorEmail || ''}</p>
+               <p><a href="${(process.env.NEXTAUTH_URL || '')}/admin/drafts/${_id}">Open in Admin</a></p>`
+      });
+    }
+  } catch {}
   return res.json({ ok: true, draft: updated });
 }

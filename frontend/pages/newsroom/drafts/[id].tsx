@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { requireAuthSSR } from '@/lib/user-guard';
 import MediaLibraryModal from '@/components/MediaLibraryModal';
+import StatusPill from '@/components/StatusPill';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -55,14 +56,17 @@ export default function WriterDraftEditor() {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500">
-          {saving === 'saving'
-            ? 'Saving…'
-            : saving === 'saved'
-            ? 'Saved'
-            : saving === 'dirty'
-            ? 'Unsaved changes'
-            : 'Idle'}
+        <div className="text-sm text-gray-500 flex items-center gap-3">
+          <StatusPill status={doc.status} />
+          <span>
+            {saving === 'saving'
+              ? 'Saving…'
+              : saving === 'saved'
+              ? 'Saved'
+              : saving === 'dirty'
+              ? 'Unsaved changes'
+              : 'Idle'}
+          </span>
         </div>
         <div className="flex gap-2">
           <input
@@ -72,7 +76,7 @@ export default function WriterDraftEditor() {
               queueSave({
                 ...doc,
                 publishAt: e.target.value || null,
-                status: e.target.value ? 'scheduled' : doc.status || 'draft',
+                status: e.target.value ? 'scheduled' : (doc.status || 'draft'),
               })
             }
             className="border rounded px-2 py-1 text-sm"

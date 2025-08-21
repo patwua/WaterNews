@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { requireAuthSSR } from '@/lib/user-guard';
+import StatusPill from '@/components/StatusPill';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -78,9 +79,14 @@ export default function NewsroomHome() {
           {drafts.map((it: any) => (
             <li key={it._id} className="flex items-center justify-between p-4">
               <div>
-                <div className="font-medium">{it.title || 'Untitled'}</div>
+                <div className="font-medium flex items-center gap-2">
+                  {it.title || 'Untitled'} <StatusPill status={it.status} />
+                </div>
                 <div className="text-xs text-gray-500">
-                  {it.status || 'draft'} • updated {it.updatedAt ? new Date(it.updatedAt).toLocaleString() : '—'}
+                  {it.status === 'scheduled' && it.publishAt ? (
+                    <>scheduled for {new Date(it.publishAt).toLocaleString()} • </>
+                  ) : null}
+                  updated {it.updatedAt ? new Date(it.updatedAt).toLocaleString() : '—'}
                 </div>
               </div>
               <Link href={`/newsroom/drafts/${it._id}`} className="text-blue-600 hover:underline">
