@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import axios from 'axios'
 import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript } from '@/lib/seo'
+import dynamic from 'next/dynamic'
+
+const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false })
 
 export default function ArticlePage() {
   const router = useRouter()
@@ -72,6 +75,9 @@ export default function ArticlePage() {
           👍 {article.engagement.likes} | 🔁 {article.engagement.shares} | 💬 {article.engagement.comments}
         </div>
       )}
+      </div>
+      <div className="max-w-3xl mx-auto px-4 py-6">
+        <TrendingRail />
       </div>
     </>
   )

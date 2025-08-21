@@ -3,7 +3,10 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import Hero from '../components/Hero'
 import MasonryFeed from '../components/MasonryFeed'
+import dynamic from 'next/dynamic'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
+
+const RecircWidget = dynamic(() => import('../components/Recirculation/RecircWidget'), { ssr: false })
 
 type Article = {
   _id?: string
@@ -147,17 +150,21 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-50">
       <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
         {/* Contextual hero */}
-        <Hero
-          category={activeCategory}
-          articles={
-            (activeCategory
-              ? articles.filter(a => (a.tags || []).some(t => (t || '').toLowerCase() === activeCategory!.toLowerCase()))
-              : articles
-            ).slice(0, 6)
-          }
-        />
+          <Hero
+            category={activeCategory}
+            articles={
+              (activeCategory
+                ? articles.filter(a => (a.tags || []).some(t => (t || '').toLowerCase() === activeCategory!.toLowerCase()))
+                : articles
+              ).slice(0, 6)
+            }
+          />
+          {/* Recirculation: Trending + Latest */}
+          <div className="mt-8">
+            <RecircWidget />
+          </div>
 
-        {/* Results banner (when server search) */}
+          {/* Results banner (when server search) */}
         {typeof resultCount === 'number' && (
           <div className="text-xs text-gray-600 mt-3 mb-2" aria-live="polite">
             {resultCount} results for ‘{(router.query.q as string) || ''}’
