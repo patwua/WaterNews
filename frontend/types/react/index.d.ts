@@ -11,7 +11,8 @@ declare namespace React {
     key: string;
     metaKey?: boolean;
     ctrlKey?: boolean;
-    target: T;
+    target: EventTarget;
+    currentTarget: T;
     preventDefault(): void;
     [key: string]: any;
   }
