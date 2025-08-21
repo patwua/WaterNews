@@ -4,7 +4,7 @@ import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
-import { slugify } from '@/lib/slugify';
+import slugify from '@/lib/slugify';
 
 async function ensureUniqueSlug(col, base) {
   const s = slugify(base || 'untitled');
@@ -21,11 +21,17 @@ async function ensureUniqueSlug(col, base) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  // Allow only admins to trigger this (can be hooked up to a Render cron with a service account)
-  const session = await getServerSession(req, res, authOptions);
-  const email = session?.user?.email || null;
-  const admin = email && ((await isAdminEmail(email)) || (await isAdminUser(email)));
-  if (!admin) return res.status(401).json({ error: 'Unauthorized' });
+  // Allow EITHER: admin session OR a secret token for cron
+  const token = req.headers['x-cron-token'] || req.query.token;
+  const allowToken = token && process.env.PUBLISH_CRON_TOKEN && String(token) === String(process.env.PUBLISH_CRON_TOKEN);
+  let admin = false;
+  let email = null;
+  if (!allowToken) {
+    const session = await getServerSession(req, res, authOptions);
+    email = session?.user?.email || null;
+    admin = !!(email && ((await isAdminEmail(email)) || (await isAdminUser(email))));
+  }
+  if (!allowToken && !admin) return res.status(401).json({ error: 'Unauthorized' });
 
   const db = await getDb();
   const drafts = db.collection('drafts');
