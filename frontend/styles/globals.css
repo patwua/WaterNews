@@ -34,11 +34,6 @@ p { line-height: var(--leading-normal); }
 .bg-brand-gold { background-color: var(--brand-gold); }
 .ring-brand { --tw-ring-color: var(--brand-blue); }
 
-/* --- Global focus visibility (WCAG 2.4.7 / 2.4.13) --- */
-:focus-visible {
-  outline: 2px solid #2563EB; /* blue-600 */
-  outline-offset: 2px;
-}
 
 /* --- Skip to main content --- */
 .skip-to-main {
@@ -77,6 +72,24 @@ h1, h2, h3, h4, h5, h6 { scroll-margin-top: 72px; }
   100% { opacity: 1; transform: translateY(0); }
 }
 .wn-fade-in-up { animation: wn-fade-in-up 320ms ease-out both; will-change: transform, opacity; }
+
+/* UX polish: focus-visible ring, subtle gradient helpers */
+:root {
+  --ring: 2px;
+  --ring-color: 0 0 0;
+}
+:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 var(--ring) rgba(var(--ring-color), 0.6);
+  border-radius: 10px;
+}
+.gradient-card {
+  background-image: linear-gradient(180deg, rgba(14,165,233,0.06), rgba(14,165,233,0));
+}
+.btn-ghost {
+  transition: background-color .15s ease, box-shadow .15s ease;
+}
+.btn-ghost:hover { background-color: rgba(0,0,0,0.04); }
 
 /* Print styles — cleaner pages for readers */
 @media print {
