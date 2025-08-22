@@ -1,36 +1,31 @@
-import { useState } from "react";
-import { profilePhotoCopy } from "@/data/profilePhotoCopy";
+import * as React from "react";
 
-export default function ProfilePhotoForm({ userId, initialUrl, isOrganization=false }:{
-  userId: string; initialUrl?: string|null; isOrganization?: boolean;
+export default function ProfilePhotoForm({ initialUrl, isOrganization=false }:{
+  initialUrl?: string|null; isOrganization?: boolean;
 }) {
-  const [url, setUrl] = useState(initialUrl || "");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string|null>(null);
+  const [url, setUrl] = React.useState(initialUrl || "");
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState<string|null>(null);
 
   async function handleFile(e: any) {
     const file = e.target.files?.[0];
     if (!file) return;
     setErr(null);
-    if (file.size > 2 * 1024 * 1024) return setErr(profilePhotoCopy.errors.tooLarge);
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return setErr(profilePhotoCopy.errors.badType);
+    if (file.size > 2 * 1024 * 1024) return setErr("File too large (≤ 2 MB).");
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return setErr("Use JPG, PNG, or WebP.");
 
     setBusy(true);
     try {
-      const fd = new FormData(); fd.append("file", file);
-      const upRes = await fetch("/api/user/profile-photo", { method: "POST", body: fd });
-      const up = await upRes.json();
-      if (!upRes.ok) throw new Error(up?.error || "Upload failed");
-      const saveRes = await fetch("/api/user/save-profile-photo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-user-id": userId }, // swap to session
-        body: JSON.stringify({ profilePhotoUrl: up.url, isOrganization }),
-      });
-      const sv = await saveRes.json();
-      if (!saveRes.ok) throw new Error(sv?.error || "Save failed");
-      setUrl(up.url);
+      // Read to data URL and use session-aware JSON upload
+      const dataUrl = await new Promise<string>((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result)); fr.onerror=rej; fr.readAsDataURL(file); });
+      const upRes = await fetch("/api/users/avatar", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ dataUrl }) });
+      const up = await upRes.json(); if (!upRes.ok) throw new Error(up?.error || "Upload failed");
+      const photo = up.profilePhotoUrl || up.avatarUrl;
+      const saveRes = await fetch("/api/users/update", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ profilePhotoUrl: photo, isOrganization }) });
+      const sv = await saveRes.json(); if (!saveRes.ok) throw new Error(sv?.error || "Save failed");
+      setUrl(photo);
     } catch (e:any) {
-      setErr(e.message || profilePhotoCopy.errors.generic);
+      setErr(e.message || "Something went wrong");
     } finally {
       setBusy(false);
     }
@@ -38,14 +33,15 @@ export default function ProfilePhotoForm({ userId, initialUrl, isOrganization=fa
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium">{profilePhotoCopy.label}</label>
+      <label className="block text-sm font-medium">Profile photo</label>
       <p className="text-xs text-gray-600">
-        {profilePhotoCopy.help}
+        Upload a photo or avatar (JPG/PNG/WebP, square, <strong>512×512+</strong>, ≤2 MB).
+        We’ll crop it to a circle. Logos are OK for organizations.
       </p>
 
       <div className="flex items-center gap-4">
         {url ? (
-          <img src={url} alt="Current profile photo" className="w-16 h-16 rounded-full object-cover" />
+          <img src={url} alt="Current profile photo" className="w-16 h-16 rounded-full object-cover border" />
         ) : (
           <div className="w-16 h-16 rounded-full bg-gray-200" />
         )}

@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   const draft = await drafts.findOne({ _id: new ObjectId(String(id)) });
   if (!draft || draft.authorEmail !== who) return res.status(403).json({ error: 'Not allowed' });
   if (!draft.title || !draft.body) return res.status(400).json({ error: 'Title and body required' });
-  const author = await users.findOne({ email: who }, { projection: { displayName:1, handle:1, profilePhotoUrl:1 } });
+  const author = await users.findOne({ email: who }, { projection: { displayName:1, handle:1, profilePhotoUrl:1, avatarUrl:1 } });
   const slug = draft.slug || slugify(`${draft.title}-${draft._id.toString().slice(-5)}`);
   const post = {
     slug,
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     authorEmail: who,
     authorDisplay: author?.displayName || null,
     authorHandle: author?.handle || null,
-    authorProfilePhotoUrl: author?.profilePhotoUrl || null,
+    authorProfilePhotoUrl: author?.profilePhotoUrl || author?.avatarUrl || null,
     publishedAt: new Date().toISOString(),
     threadUrl: draft.threadUrl || null,
     coverImage: draft.coverImage || null
