@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useShell } from "./ShellContext";
@@ -9,8 +9,32 @@ const RAIL_W = 280; // px expanded
 const RAIL_W_COLLAPSED = 76; // px collapsed
 
 export default function GlobalShell({ children }: { children: React.ReactNode }) {
-  const { user } = useShell();
+  const { user, setUser } = useShell();
   const router = useRouter();
+
+  // Bootstrap the signed-in user so the shell can render on mobile
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      // undefined = unknown; null/obj = known
+      if (user !== undefined) return;
+      try {
+        const r = await fetch("/api/users/summary");
+        if (!r.ok) {
+          if (!cancelled) setUser(null);
+          return;
+        }
+        const d = await r.json();
+        const u = d?.me || d?.user || null;
+        if (!cancelled) setUser(u);
+      } catch {
+        if (!cancelled) setUser(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, setUser]);
 
   // Only render shell for logged-in users
   if (!user) return <>{children}</>;
@@ -104,7 +128,7 @@ function MobileTopBar() {
   const router = useRouter();
   const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
   return (
-    <div className="md:hidden sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
+    <div className="md:hidden sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
       <div className="h-14 px-3 flex items-center gap-3">
         <button
           onClick={() => router.push("/newsroom/dashboard")}
@@ -152,6 +176,14 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
     else body.classList.remove("overflow-hidden");
     return () => body.classList.remove("overflow-hidden");
   }, [isMobileOpen]);
+  // Close on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMobile();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [closeMobile]);
   return (
     <div
       className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
