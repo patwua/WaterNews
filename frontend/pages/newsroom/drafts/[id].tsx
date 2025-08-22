@@ -6,6 +6,7 @@ import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 import Link from 'next/link';
 import MarkdownEditor from '@/components/Newsroom/MarkdownEditor';
 import DraftComments from '@/components/Newsroom/DraftComments';
+import ActivityTrail from '@/components/Newsroom/ActivityTrail';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -66,14 +67,14 @@ export default function WriterDraftEditor() {
             <StatusPill status={doc.status} />
             <span>
               {saving === 'saving'
-              ? 'Saving…'
-              : saving === 'saved'
-              ? 'Saved'
-              : saving === 'dirty'
-              ? 'Unsaved changes'
-              : 'Idle'}
-          </span>
-        </div>
+                ? 'Saving…'
+                : saving === 'saved'
+                ? 'Saved'
+                : saving === 'dirty'
+                ? 'Unsaved changes'
+                : 'Idle'}
+            </span>
+          </div>
           <div className="flex gap-2">
             <Link href={`/newsroom/media?draftId=${encodeURIComponent(id)}`} className="px-3 py-2 rounded border text-sm">Open Media Library</Link>
             <input
@@ -88,76 +89,79 @@ export default function WriterDraftEditor() {
               }
               className="border rounded px-2 py-1 text-sm"
             />
-          <select
-            className="border rounded px-2 py-1 text-sm"
-            value={doc.status || 'draft'}
-            onChange={(e) => queueSave({ ...doc, status: e.target.value })}
-          >
-            <option value="draft">Draft</option>
-            <option value="ready">Ready</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="published">Published</option>
-          </select>
-          <button
-            onClick={async () => {
-              const r = await fetch(`/api/newsroom/drafts/${id}/submit`, { method: 'POST' });
-              const d = await r.json();
-              if (!r.ok) return alert(d?.error || 'Failed to submit for review');
-              setDoc(d.draft || doc);
-              alert('Submitted for review');
-            }}
-            className="px-3 py-2 rounded bg-gray-100 text-sm"
-          >
-            Submit for review
-          </button>
-          <button
-            onClick={async () => {
-              if (!confirm('Publish now? (Admins only)')) return;
-              const r = await fetch(`/api/newsroom/drafts/${id}/publish`, { method: 'POST' });
-              const d = await r.json();
-              if (!r.ok) return alert(d?.error || 'Failed to publish');
-              alert('Published');
-              location.href = `/news/${d?.post?.slug}`;
-            }}
-            className="px-3 py-2 rounded bg-black text-white text-sm"
-          >
-            Publish now
-          </button>
-          <button
-            className="px-3 py-2 rounded border text-sm"
-            onClick={async () => {
-              if (!confirm('Delete this draft? This cannot be undone.')) return;
-              const r = await fetch(`/api/newsroom/drafts/${encodeURIComponent(id)}/delete`, { method: 'POST' });
-              const d = await r.json().catch(() => ({}));
-              if (!r.ok) return alert(d?.error || 'Delete failed');
-              location.href = '/newsroom';
-            }}
-          >
-            Delete
-          </button>
+            <select
+              className="border rounded px-2 py-1 text-sm"
+              value={doc.status || 'draft'}
+              onChange={(e) => queueSave({ ...doc, status: e.target.value })}
+            >
+              <option value="draft">Draft</option>
+              <option value="ready">Ready</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="published">Published</option>
+            </select>
+            <button
+              onClick={async () => {
+                const r = await fetch(`/api/newsroom/drafts/${id}/submit`, { method: 'POST' });
+                const d = await r.json();
+                if (!r.ok) return alert(d?.error || 'Failed to submit for review');
+                setDoc(d.draft || doc);
+                alert('Submitted for review');
+              }}
+              className="px-3 py-2 rounded bg-gray-100 text-sm"
+            >
+              Submit for review
+            </button>
+            <button
+              onClick={async () => {
+                if (!confirm('Publish now? (Admins only)')) return;
+                const r = await fetch(`/api/newsroom/drafts/${id}/publish`, { method: 'POST' });
+                const d = await r.json();
+                if (!r.ok) return alert(d?.error || 'Failed to publish');
+                alert('Published');
+                location.href = `/news/${d?.post?.slug}`;
+              }}
+              className="px-3 py-2 rounded bg-black text-white text-sm"
+            >
+              Publish now
+            </button>
+            <button
+              className="px-3 py-2 rounded border text-sm"
+              onClick={async () => {
+                if (!confirm('Delete this draft? This cannot be undone.')) return;
+                const r = await fetch(`/api/newsroom/drafts/${encodeURIComponent(id)}/delete`, { method: 'POST' });
+                const d = await r.json().catch(() => ({}));
+                if (!r.ok) return alert(d?.error || 'Delete failed');
+                location.href = '/newsroom';
+              }}
+            >
+              Delete
+            </button>
+          </div>
         </div>
-      </div>
 
-      <input
-        className="w-full text-2xl font-semibold border-b outline-none pb-2"
-        placeholder="Headline…"
-        value={doc.title || ''}
-        onChange={(e) => queueSave({ ...doc, title: e.target.value })}
-      />
+        <input
+          className="w-full text-2xl font-semibold border-b outline-none pb-2"
+          placeholder="Headline…"
+          value={doc.title || ''}
+          onChange={(e) => queueSave({ ...doc, title: e.target.value })}
+        />
 
-      <MarkdownEditor
-        value={doc.body || ''}
-        onChange={(v) => {
-          const next = { ...doc, body: v };
-          setDoc(next);
-          setSaving('dirty');
-          localStorage.setItem(localKey, JSON.stringify(next));
-        }}
-        onSave={() => save()}
-        draftId={id as string}
-      />
+        <MarkdownEditor
+          value={doc.body || ''}
+          onChange={(v) => {
+            const next = { ...doc, body: v };
+            setDoc(next);
+            setSaving('dirty');
+            localStorage.setItem(localKey, JSON.stringify(next));
+          }}
+          onSave={() => save()}
+          draftId={id as string}
+        />
 
         <DraftComments draftId={id as string} />
+
+        <PresenceStrip draftId={id as string} />
+        <ActivityTrail draftId={id as string} />
 
         <div className="flex flex-wrap items-center gap-2">
           <input
@@ -185,10 +189,36 @@ export default function WriterDraftEditor() {
           </div>
         )}
         <div className="pt-6">
-        <a href="/newsroom/posts" className="text-sm underline underline-offset-4">See my published posts →</a>
-      </div>
+          <a href="/newsroom/posts" className="text-sm underline underline-offset-4">See my published posts →</a>
+        </div>
       </div>
     </NewsroomLayout>
+  );
+}
+
+function PresenceStrip({ draftId }: { draftId: string }) {
+  const [who, setWho] = useState<any[]>([]);
+  useEffect(()=> {
+    let alive = true;
+    const ping = async () => {
+      try { await fetch(`/api/newsroom/drafts/${encodeURIComponent(draftId)}/presence`, { method:'POST' }); } catch {}
+    };
+    const load = async () => {
+      try {
+        const r = await fetch(`/api/newsroom/drafts/${encodeURIComponent(draftId)}/presence`);
+        const d = await r.json(); if (alive) setWho(d.items||[]);
+      } catch {}
+    };
+    ping(); load();
+    const t1 = setInterval(ping, 25000);
+    const t2 = setInterval(load, 25000);
+    return ()=>{ alive=false; clearInterval(t1); clearInterval(t2); };
+  }, [draftId]);
+  if (!who.length) return null;
+  return (
+    <div className="text-xs text-gray-600 mt-2">
+      Currently viewing: {who.map((p:any)=> p.name || p.email).join(', ')}
+    </div>
   );
 }
 

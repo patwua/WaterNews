@@ -19,11 +19,15 @@ export default async function handler(req, res) {
   const subject = 'Invitation to write with WaterNews';
   const text = `You've been invited to join WaterNews. Visit ${process.env.NEXTAUTH_URL || 'https://waternews.onrender.com'}/login to get started.`;
   try {
-    // Support both common signatures: sendEmail(to, subject, html|text) OR sendEmail({to, subject, text})
-    try { await (sendEmail as any)(email, subject, text); }
-    catch { await (sendEmail as any)({ to: email, subject, text }); }
+    // Support both common signatures without TS syntax:
+    // 1) sendEmail(to, subject, text/html)
+    // 2) sendEmail({ to, subject, text })
+    try { await sendEmail(email, subject, text); }
+    catch {
+      await sendEmail({ to: email, subject, text });
+    }
     return res.json({ ok: true });
-  } catch (e) {
+  } catch {
     return res.status(500).json({ error: 'Failed to send invite' });
   }
 }
