@@ -1,6 +1,40 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { withCloudinaryAuto } from "@/lib/media";
+
+const EIC = {
+  name: "Tatiana Chow",
+  title: "Editor-in-Chief",
+  photo: withCloudinaryAuto(
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
+  ),
+  bio: `Tatiana leads WaterNewsGY’s reporting standards, fact-checking rigor, and story selection, guiding coverage that’s fair, timely, and deeply sourced.`,
+};
+const CTO = {
+  name: "Dwuane Adams",
+  title: "Chief Technology Officer",
+  photo: withCloudinaryAuto(
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
+  ),
+  bio: `Jamaican-born to Guyanese parents, Dwuane pairs a love of the outdoors—buggy trails, boulders, and big horizons—with deep focus on scalable systems. A computer science geek and serial entrepreneur by career, he leads WaterNews technology with a builder’s grit: fast, safe, and reliable.`,
+};
+const CFO = {
+  name: "Sherman Rodriguez",
+  title: "Chief Financial Officer",
+  photo: withCloudinaryAuto(
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
+  ),
+  bio: `American-born to a Guyanese father and American mother, Sherman blends travel, finance, culture, and lifestyle into a practical stewardship of the newsroom. He keeps budgets honest, partnerships viable, and our mission funded for the long haul.`,
+};
+const COMMUNITY_PHOTOS = [
+  withCloudinaryAuto(
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882180/file_00000000b20461fdbf3edcda97f1c2ab_1_e7igtj.png"
+  ),
+  withCloudinaryAuto(
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755883745/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
+  ),
+];
 
 export default function AboutPage() {
   return (
@@ -92,8 +126,19 @@ export default function AboutPage() {
               </a>
             </div>
           </div>
-          <div className="grid min-h-[220px] place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4">
-            <Image src="/placeholders/newsroom.svg" alt="" width={420} height={220} />
+          <div className="grid gap-2 rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 sm:grid-cols-2">
+            {COMMUNITY_PHOTOS.map((src, i) => (
+              <div key={i} className="relative aspect-video w-full overflow-hidden rounded-md">
+                <Image
+                  src={src}
+                  alt="WaterNews community reporting"
+                  fill
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  className="object-cover"
+                  priority={i === 0}
+                />
+              </div>
+            ))}
           </div>
         </section>
 
@@ -200,28 +245,57 @@ export default function AboutPage() {
             <h3 className="m-0 text-xl font-bold">Leadership</h3>
           </div>
 
-          <div className="grid items-center gap-6 md:grid-cols-2">
-            <div>
-              <h4 className="m-0 text-lg font-semibold">Tatiana Chow</h4>
-              <p className="mt-1 text-sm text-slate-600">
-                Editor-in-Chief • Current Events &amp; Lifestyle
-              </p>
-              <p className="mt-2 text-[15px] text-slate-700">
-                Guyana-born and rooted in regional culture, Tatiana leads
-                WaterNews with a commitment to sharp reporting and inclusive
-                storytelling. Her focus spans current events and lifestyle,
-                bridging local narratives with global relevance.
-              </p>
-            </div>
-            <div className="grid min-h-[220px] place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4">
-              <Image
-                src="https://res.cloudinary.com/dpdhi4joq/image/upload/t_tatiana-chow/tatiana-chow_jc8idr"
-                alt="Tatiana Chow headshot"
-                width={220}
-                height={220}
-                className="rounded-md object-cover"
-              />
-            </div>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <article className="p-5 rounded-xl ring-1 ring-gray-200 bg-white/60 backdrop-blur">
+              <div className="flex items-center gap-4">
+                <Image
+                  src={EIC.photo}
+                  alt={`Photo of ${EIC.name}`}
+                  width={88}
+                  height={88}
+                  className="rounded-full object-cover"
+                />
+                <div>
+                  <h3 className="font-semibold text-lg">{EIC.name}</h3>
+                  <p className="text-sm text-gray-500">{EIC.title}</p>
+                </div>
+              </div>
+              <p className="mt-3 text-gray-700">{EIC.bio}</p>
+            </article>
+
+            <article className="p-5 rounded-xl ring-1 ring-gray-200 bg-white/60 backdrop-blur">
+              <div className="flex items-center gap-4">
+                <Image
+                  src={CTO.photo}
+                  alt={`Photo of ${CTO.name}`}
+                  width={88}
+                  height={88}
+                  className="rounded-full object-cover"
+                />
+                <div>
+                  <h3 className="font-semibold text-lg">{CTO.name}</h3>
+                  <p className="text-sm text-gray-500">{CTO.title}</p>
+                </div>
+              </div>
+              <p className="mt-3 text-gray-700">{CTO.bio}</p>
+            </article>
+
+            <article className="p-5 rounded-xl ring-1 ring-gray-200 bg-white/60 backdrop-blur sm:col-span-2">
+              <div className="flex items-center gap-4">
+                <Image
+                  src={CFO.photo}
+                  alt={`Photo of ${CFO.name}`}
+                  width={88}
+                  height={88}
+                  className="rounded-full object-cover"
+                />
+                <div>
+                  <h3 className="font-semibold text-lg">{CFO.name}</h3>
+                  <p className="text-sm text-gray-500">{CFO.title}</p>
+                </div>
+              </div>
+              <p className="mt-3 text-gray-700">{CFO.bio}</p>
+            </article>
           </div>
         </section>
 
