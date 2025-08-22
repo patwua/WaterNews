@@ -6,12 +6,13 @@ import Post from "@/models/Post";
 import User from "@/models/User";
 import { getFollowedAuthors, toggleFollowAuthor } from "@/utils/follow";
 import { buildBreadcrumbsJsonLd, buildPersonJsonLd, jsonLdScript } from "@/lib/seo";
+import ProfilePhoto from "@/components/User/ProfilePhoto";
 
 type Props = {
   author: {
     name: string;
     bio?: string;
-    avatarUrl?: string;
+    profilePhotoUrl?: string;
     slug: string;
     counts: { posts: number; followers?: number };
   };
@@ -34,7 +35,7 @@ export default function AuthorProfile({ author, posts }: Props) {
     slugUrl: canonicalPath,
     name: author.name,
     description: author.bio || undefined,
-    image: author.avatarUrl || undefined,
+    image: author.profilePhotoUrl || undefined,
   });
 
   return (
@@ -47,16 +48,7 @@ export default function AuthorProfile({ author, posts }: Props) {
       </Head>
       <main className="max-w-4xl mx-auto px-4 py-6">
       <header className="flex items-start gap-4 mb-6">
-        {author.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={author.avatarUrl}
-            alt=""
-            className="h-16 w-16 rounded-full ring-1 ring-black/5 object-cover"
-          />
-        ) : (
-          <div className="h-16 w-16 rounded-full ring-1 ring-black/5 bg-neutral-100" />
-        )}
+        <ProfilePhoto name={author.name} url={author.profilePhotoUrl} size={64} className="h-16 w-16" />
         <div className="min-w-0">
           <h1 className="text-2xl font-bold leading-tight">{author.name}</h1>
           {author.bio ? (
@@ -156,7 +148,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   let user = await User.findOne({
     $or: [{ slug }, { username: slug }],
   })
-    .select("name bio avatarUrl slug followersCount")
+    .select("name bio profilePhotoUrl slug followersCount")
     .lean()
     .catch(() => null as any);
 
@@ -176,7 +168,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const author = {
     name: derivedName,
     bio: user?.bio || "",
-    avatarUrl: user?.avatarUrl || "",
+    profilePhotoUrl: user?.profilePhotoUrl || "",
     slug: user?.slug || slug,
     counts: { posts: posts.length, followers: user?.followersCount },
   };

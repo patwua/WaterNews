@@ -5,8 +5,9 @@ export interface IUser {
   email: string
   passwordHash: string
   bio: string
-  avatarUrl: string
+  profilePhotoUrl: string
   role: 'author' | 'admin'
+  isOrganization?: boolean
   followedAuthors: string[]
   followedTags: string[]
 }
@@ -16,7 +17,8 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, unique: true, required: true, lowercase: true, index: true },
   passwordHash: { type: String, required: true },
   bio: { type: String, default: '' },
-  avatarUrl: { type: String, default: '' },
+  profilePhotoUrl: { type: String, default: '' },
+  isOrganization: { type: Boolean, default: false },
   role: { type: String, enum: ['author','admin'], default: 'author' },
   followedAuthors: { type: [String], default: [] },
   followedTags: { type: [String], default: [] },
