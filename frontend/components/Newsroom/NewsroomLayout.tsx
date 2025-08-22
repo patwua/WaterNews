@@ -5,6 +5,8 @@ import MediaLibraryModal from '@/components/MediaLibraryModal';
 
 export default function NewsroomLayout({ active, children }: { active: string; children: React.ReactNode }) {
   const [me, setMe] = useState<any>(null);
+  const [badges, setBadges] = useState<any>(null);
+  const [summary, setSummary] = useState<any>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState<{ displayName?: string; handle?: string; photoUrl?: string }>({});
 
@@ -16,6 +18,13 @@ export default function NewsroomLayout({ active, children }: { active: string; c
         setMe(d);
         setForm({ displayName: d?.name || '', handle: d?.handle || '', photoUrl: d?.image || '' });
       }
+    })();
+    (async () => {
+      const [b, s] = await Promise.all([
+        fetch('/api/newsroom/badges').then(r=>r.ok? r.json(): null),
+        fetch('/api/users/summary').then(r=>r.ok? r.json(): null),
+      ]);
+      setBadges(b); setSummary(s);
     })();
   }, []);
 
@@ -53,6 +62,9 @@ export default function NewsroomLayout({ active, children }: { active: string; c
               <div className="font-medium truncate">{me?.name || 'Your Name'}</div>
               <div className="text-xs text-gray-600 truncate">@{me?.handle || 'handle'}</div>
               <button className="text-xs underline text-blue-600" onClick={() => setEditOpen(true)}>Edit profile</button>
+              {summary?.followers != null ? (
+                <div className="text-xs text-gray-500">{summary.followers} followers</div>
+              ) : null}
             </div>
           </div>
 
@@ -66,9 +78,9 @@ export default function NewsroomLayout({ active, children }: { active: string; c
           {/* Nav */}
           <nav className="space-y-1">
             <NavItem href="/newsroom/dashboard" label="Dashboard" active={active==='dashboard'} />
-            <NavItem href="/newsroom/notice-board" label="Notice Board" active={active==='notice'} />
-            <NavItem href="/newsroom" label="Publisher" active={active==='publisher'} />
-            <NavItem href="/newsroom/collab" label="Collaboration" active={active==='collab'} />
+            <NavItem href="/newsroom/notice-board" label="Notice Board" active={active==='notice'} badge={badges?.noticesUnread} />
+            <NavItem href="/newsroom" label="Publisher" active={active==='publisher'} badge={badges?.scheduled} />
+            <NavItem href="/newsroom/collab" label="Collaboration" active={active==='collab'} badge={badges?.collabOpportunities} />
             <NavItem href="/newsroom/media" label="Media" active={active==='media'} />
             <NavItem href="/newsroom/assistant" label="AI Assistant" active={active==='assistant'} />
             <NavItem href="/newsroom/profile" label="Profile" active={active==='profile'} />
@@ -119,9 +131,12 @@ export default function NewsroomLayout({ active, children }: { active: string; c
   );
 }
 
-function NavItem({ href, label, active }: { href: string; label: string; active?: boolean }) {
+function NavItem({ href, label, active, badge }: { href: string; label: string; active?: boolean; badge?: number }) {
   return (
-    <Link href={href} className={`block px-3 py-2 rounded ${active ? 'bg-black text-white' : 'hover:bg-gray-100'}`}>{label}</Link>
+    <Link href={href} className={`flex items-center justify-between px-3 py-2 rounded ${active ? 'bg-black text-white' : 'hover:bg-gray-100'}`}>
+      <span>{label}</span>
+      {badge ? <span className={`text-xs px-2 py-0.5 rounded-full ${active ? 'bg-white text-black' : 'bg-black text-white'}`}>{badge}</span> : null}
+    </Link>
   );
 }
 
@@ -133,5 +148,18 @@ function MediaPicker({ onPick }: { onPick: (url: string)=>void }) {
       <MediaLibraryModal open={open} onClose={()=>setOpen(false)} onSelect={(asset:any)=>onPick(asset.secure_url || asset.url)} />
     </>
   );
+}
+
+// Keyboard shortcut: N => new draft
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', (e) => {
+    if ((e.target as HTMLElement)?.tagName === 'INPUT' || (e.target as HTMLElement)?.tagName === 'TEXTAREA') return;
+    if ((e.key === 'n' || e.key === 'N') && (e.ctrlKey || e.metaKey || !e.shiftKey)) {
+      if (location.pathname.startsWith('/newsroom')) {
+        e.preventDefault();
+        const u = new URL(location.href); u.searchParams.set('new', '1'); location.href = u.toString();
+      }
+    }
+  });
 }
 
