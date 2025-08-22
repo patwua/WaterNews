@@ -5,6 +5,7 @@ import BreakingTicker from "@/components/BreakingTicker";
 import Link from "next/link";
 import BrandLogo from "./BrandLogo";
 import { useEffect, useState } from "react";
+import ProfilePhoto from "@/components/User/ProfilePhoto";
 
 export default function Header() {
   const [me, setMe] = useState<any>(null);
@@ -35,6 +36,18 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <SearchBox />
           <NotificationsBellMenu />
+          {me && (
+            <Link href="/account" className="inline-flex items-center">
+              <ProfilePhoto
+                name={me.displayName || me.name}
+                url={me.profilePhotoUrl}
+                isVerified={me.verified?.status === true}
+                isOrganization={me.isOrganization === true}
+                size={32}
+                className="shrink-0"
+              />
+            </Link>
+          )}
         </div>
       </div>
       {/* Bottom row: ticker inside header so it always sticks */}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ShellContext } from './ShellContext';
 import { signOut } from 'next-auth/react';
+import ProfilePhoto from '@/components/User/ProfilePhoto';
 
 // Global shell that shows the NewsRoom sidebar for LOGGED-IN users on every page.
 // Sidebar uses a water/sky tint; bio is data-only; nav mirrors NewsRoom sections.
@@ -76,11 +77,13 @@ export default function GlobalShell({ children }: { children: React.ReactNode })
           <div className="p-4 space-y-4 shrink-0">
             <div className="text-xs uppercase tracking-widest text-sky-700">NewsRoom</div>
             <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={summary?.avatarUrl || summary?.image || '/apple-touch-icon.png'}
-                alt=""
-                className="w-12 h-12 rounded-full object-cover border border-sky-200"
+              <ProfilePhoto
+                name={summary?.displayName || summary?.name || 'Your Name'}
+                url={summary?.profilePhotoUrl || summary?.image || '/apple-touch-icon.png'}
+                isVerified={summary?.verified?.status === true}
+                isOrganization={summary?.isOrganization === true}
+                size={48}
+                className="border border-sky-200"
               />
               <div className="min-w-0">
                 <div className="font-medium truncate">{summary?.displayName || summary?.name || 'Your Name'}</div>
