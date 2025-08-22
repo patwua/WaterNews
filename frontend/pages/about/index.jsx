@@ -215,7 +215,7 @@ export default function AboutPage() {
             </div>
             <div className="grid min-h-[220px] place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4">
               <Image
-                src="/team/tatiana-chow.png"
+                src="https://res.cloudinary.com/dpdhi4joq/image/upload/t_tatiana-chow/tatiana-chow_jc8idr"
                 alt="Tatiana Chow headshot"
                 width={220}
                 height={220}
