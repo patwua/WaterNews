@@ -2,6 +2,7 @@ import type { GetServerSideProps } from 'next';
 import { requireAuthSSR } from '@/lib/user-guard';
 import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 import { useEffect, useState } from 'react';
+import { SkeletonTiles } from '@/components/UX/Skeleton';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx as any);
 
@@ -28,7 +29,7 @@ export default function NoticeBoard() {
         <textarea className="w-full border rounded px-3 py-2 min-h-[120px]" placeholder="Write a platform update, suggestion, or discussion topic…" value={body} onChange={e=>setBody(e.target.value)} />
         <div><button onClick={post} className="px-3 py-2 rounded bg-black text-white text-sm">Publish notice</button></div>
       </div>
-      {loading ? <div>Loading…</div> : (
+      {loading ? <SkeletonTiles rows={6} /> : (
         <ul className="space-y-4">
           {items.map((n:any)=>(
             <li key={String(n._id)} className="border rounded-xl p-4">

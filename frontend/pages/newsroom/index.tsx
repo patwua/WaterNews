@@ -4,16 +4,19 @@ import StatusPill from '@/components/StatusPill';
 import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 import type { GetServerSideProps } from 'next';
 import { requireAuthSSR } from '@/lib/user-guard';
+import { SkeletonTiles } from '@/components/UX/Skeleton';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx as any);
 
 export default function PublisherHub() {
   const [drafts, setDrafts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     (async () => {
       const r = await fetch('/api/newsroom/drafts');
       const d = await r.json();
       setDrafts(d.items || d.drafts || []);
+      setLoading(false);
     })();
   }, []);
   return (
@@ -22,6 +25,7 @@ export default function PublisherHub() {
         <h1 className="text-2xl font-semibold">Publisher</h1>
         <button onClick={createDraft} className="px-3 py-2 rounded bg-black text-white text-sm">New draft</button>
       </div>
+      {loading ? <SkeletonTiles rows={8} /> : (
       <ul className="divide-y rounded-xl border">
         {drafts.map((it: any) => (
           <li key={it._id} className="flex items-center justify-between p-4">
@@ -43,6 +47,7 @@ export default function PublisherHub() {
           </li>
         ))}
       </ul>
+      )}
     </NewsroomLayout>
   );
 }

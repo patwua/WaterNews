@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { requireAuthSSR } from '@/lib/user-guard';
-import MediaLibraryModal from '@/components/MediaLibraryModal';
 import StatusPill from '@/components/StatusPill';
 import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
+import Link from 'next/link';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -11,7 +11,6 @@ export default function WriterDraftEditor() {
   const id = useMemo(() => (typeof window !== 'undefined' ? location.pathname.split('/').pop() : ''), []);
   const [doc, setDoc] = useState<any>(null);
   const [saving, setSaving] = useState<'idle' | 'dirty' | 'saving' | 'saved'>('idle');
-  const [openMedia, setOpenMedia] = useState(false);
   const timer = useRef<any>(null);
   const localKey = useMemo(() => `wn_user_draft_${id}`, [id]);
 
@@ -70,19 +69,20 @@ export default function WriterDraftEditor() {
               : 'Idle'}
           </span>
         </div>
-        <div className="flex gap-2">
-          <input
-            type="datetime-local"
-            value={doc.publishAt || ''}
-            onChange={(e) =>
-              queueSave({
-                ...doc,
-                publishAt: e.target.value || null,
-                status: e.target.value ? 'scheduled' : (doc.status || 'draft'),
-              })
-            }
-            className="border rounded px-2 py-1 text-sm"
-          />
+          <div className="flex gap-2">
+            <Link href={`/newsroom/media?draftId=${encodeURIComponent(id)}`} className="px-3 py-2 rounded border text-sm">Open Media Library</Link>
+            <input
+              type="datetime-local"
+              value={doc.publishAt || ''}
+              onChange={(e) =>
+                queueSave({
+                  ...doc,
+                  publishAt: e.target.value || null,
+                  status: e.target.value ? 'scheduled' : (doc.status || 'draft'),
+                })
+              }
+              className="border rounded px-2 py-1 text-sm"
+            />
           <select
             className="border rounded px-2 py-1 text-sm"
             value={doc.status || 'draft'}
@@ -147,46 +147,31 @@ export default function WriterDraftEditor() {
         onChange={(e) => queueSave({ ...doc, body: e.target.value })}
       />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          className="border rounded px-2 py-1 text-sm"
-          placeholder="Comma, tags"
-          value={(doc.tags || []).join(',')}
-          onChange={(e) =>
-            queueSave({
-              ...doc,
-              tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
-            })
-          }
-        />
-        <button className="px-3 py-2 rounded bg-gray-100" onClick={() => setOpenMedia(true)}>
-          Insert Media
-        </button>
-      </div>
-
-      {!!(doc.media?.length) && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {doc.media.map((m: any) => (
-            <div key={m.public_id} className="border rounded overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={m.secure_url || m.url} alt={m.public_id} className="w-full h-32 object-cover" />
-              <div className="text-xs p-2 truncate">{m.public_id}</div>
-            </div>
-          ))}
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            className="border rounded px-2 py-1 text-sm"
+            placeholder="Comma, tags"
+            value={(doc.tags || []).join(',')}
+            onChange={(e) =>
+              queueSave({
+                ...doc,
+                tags: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
+              })
+            }
+          />
         </div>
-      )}
 
-      <MediaLibraryModal
-        open={openMedia}
-        onClose={() => setOpenMedia(false)}
-        onSelect={(asset: any) => {
-          const media = [
-            ...(doc.media || []),
-            { public_id: asset.public_id, url: asset.url, secure_url: asset.secure_url },
-          ];
-          queueSave({ ...doc, media });
-        }}
-      />
+        {!!(doc.media?.length) && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {doc.media.map((m: any) => (
+              <div key={m.public_id} className="border rounded overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={m.secure_url || m.url} alt={m.public_id} className="w-full h-32 object-cover" />
+                <div className="text-xs p-2 truncate">{m.public_id}</div>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="pt-6">
         <a href="/newsroom/posts" className="text-sm underline underline-offset-4">See my published posts →</a>
       </div>

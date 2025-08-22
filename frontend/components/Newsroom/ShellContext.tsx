@@ -1,3 +1,3 @@
-import { createContext, useContext } from 'react';
-export const ShellContext = createContext<{ hasShell: boolean }>({ hasShell: false });
-export function useShell(){ return useContext(ShellContext); }
+import * as React from 'react';
+export const ShellContext = React.createContext<{ hasShell: boolean }>({ hasShell: false });
+export function useShell(){ return React.useContext(ShellContext); }

@@ -4,6 +4,7 @@ import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 import StatsCards from '@/components/Newsroom/StatsCards';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { SkeletonCardGrid } from '@/components/UX/Skeleton';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx as any);
 
@@ -13,7 +14,7 @@ export default function NewsroomDashboard() {
   return (
     <NewsroomLayout>
       <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
-      <StatsCards data={stats} />
+      {stats ? <StatsCards data={stats} /> : <SkeletonCardGrid count={4} />}
       <div className="mt-6 grid md:grid-cols-3 gap-4">
         <Card title="Create a new publication" href="#" cta onClick={createNewDraft} />
         <Card title="New Notice" href="/newsroom/notice-board" />
