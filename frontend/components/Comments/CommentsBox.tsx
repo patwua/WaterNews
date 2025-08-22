@@ -7,18 +7,21 @@ export default function CommentsBox({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [threadUrl, setThreadUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
-        const [u, c] = await Promise.all([
+        const [u, c, t] = await Promise.all([
           fetch('/api/users/me').then(r => r.ok ? r.json() : null),
-          fetch(`/api/comments?slug=${encodeURIComponent(slug)}`).then(r => r.json())
+          fetch(`/api/comments?slug=${encodeURIComponent(slug)}`).then(r => r.json()),
+          fetch(`/api/news/posts/${encodeURIComponent(slug)}`).then(r => r.json()).catch(()=>({}))
         ]);
         if (!mounted) return;
         setMe(u);
         setItems(c?.items || []);
+        setThreadUrl(t?.patwuaThreadUrl || null);
       } catch (e: any) {
         setError(e?.message || 'Failed to load comments');
       } finally { if (mounted) setLoading(false); }
@@ -50,9 +53,15 @@ export default function CommentsBox({ slug }: { slug: string }) {
     <section className="border rounded-xl p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-medium">Comments</h3>
-        <a href="https://patwua.com" target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
-          Discuss on Patwua →
-        </a>
+        {threadUrl ? (
+          <a href={threadUrl} target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
+            Discuss on Patwua →
+          </a>
+        ) : (
+          <a href="https://patwua.com" target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
+            Discuss on Patwua →
+          </a>
+        )}
       </div>
 
       {loading ? <div className="text-gray-500 text-sm">Loading…</div> : null}
