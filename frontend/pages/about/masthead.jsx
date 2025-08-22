@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
+import { withCloudinaryAuto } from "@/lib/media";
 
 const contacts = [
   {
@@ -36,7 +37,9 @@ const people = [
     role: "Editor-in-Chief — Current Events & Lifestyle",
     bio: `Guyana-born editor focused on clear, inclusive storytelling across current events and lifestyle. Leads WaterNews’ editorial direction and standards.`,
     email: "editor@waternewsgy.com",
-    headshot: "https://res.cloudinary.com/dpdhi4joq/image/upload/t_tatiana-chow/tatiana-chow_jc8idr",
+    headshot: withCloudinaryAuto(
+      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
+    ),
   },
   {
     name: "Contributor (Open Role)",
