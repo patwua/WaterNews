@@ -44,6 +44,10 @@ export default function AdminHome() {
           <div className="font-medium">Draft Reviews</div>
           <div className="text-sm text-gray-600">Approve, request changes, assign reviewers</div>
         </Link>
+        <Link href="/admin/moderation/comments" className="block border rounded-xl p-4 hover:shadow">
+          <div className="font-medium">Comments Moderation</div>
+          <div className="text-sm text-gray-600">Approve/reject/delete comments</div>
+        </Link>
       </div>
     </div>
   );
