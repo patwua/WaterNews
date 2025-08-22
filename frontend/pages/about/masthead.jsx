@@ -35,7 +35,7 @@ const people = [
     role: "Editor-in-Chief — Current Events & Lifestyle",
     bio: `Guyana-born editor focused on clear, inclusive storytelling across current events and lifestyle. Leads WaterNews’ editorial direction and standards.`,
     email: "editor@waternewsgy.com",
-    headshot: null, // put "/team/tatiana.jpg" later
+    headshot: "https://res.cloudinary.com/dpdhi4joq/image/upload/t_tatiana-chow/tatiana-chow_jc8idr",
   },
   {
     name: "Contributor (Open Role)",
