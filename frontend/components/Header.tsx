@@ -5,6 +5,7 @@ import BreakingTicker from "@/components/BreakingTicker";
 import Link from "next/link";
 import Image from "next/image";
 
+// Header omits Newsroom link; global shell exposes it for members
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
@@ -31,14 +32,8 @@ export default function Header() {
           <SmartMenu />
         </div>
 
-        {/* right actions: newsroom link (member area) + inline expanding search + bell */}
+        {/* right actions: inline expanding search + bell (Newsroom handled via sidebar) */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/newsroom"
-            className="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-700"
-          >
-            Newsroom
-          </Link>
           <SearchBox />
           <NotificationsBellMenu />
         </div>

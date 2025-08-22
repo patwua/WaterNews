@@ -1,3 +1,4 @@
+// Add FAQ link to footer nav
 import Link from "next/link";
 import Image from "next/image";
 
@@ -18,6 +19,7 @@ export default function Footer() {
             <Link href="/suggest-story">Suggest a Story</Link>
             <Link href="/editorial-standards">Editorial Standards</Link>
             <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/faq">FAQ</Link>
             <Link href="/prefs">Preferences</Link>
             <Link href="/login">Login</Link>
           </nav>

@@ -16,31 +16,11 @@ export default function PublisherHub() {
       setDrafts(d.items || d.drafts || []);
     })();
   }, []);
-  useEffect(() => {
-    // quick-create new draft if ?new=1
-    if (typeof window === 'undefined') return;
-    const u = new URL(window.location.href);
-    if (u.searchParams.get('new') === '1') {
-      u.searchParams.delete('new');
-      history.replaceState({}, '', u.toString());
-      fetch('/api/newsroom/drafts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Untitled draft' })
-      })
-        .then(r => r.json())
-        .then(d => {
-          if (d?.id || d?._id) location.href = `/newsroom/drafts/${d.id || d._id}`;
-        });
-    }
-  }, []);
   return (
-    <NewsroomLayout active="publisher">
+    <NewsroomLayout>
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold">Publisher</h1>
-        <Link href="/newsroom?new=1" className="px-3 py-2 rounded bg-black text-white text-sm">
-          New draft
-        </Link>
+        <button onClick={createDraft} className="px-3 py-2 rounded bg-black text-white text-sm">New draft</button>
       </div>
       <ul className="divide-y rounded-xl border">
         {drafts.map((it: any) => (
@@ -56,12 +36,29 @@ export default function PublisherHub() {
                 updated {it.updatedAt ? new Date(it.updatedAt).toLocaleString() : '—'}
               </div>
             </div>
-            <Link href={`/newsroom/drafts/${it._id}`} className="text-blue-600 hover:underline">
-              Open
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href={`/newsroom/drafts/${it._id}`} className="text-blue-600 hover:underline">Open</Link>
+              <button onClick={()=>del(it._id)} className="text-sm text-red-600 underline">Delete</button>
+            </div>
           </li>
         ))}
       </ul>
     </NewsroomLayout>
   );
+}
+
+async function createDraft(){
+  try{
+    const r = await fetch('/api/newsroom/drafts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: 'Untitled draft' })});
+    const d = await r.json();
+    const id = d?.id || d?._id;
+    if (id) location.href = `/newsroom/drafts/${id}`;
+    else alert('Failed to create draft');
+  }catch{ alert('Failed to create draft'); }
+}
+async function del(id:string){
+  if (!confirm('Delete this draft? This cannot be undone.')) return;
+  const r = await fetch(`/api/newsroom/drafts/${encodeURIComponent(id)}/delete`, { method:'POST' });
+  if (!r.ok) { const d = await r.json().catch(()=>({})); return alert(d?.error || 'Delete failed'); }
+  location.reload();
 }
