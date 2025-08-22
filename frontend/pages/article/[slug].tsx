@@ -4,8 +4,10 @@ import Head from 'next/head'
 import axios from 'axios'
 import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript } from '@/lib/seo'
 import dynamic from 'next/dynamic'
+import RecircSkeleton from '@/components/Recirculation/RecircSkeleton'
 
-const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false })
+const RecircWidget = dynamic(() => import('@/components/Recirculation/RecircWidget'), { ssr: false, loading: () => <RecircSkeleton /> })
+const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false, loading: () => <RecircSkeleton /> })
 const ReactionBar = dynamic(() => import('@/components/Engagement/ReactionBar'), { ssr: false })
 const CommentsBox = dynamic(() => import('@/components/Comments/CommentsBox'), { ssr: false })
 
@@ -86,6 +88,7 @@ export default function ArticlePage() {
       </div>
       <div className="max-w-3xl mx-auto px-4 py-6">
         <TrendingRail />
+        <RecircWidget />
       </div>
     </>
   )

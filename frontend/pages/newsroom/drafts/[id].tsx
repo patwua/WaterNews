@@ -4,6 +4,8 @@ import { requireAuthSSR } from '@/lib/user-guard';
 import StatusPill from '@/components/StatusPill';
 import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 import Link from 'next/link';
+import MarkdownEditor from '@/components/Newsroom/MarkdownEditor';
+import DraftComments from '@/components/Newsroom/DraftComments';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -31,24 +33,27 @@ export default function WriterDraftEditor() {
     })();
   }, [id, localKey]);
 
+  async function save(payload?: any) {
+    const body = JSON.stringify(payload || doc);
+    setSaving('saving');
+    const r = await fetch(`/api/newsroom/drafts/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    const d = await r.json();
+    setDoc(d);
+    setSaving('saved');
+    setTimeout(() => setSaving('idle'), 1000);
+    localStorage.removeItem(localKey);
+  }
+
   function queueSave(next: any) {
     setDoc(next);
     setSaving('dirty');
     localStorage.setItem(localKey, JSON.stringify(next));
     if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      setSaving('saving');
-      const r = await fetch(`/api/newsroom/drafts/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(next),
-      });
-      const d = await r.json();
-      setDoc(d);
-      setSaving('saved');
-      setTimeout(() => setSaving('idle'), 1000);
-      localStorage.removeItem(localKey);
-    }, 600);
+    timer.current = setTimeout(() => save(next), 600);
   }
 
   if (!doc) return <div className="p-4">Loading…</div>;
@@ -140,12 +145,19 @@ export default function WriterDraftEditor() {
         onChange={(e) => queueSave({ ...doc, title: e.target.value })}
       />
 
-      <textarea
-        className="w-full h-[50vh] border rounded p-3 leading-7"
-        placeholder="Write your story…"
+      <MarkdownEditor
         value={doc.body || ''}
-        onChange={(e) => queueSave({ ...doc, body: e.target.value })}
+        onChange={(v) => {
+          const next = { ...doc, body: v };
+          setDoc(next);
+          setSaving('dirty');
+          localStorage.setItem(localKey, JSON.stringify(next));
+        }}
+        onSave={() => save()}
+        draftId={id as string}
       />
+
+        <DraftComments draftId={id as string} />
 
         <div className="flex flex-wrap items-center gap-2">
           <input

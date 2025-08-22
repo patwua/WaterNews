@@ -4,9 +4,11 @@ import axios from 'axios'
 import Hero from '../components/Hero'
 import MasonryFeed from '../components/MasonryFeed'
 import dynamic from 'next/dynamic'
+import RecircSkeleton from '@/components/Recirculation/RecircSkeleton'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
 
-const RecircWidget = dynamic(() => import('../components/Recirculation/RecircWidget'), { ssr: false })
+const RecircWidget = dynamic(() => import('@/components/Recirculation/RecircWidget'), { ssr: false, loading: () => <RecircSkeleton /> })
+const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false, loading: () => <RecircSkeleton /> })
 
 type Article = {
   _id?: string
@@ -161,6 +163,7 @@ export default function HomePage() {
           />
           {/* Recirculation: Trending + Latest */}
           <div className="mt-8">
+            <TrendingRail />
             <RecircWidget />
           </div>
 

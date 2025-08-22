@@ -126,7 +126,7 @@ export default function EditorPage() {
 
       <section className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-4">
         <div className="max-w-4xl">
-          <MarkdownEditor draft={{ id: draftId, body }} onChange={setBody} />
+          <MarkdownEditor value={body} onChange={setBody} onSave={save} draftId={draftId || undefined} />
           <div className="mt-4 flex gap-3">
             <button onClick={save} className="rounded-xl border px-4 py-2 hover:bg-neutral-50">Save Draft</button>
             <button onClick={publish} className="rounded-xl bg-blue-600 text-white px-4 py-2 hover:bg-blue-700">Publish</button>
