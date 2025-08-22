@@ -18,8 +18,7 @@ export default function AssistantHub() {
     } finally { setBusy(false); }
   }
   return (
-    <NewsroomLayout active="assistant">
-      <h1 className="text-2xl font-semibold mb-4">AI Assistant</h1>
+    <NewsroomLayout title="AI Assistant">
       <p className="text-sm text-gray-600 mb-3">Paste a draft. We’ll surface related context (site + web), angle suggestions, links, and outline tweaks.</p>
       <textarea className="w-full border rounded p-3 min-h-[200px]" placeholder="Paste your draft or notes…" value={input} onChange={e=>setInput(e.target.value)} />
       <div className="mt-2"><button disabled={!input.trim() || busy} onClick={run} className="px-3 py-2 rounded bg-black text-white text-sm disabled:opacity-50">{busy? 'Thinking…' : 'Get suggestions'}</button></div>

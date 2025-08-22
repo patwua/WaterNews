@@ -1,8 +1,21 @@
-// Layout shim: with the GlobalShell active site-wide, this component becomes a simple wrapper that
-// renders its children inside the main column. Keeps signatures stable for newsroom pages.
-import { useShell } from './ShellContext';
+import React from "react";
 
-export default function NewsroomLayout({ children }: { active?: string; children: React.ReactNode }) {
-  const shell = useShell();
-  return shell?.hasShell ? <div className="p-6">{children}</div> : <div className="max-w-5xl mx-auto p-6">{children}</div>;
+type Props = {
+  title?: string;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+};
+
+// Minimal, shell-agnostic layout for Newsroom pages.
+// GlobalShell now owns all sidebar/topbar logic across the app.
+export default function NewsroomLayout({ title = "Newsroom", actions, children }: Props) {
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        <div>{actions}</div>
+      </div>
+      {children}
+    </div>
+  );
 }
