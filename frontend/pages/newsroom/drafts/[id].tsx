@@ -7,6 +7,7 @@ import Link from 'next/link';
 import MarkdownEditor from '@/components/Newsroom/MarkdownEditor';
 import DraftComments from '@/components/Newsroom/DraftComments';
 import ActivityTrail from '@/components/Newsroom/ActivityTrail';
+import RewriteChips from '@/components/Newsroom/RewriteChips';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -147,16 +148,24 @@ export default function WriterDraftEditor() {
         />
 
         <MarkdownEditor
-          value={doc.body || ''}
-          onChange={(v) => {
-            const next = { ...doc, body: v };
-            setDoc(next);
-            setSaving('dirty');
-            localStorage.setItem(localKey, JSON.stringify(next));
-          }}
-          onSave={() => save()}
-          draftId={id as string}
-        />
+            value={doc.body || ''}
+            onChange={(v) => {
+              const next = { ...doc, body: v };
+              setDoc(next);
+              setSaving('dirty');
+              localStorage.setItem(localKey, JSON.stringify(next));
+            }}
+            onSave={() => save()}
+            draftId={id as string}
+            exposeAPI={(api)=> { (window as any).__editorAPI = api; (draftEditorApi as any).current = api; }}
+          />
+          {/* AI rewrite chips act on selection or whole text */}
+          <RewriteChips
+            getSelection={()=> (draftEditorApi as any).current?.getSelection?.() || {start:0,end:0,text:''}}
+            replaceSelection={(t)=> (draftEditorApi as any).current?.replaceSelection?.(t)}
+            getText={()=> (draftEditorApi as any).current?.getText?.() || (doc.body||'')}
+            setText={(t)=> { (draftEditorApi as any).current?.setText?.(t); const next = { ...doc, body: t }; setDoc(next); setSaving('dirty'); localStorage.setItem(localKey, JSON.stringify(next)); }}
+          />
 
         <DraftComments draftId={id as string} />
 
@@ -221,4 +230,8 @@ function PresenceStrip({ draftId }: { draftId: string }) {
     </div>
   );
 }
+
+
+// Local ref to hold editor API (avoid TS type noise)
+const draftEditorApi = { current: null as any };
 

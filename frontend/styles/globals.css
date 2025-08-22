@@ -91,6 +91,11 @@ h1, h2, h3, h4, h5, h6 { scroll-margin-top: 72px; }
 }
 .btn-ghost:hover { background-color: rgba(0,0,0,0.04); }
 
+/* Chips */
+.chip {
+  @apply px-2 py-1 text-xs rounded-full border;
+}
+
 /* Print styles — cleaner pages for readers */
 @media print {
   /* basic colors on white background */
