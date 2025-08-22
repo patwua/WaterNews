@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 import { requireAuthSSR } from '@/lib/user-guard';
 import MediaLibraryModal from '@/components/MediaLibraryModal';
 import StatusPill from '@/components/StatusPill';
+import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -54,12 +55,13 @@ export default function WriterDraftEditor() {
   if (!doc) return <div className="p-4">Loading…</div>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500 flex items-center gap-3">
-          <StatusPill status={doc.status} />
-          <span>
-            {saving === 'saving'
+    <NewsroomLayout active="publisher">
+      <div className="max-w-5xl mx-auto p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-500 flex items-center gap-3">
+            <StatusPill status={doc.status} />
+            <span>
+              {saving === 'saving'
               ? 'Saving…'
               : saving === 'saved'
               ? 'Saved'
@@ -173,10 +175,11 @@ export default function WriterDraftEditor() {
           queueSave({ ...doc, media });
         }}
       />
-      <div className="pt-6">
+        <div className="pt-6">
         <a href="/newsroom/posts" className="text-sm underline underline-offset-4">See my published posts →</a>
       </div>
-    </div>
+      </div>
+    </NewsroomLayout>
   );
 }
 
