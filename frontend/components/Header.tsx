@@ -3,42 +3,40 @@ import SearchBox from "@/components/SearchBox";
 import NotificationsBellMenu from "@/components/NotificationsBellMenu";
 import BreakingTicker from "@/components/BreakingTicker";
 import Link from "next/link";
-import Image from "next/image";
+import BrandLogo from "./BrandLogo";
+import { useEffect, useState } from "react";
 
-// Header omits Newsroom link; global shell exposes it for members
 export default function Header() {
+  const [me, setMe] = useState<any>(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch("/api/users/me");
+        if (r.ok) setMe(await r.json());
+      } catch {}
+    })();
+  }, []);
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur md:ml-64">
       {/* Top row: logo • SmartMenu • actions */}
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
         <Link
-          href="/"
+          href={me?.email ? "/newsroom/dashboard" : "/"}
           aria-label="WaterNews — Home"
           className="shrink-0 inline-flex items-center"
         >
-          {/* Use SVG logo directly, larger for readability */}
-          <Image
-            src="/logo-waternews.svg"
-            alt="WaterNews"
-            width={384}
-            height={64}
-            priority
-            className="h-16 w-auto"
-          />
+          <BrandLogo size={64} className="h-16 w-auto" />
         </Link>
-
         {/* center: SmartMenu */}
         <div className="flex-1 min-w-0">
           <SmartMenu />
         </div>
-
         {/* right actions: inline expanding search + bell (Newsroom handled via sidebar) */}
         <div className="flex items-center gap-2">
           <SearchBox />
           <NotificationsBellMenu />
         </div>
       </div>
-
       {/* Bottom row: ticker inside header so it always sticks */}
       <div className="border-t">
         <BreakingTicker />
@@ -46,3 +44,4 @@ export default function Header() {
     </header>
   );
 }
+

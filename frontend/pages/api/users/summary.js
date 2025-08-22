@@ -4,19 +4,21 @@ import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  const email = session?.user?.email || null;
-  if (!email) return res.status(401).json({ error: 'Unauthorized' });
+  const who = session?.user?.email || null;
+  if (!who) return res.status(401).json({ error: 'Unauthorized' });
   const db = await getDb();
-  const follows = db.collection('follows'); // expected shape: { user: string, follower: string }
   const users = db.collection('users');
-  const nowIso = new Date().toISOString();
-  // Upsert lastSeenAt on access
-  await users.updateOne({ email: email.toLowerCase() }, { $set: { lastSeenAt: nowIso } }, { upsert: true });
-  const me = await users.findOne({ email: email.toLowerCase() }, { projection: { handle: 1, name: 1, image: 1, lastSeenAt: 1 } });
-  const followers = await follows.countDocuments({ user: email.toLowerCase() }).catch(()=>0);
-  const following = await follows.countDocuments({ follower: email.toLowerCase() }).catch(()=>0);
-  res.json({ email,
-    handle: me?.handle || null, name: me?.name || null, image: me?.image || null,
-    followers, following, lastSeenAt: me?.lastSeenAt || nowIso
-  });
+  const me = await users.findOne(
+    { email: who },
+    { projection: { email:1, displayName:1, handle:1, bio:1, avatarUrl:1, followers:1, updatedAt:1, lastLoginAt:1 } }
+  );
+  res.json({ me, counts: await getCounts(db, who) });
 }
+
+async function getCounts(db, who) {
+  const drafts = await db.collection('drafts').countDocuments({ authorEmail: who });
+  const scheduled = await db.collection('drafts').countDocuments({ authorEmail: who, status: 'scheduled' });
+  // publisher count = drafts only (per request)
+  return { drafts, scheduled };
+}
+

@@ -1,51 +1,30 @@
 import { getDb } from '@/lib/db';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  try {
-    const db = await getDb();
-    const users = db.collection('users');
-    const { name, image, handle } = req.body || {};
-    const email = (req as any)?.body?.email || (req as any)?.user?.email || (req as any)?.session?.user?.email || req.query?.email || null;
-    // Prefer NextAuth session if available
-    const session = (await import('next-auth/next')).getServerSession ? await (await import('next-auth/next')).getServerSession(req as any, res as any, (await import('@/pages/api/auth/[...nextauth]')).authOptions) : null;
-    const sessionEmail = (session as any)?.user?.email || null;
-    const who = (sessionEmail || email || '').toLowerCase();
-    if (!who) return res.status(401).json({ error: 'Unauthorized' });
-
-    // Ensure unique handle (one-time set, case-insensitive)
-    if (handle) {
-      const desired = String(handle).trim();
-      if (!/^[a-z0-9_]{2,32}$/i.test(desired)) return res.status(400).json({ error: 'Invalid handle' });
-      const me = await users.findOne({ email: who }, { projection: { handle: 1, handleLower: 1 } });
-      if (me?.handle && me.handle.toLowerCase() !== desired.toLowerCase()) {
-        return res.status(409).json({ error: 'Handle already set and cannot be changed' });
-      }
-      const taken = await users.findOne({ handleLower: desired.toLowerCase(), email: { $ne: who } }, { projection: { _id: 1 } });
-      if (taken) return res.status(409).json({ error: 'Handle is taken' });
-      await users.updateOne(
-        { email: who },
-        { $set: { handle: desired, handleLower: desired.toLowerCase() } },
-        { upsert: true }
-      );
-    }
-
-    const update: any = {};
-    if (name) update.name = name;
-    if (image) update.image = image;
-    if (Object.keys(update).length) {
-      await users.updateOne(
-        { email: who },
-        { $set: update },
-        { upsert: true }
-      );
-    }
-
-    // helpful index (idempotent)
-    await users.createIndex({ handleLower: 1 }, { unique: true }).catch(()=>{});
-
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to update profile' });
+  const session = await getServerSession(req, res, authOptions);
+  const who = session?.user?.email || null;
+  if (!who) return res.status(401).json({ error: 'Unauthorized' });
+  const { displayName, handle, bio, avatarUrl } = req.body || {};
+  const db = await getDb();
+  const users = db.collection('users');
+  const updates: any = { updatedAt: new Date().toISOString() };
+  if (displayName != null) updates.displayName = String(displayName).slice(0, 120);
+  if (handle != null) updates.handle = String(handle).slice(0, 60);
+  if (bio != null) updates.bio = String(bio).slice(0, 2000);
+  if (avatarUrl != null) updates.avatarUrl = String(avatarUrl).slice(0, 2048);
+  if (handle) {
+    const exists = await users.findOne({ handle: String(handle).toLowerCase(), email: { $ne: who } });
+    if (exists) return res.status(409).json({ error: 'Handle already taken' });
+    updates.handle = String(handle).toLowerCase();
   }
+  const result = await users.updateOne({ email: who }, { $set: { email: who, ...updates } }, { upsert: true });
+  const me = await users.findOne(
+    { email: who },
+    { projection: { email:1, displayName:1, handle:1, bio:1, avatarUrl:1, followers:1, updatedAt:1 } }
+  );
+  res.json({ ok: true, user: me, upserted: !!result?.upsertedId });
 }
+
