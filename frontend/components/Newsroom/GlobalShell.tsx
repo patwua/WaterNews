@@ -31,4 +31,3 @@ export default function GlobalShell({ children }: { children: React.ReactNode })
     </ShellContext.Provider>
   );
 }
-
