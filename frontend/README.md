@@ -1,5 +1,12 @@
 # Frontend
 
+## Environment Variables
+- `PATWUA_FORWARD_URL`: optional URL to forward comments to Patwua.
+- `PATWUA_API_KEY`: optional API key for Patwua requests.
+- `PATWUA_CREATE_THREAD_URL`: optional endpoint to create Patwua discussion threads.
+- `COMMENTS_DIGEST_TOKEN`: token required to trigger the comments digest job.
+
+
 ## Troubleshooting
 - If `npm run typecheck` fails with “Cannot find type definition file for 'node'/'react'/'react-dom'`:
   - We intentionally rely on local `types/` and set "skipLibCheck": true.

@@ -5,6 +5,7 @@ import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
 import slugify from '@/lib/slugify';
 import sendEmail from '@/lib/email';
+import { createPatwuaThread } from '@/lib/patwua';
 
 async function ensureUniqueSlug(col, base) {
   const s = slugify(base || 'untitled');
@@ -59,6 +60,24 @@ export default async function handler(req, res) {
   );
 
   const post = await posts.findOne({ _id: ins.insertedId });
+
+  // Auto-provision Patwua thread (best-effort)
+  try {
+    if (!post?.patwuaThreadUrl) {
+      const base = process.env.NEXTAUTH_URL || '';
+      const url = `${base}/news/${post?.slug}`;
+      const threadUrl = await createPatwuaThread({
+        slug: post?.slug,
+        title: post?.title || 'Untitled',
+        excerpt: post?.excerpt || '',
+        url
+      });
+      if (threadUrl) {
+        await posts.updateOne({ _id: ins.insertedId }, { $set: { patwuaThreadUrl: threadUrl } });
+      }
+    }
+  } catch {}
+
   // Notify author
   try {
     const to = draft.authorEmail || email.toLowerCase();
