@@ -2,6 +2,7 @@ import type { GetServerSideProps } from 'next';
 import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
 import { requireAuthSSR } from '@/lib/user-guard';
 import { useEffect, useState } from 'react';
+import ProfilePhotoForm from '@/components/Settings/ProfilePhotoForm';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx as any);
 
@@ -10,41 +11,25 @@ export default function ProfilePage(){
   const [displayName, setDisplayName] = useState('');
   const [handle, setHandle] = useState('');
   const [bio, setBio] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string|null>(null);
-  const [file, setFile] = useState<File|null>(null);
   useEffect(()=>{ (async()=>{
     const r = await fetch('/api/users/summary');
     const d = await r.json(); setMe(d.me||null);
     setDisplayName(d?.me?.displayName || ''); setHandle(d?.me?.handle || '');
-    setBio(d?.me?.bio || ''); setAvatarUrl(d?.me?.avatarUrl || '');
+    setBio(d?.me?.bio || '');
   })(); },[]);
   async function save(){
     setBusy(true); setMsg(null);
     try{
-      // optional avatar upload
-      let finalAvatar = avatarUrl;
-      if (file) {
-        const dataUrl = await toDataUrl(file);
-        const rr = await fetch('/api/users/avatar', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ dataUrl })});
-        const dj = await rr.json();
-        if (!rr.ok) throw new Error(dj?.error || 'Avatar failed');
-        finalAvatar = dj.avatarUrl;
-      }
-      const r = await fetch('/api/users/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ displayName, handle, bio, avatarUrl: finalAvatar })});
+      const r = await fetch('/api/users/update', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ displayName, handle, bio })});
       const d = await r.json();
       if (!r.ok) throw new Error(d?.error || 'Update failed');
       setMsg('Saved!');
       setMe(d.user || me);
-      setAvatarUrl(finalAvatar);
-      setFile(null);
     } catch (e:any) {
       setMsg(e.message || 'Failed');
     } finally { setBusy(false); }
-  }
-  function toDataUrl(f: File): Promise<string> {
-    return new Promise((res, rej)=>{ const rd = new FileReader(); rd.onload=()=>res(String(rd.result)); rd.onerror=rej; rd.readAsDataURL(f); });
   }
   return (
     <NewsroomLayout>
@@ -57,15 +42,9 @@ export default function ProfilePage(){
         <label className="block text-sm text-gray-600 mb-1 mt-3">Bio</label>
         <textarea className="w-full border rounded px-3 py-2 min-h-[120px]" value={bio} onChange={e=>setBio(e.target.value)} placeholder="Tell readers about you…" />
         <div className="mt-3">
-          <div className="text-sm text-gray-600 mb-1">Avatar</div>
-          <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={file ? URL.createObjectURL(file) : (avatarUrl || '/placeholders/headshot.svg')} alt="" className="w-16 h-16 rounded-full object-cover border"/>
-            <div className="space-x-2">
-              <input type="file" accept="image/*" onChange={e=> setFile(e.target.files?.[0] || null)} />
-              <input className="border rounded px-2 py-1 text-sm" placeholder="…or paste image URL" value={avatarUrl} onChange={e=>setAvatarUrl(e.target.value)} />
-            </div>
-          </div>
+          {me?._id ? (
+            <ProfilePhotoForm userId={String(me._id)} initialUrl={me?.profilePhotoUrl} isOrganization={me?.isOrganization === true} />
+          ) : null}
         </div>
         <div className="pt-3">
           <button onClick={save} className="px-3 py-2 rounded bg-black text-white text-sm disabled:opacity-50" disabled={busy}>{busy?'Saving…':'Save'}</button>

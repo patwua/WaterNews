@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const users = db.collection('users');
   const me = await users.findOne(
     { email: who },
-    { projection: { email:1, displayName:1, handle:1, bio:1, avatarUrl:1, followers:1, updatedAt:1, lastLoginAt:1 } }
+    { projection: { _id:1, email:1, displayName:1, handle:1, bio:1, profilePhotoUrl:1, isOrganization:1, followers:1, updatedAt:1, lastLoginAt:1 } }
   );
   res.json({ me, counts: await getCounts(db, who) });
 }
