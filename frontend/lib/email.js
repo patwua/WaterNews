@@ -16,3 +16,5 @@ export async function sendEmail({ to, subject, html, text }) {
   await t.sendMail({ from, to, subject, html: html || text, text });
   return { ok: true };
 }
+
+export default sendEmail;

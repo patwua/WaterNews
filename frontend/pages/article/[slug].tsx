@@ -6,6 +6,8 @@ import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript } from '@/
 import dynamic from 'next/dynamic'
 
 const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false })
+const ReactionBar = dynamic(() => import('@/components/Engagement/ReactionBar'), { ssr: false })
+const CommentsBox = dynamic(() => import('@/components/Comments/CommentsBox'), { ssr: false })
 
 export default function ArticlePage() {
   const router = useRouter()
@@ -75,6 +77,12 @@ export default function ArticlePage() {
           👍 {article.engagement.likes} | 🔁 {article.engagement.shares} | 💬 {article.engagement.comments}
         </div>
       )}
+      <div className="mt-8">
+        <ReactionBar slug={String(slug)} />
+      </div>
+      <div className="mt-8">
+        <CommentsBox slug={String(slug)} />
+      </div>
       </div>
       <div className="max-w-3xl mx-auto px-4 py-6">
         <TrendingRail />
