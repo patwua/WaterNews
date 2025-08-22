@@ -15,10 +15,26 @@ export default function DraftEditor() {
   const [item, setItem] = useState(null);
   const [saving, setSaving] = useState(false);
   const [mediaOpen, setMediaOpen] = useState(false);
+  const [threadUrl, setThreadUrl] = useState(null);
+  const [threadBusy, setThreadBusy] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-    fetch(`/api/drafts/get?id=${id}`).then(r=>r.json()).then(d=>setItem(d.item || null));
+    let mounted = true;
+    (async () => {
+      const r = await fetch(`/api/drafts/get?id=${id}`);
+      const d = await r.json();
+      if (!mounted) return;
+      setItem(d.item || null);
+      const slug = d?.item?.slug;
+      if (slug) {
+        try {
+          const t = await fetch(`/api/news/posts/${encodeURIComponent(slug)}`).then(r=>r.json());
+          setThreadUrl(t?.patwuaThreadUrl || null);
+        } catch {}
+      }
+    })();
+    return () => { mounted = false; };
   }, [id]);
 
   const scheduleStr = useMemo(()=>{
@@ -122,6 +138,39 @@ export default function DraftEditor() {
             Second review required
           </label>
         </div>
+
+        {item?.slug ? (
+          <div className="border rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="font-medium">Discussion Thread (Patwua)</div>
+              {threadUrl ? (
+                <a href={threadUrl} target="_blank" rel="noreferrer" className="text-sm underline">Open thread →</a>
+              ) : null}
+            </div>
+            {!threadUrl ? (
+              <div className="mt-2">
+                <button
+                  disabled={threadBusy}
+                  onClick={async ()=>{
+                    setThreadBusy(true);
+                    try {
+                      const r = await fetch(`/api/admin/posts/${encodeURIComponent(item.slug)}/create-thread`, { method: 'POST' });
+                      const d = await r.json();
+                      if (!r.ok) return alert(d?.error || 'Failed to create thread');
+                      setThreadUrl(d.threadUrl);
+                    } finally { setThreadBusy(false); }
+                  }}
+                  className="px-3 py-2 rounded bg-black text-white text-sm disabled:opacity-50"
+                >
+                  {threadBusy ? 'Creating…' : 'Create Patwua Thread'}
+                </button>
+                <div className="text-xs text-gray-500 mt-2">Creates a discussion thread on Patwua and links this post to it.</div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-600 mt-2">Thread linked.</div>
+            )}
+          </div>
+        ) : null}
 
         {item.ticketId && (
           <div className="text-xs text-gray-500">Linked Ticket: {String(item.ticketId)}</div>
