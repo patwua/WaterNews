@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import ProfilePhoto from "@/components/User/ProfilePhoto";
 
 const contacts = [
   {
@@ -138,12 +139,12 @@ export default function MastheadPage() {
             {people.map((p) => (
               <article key={p.name} className="rounded-2xl bg-white p-5 shadow">
                 <div className="grid min-h-[120px] place-items-center rounded-md border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff]">
-                  <Image
-                    src={p.headshot || "/placeholders/headshot.svg"}
-                    alt={p.name}
-                    width={160}
-                    height={160}
-                    className="rounded-md object-cover"
+                  <ProfilePhoto
+                    name={p.name}
+                    url={p.headshot}
+                    isVerified={false}
+                    isOrganization={false}
+                    size={160}
                   />
                 </div>
                 <h3 className="mt-3 text-base font-semibold">{p.name}</h3>
