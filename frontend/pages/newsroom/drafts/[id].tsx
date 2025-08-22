@@ -55,8 +55,8 @@ export default function WriterDraftEditor() {
   if (!doc) return <div className="p-4">Loading…</div>;
 
   return (
-    <NewsroomLayout active="publisher">
-      <div className="max-w-5xl mx-auto p-6 space-y-4">
+    <NewsroomLayout>
+      <div className="max-w-3xl mx-auto space-y-4">
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-500 flex items-center gap-3">
             <StatusPill status={doc.status} />
@@ -117,6 +117,18 @@ export default function WriterDraftEditor() {
             className="px-3 py-2 rounded bg-black text-white text-sm"
           >
             Publish now
+          </button>
+          <button
+            className="px-3 py-2 rounded border text-sm"
+            onClick={async () => {
+              if (!confirm('Delete this draft? This cannot be undone.')) return;
+              const r = await fetch(`/api/newsroom/drafts/${encodeURIComponent(id)}/delete`, { method: 'POST' });
+              const d = await r.json().catch(() => ({}));
+              if (!r.ok) return alert(d?.error || 'Delete failed');
+              location.href = '/newsroom';
+            }}
+          >
+            Delete
           </button>
         </div>
       </div>

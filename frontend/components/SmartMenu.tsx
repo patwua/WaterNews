@@ -33,11 +33,7 @@ export default function SmartMenu() {
       <Link href="/topics" className="hover:underline">
         Categories
       </Link>
-      {me && (
-        <Link href="/newsroom" className="hover:underline font-medium">
-          Newsroom
-        </Link>
-      )}
+      {/* Newsroom link removed; global shell provides access */}
       {isAdmin && (
         <Link href="/admin" className="hover:underline">
           Admin

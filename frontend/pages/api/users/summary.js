@@ -9,11 +9,14 @@ export default async function handler(req, res) {
   const db = await getDb();
   const follows = db.collection('follows'); // expected shape: { user: string, follower: string }
   const users = db.collection('users');
-  const me = await users.findOne({ email: email.toLowerCase() }, { projection: { handle: 1, name: 1, image: 1 } });
+  const nowIso = new Date().toISOString();
+  // Upsert lastSeenAt on access
+  await users.updateOne({ email: email.toLowerCase() }, { $set: { lastSeenAt: nowIso } }, { upsert: true });
+  const me = await users.findOne({ email: email.toLowerCase() }, { projection: { handle: 1, name: 1, image: 1, lastSeenAt: 1 } });
   const followers = await follows.countDocuments({ user: email.toLowerCase() }).catch(()=>0);
   const following = await follows.countDocuments({ follower: email.toLowerCase() }).catch(()=>0);
-  res.json({
-    email, handle: me?.handle || null, name: me?.name || null, image: me?.image || null,
-    followers, following
+  res.json({ email,
+    handle: me?.handle || null, name: me?.name || null, image: me?.image || null,
+    followers, following, lastSeenAt: me?.lastSeenAt || nowIso
   });
 }
