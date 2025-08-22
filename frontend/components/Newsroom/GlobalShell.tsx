@@ -27,12 +27,13 @@ export default function GlobalShell({ children }: { children: React.ReactNode })
     let mounted = true;
     (async () => {
       try {
-        // users/summary will set lastSeenAt and return handle/followers
+        // users/summary returns { me, counts }
         const r = await fetch('/api/users/summary');
         if (!mounted) return;
         if (r.ok) {
+          const d = await r.json();
           setLoggedIn(true);
-          setSummary(await r.json());
+          setSummary(d?.me || d);
           const b = await fetch('/api/newsroom/badges').then(x=>x.ok? x.json(): null).catch(()=>null);
           setBadges(b);
         } else {
@@ -74,27 +75,27 @@ export default function GlobalShell({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={summary?.image || '/apple-touch-icon.png'}
+                src={summary?.avatarUrl || summary?.image || '/apple-touch-icon.png'}
                 alt=""
                 className="w-12 h-12 rounded-full object-cover border border-sky-200"
               />
               <div className="min-w-0">
-                <div className="font-medium truncate">{summary?.name || 'Your Name'}</div>
+                <div className="font-medium truncate">{summary?.displayName || summary?.name || 'Your Name'}</div>
                 <div className="text-xs text-sky-700 truncate">@{summary?.handle || 'handle'}</div>
                 <div className="text-xs text-slate-600">
                   {typeof summary?.followers === 'number' ? `${summary.followers} followers` : '—'}
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  {summary?.lastSeenAt ? `Last seen ${timeAgo(summary.lastSeenAt)}` : ''}
+                  {summary?.lastLoginAt ? `Last login ${timeAgo(summary.lastLoginAt)}` : ''}
                 </div>
               </div>
             </div>
             {/* Nav */}
             <nav className="space-y-1">
               <NavItem href="/newsroom/dashboard" label="Dashboard" active={active==='dashboard'} />
-              <NavItem href="/newsroom/notice-board" label="Notice Board" active={active==='notice'} badge={badges?.noticesUnread} />
+              <NavItem href="/newsroom/notice-board" label="Notice Board" active={active==='notice'} badge={badges?.noticeUnread} />
               <NavItem href="/newsroom" label="Publisher" active={active==='publisher'} badge={badges?.drafts || 0} />
-              <NavItem href="/newsroom/collab" label="Collaboration" active={active==='collab'} badge={badges?.collabOpportunities} />
+              <NavItem href="/newsroom/collab" label="Collaboration" active={active==='collab'} />
               <NavItem href="/newsroom/media" label="Media" active={active==='media'} />
               <NavItem href="/newsroom/assistant" label="AI Assistant" active={active==='assistant'} />
               <NavItem href="/newsroom/profile" label="Profile & Settings" active={active==='profile'} />

@@ -2,91 +2,38 @@ import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
-import slugify from '@/lib/slugify';
-import sendEmail from '@/lib/email';
-import { createPatwuaThread } from '@/lib/patwua';
-
-async function ensureUniqueSlug(col, base) {
-  const s = slugify(base || 'untitled');
-  const exists = await col.findOne({ slug: s });
-  if (!exists) return s;
-  let i = 2;
-  while (true) {
-    const cand = `${s}-${i}`;
-    const hit = await col.findOne({ slug: cand });
-    if (!hit) return cand;
-    i++;
-  }
-}
+import { slugify } from '@/lib/slugify';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   const session = await getServerSession(req, res, authOptions);
-  const email = session?.user?.email || null;
-  if (!email) return res.status(401).json({ error: 'Unauthorized' });
-
+  const who = session?.user?.email || null;
+  if (!who) return res.status(401).json({ error: 'Unauthorized' });
+  const { id } = req.query || {};
   const db = await getDb();
   const drafts = db.collection('drafts');
   const posts = db.collection('posts');
-  const _id = new ObjectId(String(req.query.id));
-
-  const admin = (await isAdminEmail(email)) || (await isAdminUser(email));
-  if (!admin) return res.status(403).json({ error: 'Admins only' });
-
-  const draft = await drafts.findOne({ _id });
-  if (!draft) return res.status(404).json({ error: 'Draft not found' });
-
-  const now = new Date();
-  const publishedAt = now.toISOString();
-  const slug = await ensureUniqueSlug(posts, draft.slug || draft.title);
-  const postDoc = {
-    title: draft.title || 'Untitled',
+  const users = db.collection('users');
+  const draft = await drafts.findOne({ _id: new ObjectId(String(id)) });
+  if (!draft || draft.authorEmail !== who) return res.status(403).json({ error: 'Not allowed' });
+  if (!draft.title || !draft.body) return res.status(400).json({ error: 'Title and body required' });
+  const author = await users.findOne({ email: who }, { projection: { displayName:1, handle:1, avatarUrl:1 } });
+  const slug = draft.slug || slugify(`${draft.title}-${draft._id.toString().slice(-5)}`);
+  const post = {
     slug,
-    body: draft.body || '',
-    excerpt: draft.excerpt || '',
-    tags: draft.tags || [],
-    authorEmail: draft.authorEmail || email.toLowerCase(),
-    media: draft.media || [],
-    createdAt: publishedAt,
-    updatedAt: publishedAt,
-    publishedAt
+    title: draft.title,
+    body: draft.body,
+    attachments: draft.attachments || [],
+    authorEmail: who,
+    authorDisplay: author?.displayName || null,
+    authorHandle: author?.handle || null,
+    authorAvatar: author?.avatarUrl || null,
+    publishedAt: new Date().toISOString(),
+    threadUrl: draft.threadUrl || null,
+    coverImage: draft.coverImage || null
   };
-  const ins = await posts.insertOne(postDoc);
-
-  await drafts.updateOne(
-    { _id },
-    { $set: { status: 'published', postId: ins.insertedId, publishedAt, updatedAt: publishedAt } }
-  );
-
-  const post = await posts.findOne({ _id: ins.insertedId });
-
-  // Auto-provision Patwua thread (best-effort)
-  try {
-    if (!post?.patwuaThreadUrl) {
-      const base = process.env.NEXTAUTH_URL || '';
-      const url = `${base}/news/${post?.slug}`;
-      const threadUrl = await createPatwuaThread({
-        slug: post?.slug,
-        title: post?.title || 'Untitled',
-        excerpt: post?.excerpt || '',
-        url
-      });
-      if (threadUrl) {
-        await posts.updateOne({ _id: ins.insertedId }, { $set: { patwuaThreadUrl: threadUrl } });
-      }
-    }
-  } catch {}
-
-  // Notify author
-  try {
-    const to = draft.authorEmail || email.toLowerCase();
-    await sendEmail({
-      to,
-      subject: `Published: ${post?.title || 'Untitled'}`,
-      text: `Your story is live: ${(process.env.NEXTAUTH_URL || '')}/news/${post?.slug}`,
-      html: `<p>Your story is live:</p><p><a href="${(process.env.NEXTAUTH_URL || '')}/news/${post?.slug}">${post?.title || 'Untitled'}</a></p>`
-    });
-  } catch {}
-  return res.json({ ok: true, post });
+  await posts.updateOne({ slug }, { $set: post }, { upsert: true });
+  await drafts.updateOne({ _id: draft._id }, { $set: { status: 'published', publishedAt: post.publishedAt, slug } });
+  res.json({ ok: true, slug, url: `/news/${slug}` });
 }
+
