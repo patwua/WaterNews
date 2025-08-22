@@ -1,219 +1,217 @@
-import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { ShellContext } from './ShellContext';
-import { signOut } from 'next-auth/react';
-import ProfilePhoto from '@/components/User/ProfilePhoto';
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useShell } from "./ShellContext";
+import { withCloudinaryAuto } from "@/lib/media";
 
-// Global shell that shows the NewsRoom sidebar for LOGGED-IN users on every page.
-// Sidebar uses a water/sky tint; bio is data-only; nav mirrors NewsRoom sections.
+// Constants for layout
+const RAIL_W = 280; // px expanded
+const RAIL_W_COLLAPSED = 76; // px collapsed
+
 export default function GlobalShell({ children }: { children: React.ReactNode }) {
-  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
-  const [summary, setSummary] = useState<any>(null);
-  const [badges, setBadges] = useState<any>(null);
-  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const { user } = useShell();
+  const router = useRouter();
 
-  // Determine which nav item is active from pathname
-  const active = useMemo(()=> {
-    if (!pathname.startsWith('/newsroom')) return '';
-    if (pathname.startsWith('/newsroom/dashboard')) return 'dashboard';
-    if (pathname.startsWith('/newsroom/notice-board')) return 'notice';
-    if (pathname.startsWith('/newsroom/collab')) return 'collab';
-    if (pathname.startsWith('/newsroom/media')) return 'media';
-    if (pathname.startsWith('/newsroom/assistant')) return 'assistant';
-    if (pathname.startsWith('/newsroom/profile')) return 'profile';
-    return 'publisher';
-  }, [pathname]);
+  // Only render shell for logged-in users
+  if (!user) return <>{children}</>;
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        // users/summary returns { me, counts }
-        const r = await fetch('/api/users/summary');
-        if (!mounted) return;
-        if (r.ok) {
-          const d = await r.json();
-          setLoggedIn(true);
-          setSummary(d?.me || d);
-          const b = await fetch('/api/newsroom/badges').then(x=>x.ok? x.json(): null).catch(()=>null);
-          setBadges(b);
-        } else {
-          setLoggedIn(false);
-        }
-      } catch {
-        if (mounted) setLoggedIn(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
-
-  // If unknown (first paint), render basic layout to avoid CLS
-  if (loggedIn === null) {
-    return (
-      <ShellContext.Provider value={{ hasShell: false }}>
-        <div className="min-h-screen flex flex-col">{children}</div>
-      </ShellContext.Provider>
-    );
-  }
-
-  if (!loggedIn) {
-    // Visitors: no NewsRoom sidebar
-    return (
-      <ShellContext.Provider value={{ hasShell: false }}>
-        <div className="min-h-screen flex flex-col">{children}</div>
-      </ShellContext.Provider>
-    );
-  }
-
-  // Logged-in: persistent left sidebar across the site
-  return (
-    <ShellContext.Provider value={{ hasShell: true }}>
-      <div className="h-screen flex overflow-hidden">
-        {/* Sidebar with independent scroll and resizable width */}
-        <aside
-          className="flex-shrink-0 w-64 max-w-md min-w-[12rem] resize-x overflow-hidden border-r border-sky-200 text-slate-900 bg-gradient-to-b from-[#e8f4fd] to-[#f7fbff] flex flex-col"
-        >
-          {/* User bio at top (sticky) */}
-          <div className="p-4 space-y-4 shrink-0">
-            <div className="text-xs uppercase tracking-widest text-sky-700">NewsRoom</div>
-            <div className="flex items-center gap-3">
-              <ProfilePhoto
-                name={summary?.displayName || summary?.name || 'Your Name'}
-                url={summary?.profilePhotoUrl || summary?.image || '/apple-touch-icon.png'}
-                isVerified={summary?.verified?.status === true}
-                isOrganization={summary?.isOrganization === true}
-                size={48}
-                className="border border-sky-200"
-              />
-              <div className="min-w-0">
-                <div className="font-medium truncate">{summary?.displayName || summary?.name || 'Your Name'}</div>
-                <div className="text-xs text-sky-700 truncate">@{summary?.handle || 'handle'}</div>
-                <div className="text-xs text-slate-600">
-                  {typeof summary?.followers === 'number' ? `${summary.followers} followers` : '—'}
-                </div>
-                <div className="text-[11px] text-slate-500">
-                  {summary?.lastLoginAt ? `Last login ${timeAgo(summary.lastLoginAt)}` : ''}
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Nav menu scrolls independently */}
-          <nav className="flex-1 overflow-y-auto px-4 space-y-1">
-            <NavItem href="/newsroom/dashboard" label="Dashboard" active={active==='dashboard'} />
-            <NavItem href="/newsroom/notice-board" label="Notice Board" active={active==='notice'} badge={badges?.noticeUnread} />
-            <NavGroup label="Publisher" items={[
-              { href: '/newsroom', label: 'Articles', badge: badges?.drafts },
-              { href: '/newsroom/drafts', label: 'Drafts' },
-            ]} />
-            <NavItem href="/newsroom/collab" label="Collaboration" active={active==='collab'} />
-            <NavItem href="/newsroom/media" label="Media" active={active==='media'} />
-            <NavItem href="/newsroom/assistant" label="AI Assistant" active={active==='assistant'} />
-            <NavItem href="/newsroom/profile" label="Profile & Settings" active={active==='profile'} />
-            <button
-              onClick={()=>signOut({ callbackUrl: '/' })}
-              className="w-full text-left px-3 py-2 rounded hover:bg-sky-100 text-red-700"
-            >
-              Logout
-            </button>
-          </nav>
-          {/* Live updates section */}
-          <LiveUpdates />
-          {/* Change log */}
-          <ChangeLog />
-        </aside>
-        {/* Main content has its own scroll */}
-        <div className="flex-1 overflow-y-auto flex flex-col">
-          {children}
-        </div>
-      </div>
-    </ShellContext.Provider>
-  );
+  return <ResponsiveShell>{children}</ResponsiveShell>;
 }
 
-function NavItem({ href, label, active, badge }: { href: string; label: string; active?: boolean; badge?: number }) {
+function SectionLink({ href, label, icon }: { href: string; label: string; icon?: React.ReactNode }) {
+  const router = useRouter();
+  const active = router.pathname.startsWith(href);
   return (
-    <Link href={href} className={`flex items-center justify-between px-3 py-2 rounded ${active ? 'bg-sky-700 text-white' : 'hover:bg-sky-100'}`}>
-      <span>{label}</span>
-      {badge ? <span className={`text-[11px] px-2 py-0.5 rounded-full ${active ? 'bg-white text-sky-800' : 'bg-sky-700 text-white'}`}>{badge}</span> : null}
+    <Link
+      href={href}
+      className={`flex items-center gap-3 px-2 py-2 rounded hover:bg-gray-50 truncate ${
+        active ? "bg-gray-100 font-medium" : ""
+      }`}
+    >
+      {icon}
+      <span className="truncate">{label}</span>
     </Link>
   );
 }
 
-function NavGroup({ label, items }: { label: string; items: { href: string; label: string; badge?: number }[] }) {
-  const [open, setOpen] = useState(false);
+function RailContents() {
+  const { user, isCollapsed, toggleCollapse } = useShell();
+  const router = useRouter();
+  const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
+
   return (
-    <div>
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-3 py-2 rounded hover:bg-sky-100"
-      >
-        <span>{label}</span>
-        <span className="text-sm">{open ? '−' : '+'}</span>
-      </button>
-      {open && (
-        <div className="pl-4 space-y-1">
-          {items.map((item) => (
-            <div key={item.href}>
-              <NavItem href={item.href} label={item.label} badge={item.badge} />
+    <div className="h-full flex flex-col">
+      {/* Header / Bio (clickable to dashboard) */}
+      <div className="p-4 border-b flex items-center gap-3">
+        <button
+          className="flex items-center gap-3 text-left group"
+          onClick={() => router.push("/newsroom/dashboard")}
+          title="Go to Newsroom dashboard"
+        >
+          <img
+            src={photo || "/placeholders/headshot.svg"}
+            alt="Your profile"
+            className={`object-cover border ${isCollapsed ? "w-10 h-10 rounded-full" : "w-12 h-12 rounded-full"}`}
+            loading="lazy"
+          />
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <div className="font-semibold truncate">{user?.displayName || user?.name || "You"}</div>
+              <div className="text-xs text-gray-500 truncate">@{user?.handle || "handle"}</div>
             </div>
-          ))}
+          )}
+        </button>
+        {/* Collapse toggle (desktop only) */}
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          title={isCollapsed ? "Expand" : "Collapse"}
+          className="ml-auto hidden md:inline-flex items-center justify-center rounded-md border px-2 py-1 text-xs text-gray-600 hover:bg-gray-50"
+        >
+          {isCollapsed ? "»" : "«"}
+        </button>
+      </div>
+
+      {/* Nav */}
+      <nav className="flex-1 overflow-auto p-2">
+        {!isCollapsed && (
+          <div className="text-xs uppercase tracking-wide text-gray-500 px-2 mb-2">NewsRoom</div>
+        )}
+        <SectionLink href="/newsroom/dashboard" label={isCollapsed ? "Home" : "Dashboard"} />
+        <SectionLink href="/newsroom" label={isCollapsed ? "Write" : "Publisher"} />
+        <SectionLink href="/newsroom/collab" label={isCollapsed ? "Collab" : "Collaboration"} />
+        <SectionLink href="/newsroom/media" label="Media" />
+        <SectionLink href="/newsroom/assistant" label={isCollapsed ? "AI" : "AI Assistant"} />
+        <SectionLink href="/newsroom/notice-board" label={isCollapsed ? "Notes" : "Notice Board"} />
+        <SectionLink href="/newsroom/profile" label={isCollapsed ? "Profile" : "Profile & Settings"} />
+        <SectionLink href="/newsroom/help" label="Help" />
+        <SectionLink href="/newsroom/invite" label={isCollapsed ? "Invite" : "Invite a friend"} />
+      </nav>
+
+      {/* Footer / Changelog strip (kept minimal) */}
+      <div className="p-3 text-xs text-gray-500 border-t">
+        <div className="flex items-center justify-between">
+          <span>UI updates</span>
+          <Link href="/admin/moderation/dashboard" className="hover:underline">See more</Link>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-function LiveUpdates() {
-  const [updates, setUpdates] = useState<string[]>([]);
+function MobileTopBar() {
+  const { user, openMobile } = useShell();
+  const router = useRouter();
+  const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
+  return (
+    <div className="md:hidden sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
+      <div className="h-14 px-3 flex items-center gap-3">
+        <button
+          onClick={() => router.push("/newsroom/dashboard")}
+          className="flex items-center gap-2 min-w-0"
+          title="Go to Newsroom dashboard"
+        >
+          <img
+            src={photo || "/placeholders/headshot.svg"}
+            alt="Your profile"
+            className="w-8 h-8 rounded-full object-cover border"
+            loading="lazy"
+          />
+          <div className="min-w-0">
+            <div className="text-sm font-semibold leading-5 truncate">
+              {user?.displayName || user?.name || "You"}
+            </div>
+            <div className="text-[11px] text-gray-500 -mt-0.5 truncate">
+              @{user?.handle || "handle"}
+            </div>
+          </div>
+        </button>
+        <button
+          onClick={openMobile}
+          className="ml-auto inline-flex items-center justify-center w-9 h-9 rounded-md border bg-white hover:bg-gray-50"
+          aria-label="Open Newsroom menu"
+          title="Open menu"
+        >
+          {/* Hamburger */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function MobileDrawer({ children }: { children: React.ReactNode }) {
+  const { isMobileOpen, closeMobile } = useShell();
+  // Lock body scroll when open
   useEffect(() => {
-    let mounted = true;
-    const fetchUpdates = async () => {
-      try {
-        const r = await fetch('/api/newsroom/live');
-        if (!mounted) return;
-        if (r.ok) {
-          const d = await r.json();
-          setUpdates(d?.updates || []);
-        }
-      } catch {/* ignore */}
-    };
-    fetchUpdates();
-    const id = setInterval(fetchUpdates, 10000);
-    return () => { mounted = false; clearInterval(id); };
-  }, []);
+    if (typeof document === "undefined") return;
+    const body = document.body;
+    if (isMobileOpen) body.classList.add("overflow-hidden");
+    else body.classList.remove("overflow-hidden");
+    return () => body.classList.remove("overflow-hidden");
+  }, [isMobileOpen]);
   return (
-    <div className="border-t border-sky-200 p-3 max-h-32 overflow-y-auto text-xs">
-      <div className="font-semibold mb-1">Live Updates</div>
-      {updates.length === 0 ? (
-        <div className="text-slate-500">No updates</div>
-      ) : (
-        <ul className="space-y-1">
-          {updates.map((u, i) => (
-            <li key={i}>{u}</li>
-          ))}
-        </ul>
-      )}
+    <div
+      className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
+      aria-hidden={!isMobileOpen}
+    >
+      {/* Backdrop */}
+      <div
+        className={`absolute inset-0 bg-black/40 transition-opacity ${isMobileOpen ? "opacity-100" : "opacity-0"}`}
+        onClick={closeMobile}
+      />
+      {/* Panel */}
+      <aside
+        className={`absolute left-0 top-0 h-full w-[84vw] max-w-[320px] bg-white shadow-xl transition-transform ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="h-14 flex items-center justify-between px-3 border-b">
+          <span className="font-semibold">NewsRoom</span>
+          <button
+            onClick={closeMobile}
+            className="inline-flex items-center justify-center w-9 h-9 rounded-md border bg-white hover:bg-gray-50"
+            aria-label="Close Newsroom menu"
+            title="Close"
+          >
+            {/* X */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className="h-[calc(100%-56px)] overflow-y-auto">
+          {children}
+        </div>
+      </aside>
     </div>
   );
 }
 
-function ChangeLog() {
+function ResponsiveShell({ children }: { children: React.ReactNode }) {
+  const { isCollapsed } = useShell();
+  const railW = isCollapsed ? RAIL_W_COLLAPSED : RAIL_W;
   return (
-    <div className="border-t border-sky-200 p-3 text-[11px] text-slate-600">
-      <div className="font-semibold mb-1">Updates</div>
-      <ul className="space-y-1 list-disc list-inside">
-        <li>Sidebar now resizable</li>
-        <li>Menu supports sub-items</li>
-      </ul>
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile sticky bar */}
+      <MobileTopBar />
+      <div className="flex">
+        {/* Desktop rail */}
+        <aside
+          className="hidden md:block sticky top-0 h-screen shrink-0 border-r bg-white/70 backdrop-blur"
+          style={{ width: railW }}
+        >
+          <RailContents />
+        </aside>
+        {/* Mobile drawer (contains same nav) */}
+        <MobileDrawer>
+          <RailContents />
+        </MobileDrawer>
+        {/* Main content */}
+        <div className="flex-1 min-w-0 md:ml-0">{children}</div>
+      </div>
     </div>
   );
-}
-
-function timeAgo(iso?: string) {
-  try {
-    const d = new Date(iso || '');
-    const s = Math.max(1, Math.floor((Date.now() - d.getTime())/1000));
-    const m = Math.floor(s/60), h=Math.floor(m/60), d2=Math.floor(h/24);
-    if (d2>0) return `${d2}d ago`; if (h>0) return `${h}h ago`; if (m>0) return `${m}m ago`; return `${s}s ago`;
-  } catch { return ''; }
 }
