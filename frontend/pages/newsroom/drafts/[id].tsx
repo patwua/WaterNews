@@ -8,6 +8,7 @@ import MarkdownEditor from '@/components/Newsroom/MarkdownEditor';
 import DraftComments from '@/components/Newsroom/DraftComments';
 import ActivityTrail from '@/components/Newsroom/ActivityTrail';
 import RewriteChips from '@/components/Newsroom/RewriteChips';
+import MarkdownPreview from '@/components/Newsroom/MarkdownPreview';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -17,6 +18,7 @@ export default function WriterDraftEditor() {
   const [saving, setSaving] = useState<'idle' | 'dirty' | 'saving' | 'saved'>('idle');
   const timer = useRef<any>(null);
   const localKey = useMemo(() => `wn_user_draft_${id}`, [id]);
+  const [tab, setTab] = useState<'edit'|'preview'>('edit');
 
   useEffect(() => {
     (async () => {
@@ -147,25 +149,39 @@ export default function WriterDraftEditor() {
           onChange={(e) => queueSave({ ...doc, title: e.target.value })}
         />
 
-        <MarkdownEditor
-            value={doc.body || ''}
-            onChange={(v) => {
-              const next = { ...doc, body: v };
-              setDoc(next);
-              setSaving('dirty');
-              localStorage.setItem(localKey, JSON.stringify(next));
-            }}
-            onSave={() => save()}
-            draftId={id as string}
-            exposeAPI={(api)=> { (window as any).__editorAPI = api; (draftEditorApi as any).current = api; }}
-          />
-          {/* AI rewrite chips act on selection or whole text */}
-          <RewriteChips
-            getSelection={()=> (draftEditorApi as any).current?.getSelection?.() || {start:0,end:0,text:''}}
-            replaceSelection={(t)=> (draftEditorApi as any).current?.replaceSelection?.(t)}
-            getText={()=> (draftEditorApi as any).current?.getText?.() || (doc.body||'')}
-            setText={(t)=> { (draftEditorApi as any).current?.setText?.(t); const next = { ...doc, body: t }; setDoc(next); setSaving('dirty'); localStorage.setItem(localKey, JSON.stringify(next)); }}
-          />
+        <div className="flex items-center gap-3 text-sm">
+          <button className={`px-2 py-1 rounded border ${tab==='edit'?'bg-gray-50':''}`} onClick={()=>setTab('edit')}>Edit</button>
+          <button className={`px-2 py-1 rounded border ${tab==='preview'?'bg-gray-50':''}`} onClick={()=>setTab('preview')}>Preview</button>
+          <Link href="/newsroom/dashboard" className="ml-auto underline">Return to Dashboard</Link>
+        </div>
+
+        {tab==='edit' ? (
+          <>
+            <MarkdownEditor
+              value={doc.body || ''}
+              onChange={(v) => {
+                const next = { ...doc, body: v };
+                setDoc(next);
+                setSaving('dirty');
+                localStorage.setItem(localKey, JSON.stringify(next));
+              }}
+              onSave={() => save()}
+              draftId={id as string}
+              exposeAPI={(api)=> { (window as any).__editorAPI = api; (draftEditorApi as any).current = api; }}
+            />
+            {/* AI rewrite chips act on selection or whole text */}
+            <RewriteChips
+              getSelection={()=> (draftEditorApi as any).current?.getSelection?.() || {start:0,end:0,text:''}}
+              replaceSelection={(t)=> (draftEditorApi as any).current?.replaceSelection?.(t)}
+              getText={()=> (draftEditorApi as any).current?.getText?.() || (doc.body||'')}
+              setText={(t)=> { (draftEditorApi as any).current?.setText?.(t); const next = { ...doc, body: t }; setDoc(next); setSaving('dirty'); localStorage.setItem(localKey, JSON.stringify(next)); }}
+            />
+          </>
+        ) : (
+          <div className="border rounded-xl p-4 bg-white">
+            <MarkdownPreview text={doc.body || ''} />
+          </div>
+        )}
 
         <DraftComments draftId={id as string} />
 
