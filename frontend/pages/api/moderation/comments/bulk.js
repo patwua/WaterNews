@@ -21,9 +21,9 @@ export default async function handler(req, res) {
   const now = new Date().toISOString();
 
   if (action === 'approve') {
-    await col.updateMany({ _id: { $in: _ids } }, { $set: { status: 'approved', updatedAt: now } });
+    await col.updateMany({ _id: { $in: _ids } }, { $set: { status: 'approved', updatedAt: now, approvedAt: now } });
   } else if (action === 'reject') {
-    await col.updateMany({ _id: { $in: _ids } }, { $set: { status: 'rejected', updatedAt: now } });
+    await col.updateMany({ _id: { $in: _ids } }, { $set: { status: 'rejected', updatedAt: now, rejectedAt: now } });
   } else if (action === 'delete') {
     await col.deleteMany({ _id: { $in: _ids } });
   } else {

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { isAdminEmail, isAdminUser } from '@/lib/admin-auth';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { screenComment } from '@/lib/moderation';
 
 async function forwardToPatwua(payload) {
   const url = process.env.PATWUA_FORWARD_URL;
@@ -58,12 +59,15 @@ export default async function handler(req, res) {
     if (!ok) return res.status(429).json({ error: 'Too many comments, please slow down.' });
 
     const now = new Date().toISOString();
+    const screened = screenComment(body);
     const doc = {
       postSlug: String(slug),
       body: String(body).slice(0, 5000),
       authorEmail: email || 'anonymous',
       parentId: parentId ? new ObjectId(String(parentId)) : null,
-      status: String(process.env.COMMENTS_AUTO_APPROVE || 'false') === 'true' ? 'approved' : 'pending',
+      // auto-approve only if clean; otherwise force pending
+      status: screened.ok && String(process.env.COMMENTS_AUTO_APPROVE || 'false') === 'true' ? 'approved' : 'pending',
+      toxicFlags: screened.flags,
       createdAt: now,
       updatedAt: now
     };
