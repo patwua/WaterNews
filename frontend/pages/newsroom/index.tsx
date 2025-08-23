@@ -1,69 +1,83 @@
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import StatusPill from '@/components/StatusPill';
-import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
-import type { GetServerSideProps } from 'next';
-import { requireAuthSSR } from '@/lib/user-guard';
-import { SkeletonTiles } from '@/components/UX/Skeleton';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import Page from "@/components/UX/Page";
+import SectionCard from "@/components/UX/SectionCard";
 
-export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx as any);
-
-export default function PublisherHub() {
+export default function Publisher() {
   const [drafts, setDrafts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    (async () => {
-      const r = await fetch('/api/newsroom/drafts');
-      const d = await r.json();
-      setDrafts(d.items || d.drafts || []);
-      setLoading(false);
-    })();
-  }, []);
-  return (
-    <NewsroomLayout>
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-semibold">Publisher</h1>
-        <button onClick={createDraft} className="px-3 py-2 rounded bg-black text-white text-sm">New draft</button>
-      </div>
-      {loading ? <SkeletonTiles rows={8} /> : (
-      <ul className="divide-y rounded-xl border">
-        {drafts.map((it: any) => (
-          <li key={it._id} className="flex items-center justify-between p-4">
-            <div>
-              <div className="font-medium flex items-center gap-2">
-                {it.title || 'Untitled'} <StatusPill status={it.status} />
-              </div>
-              <div className="text-xs text-gray-500">
-                {it.status === 'scheduled' && it.publishAt ? (
-                  <>scheduled for {new Date(it.publishAt).toLocaleString()} • </>
-                ) : null}
-                updated {it.updatedAt ? new Date(it.updatedAt).toLocaleString() : '—'}
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href={`/newsroom/drafts/${it._id}`} className="text-blue-600 hover:underline">Open</Link>
-              <button onClick={()=>del(it._id)} className="text-sm text-red-600 underline">Delete</button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      )}
-    </NewsroomLayout>
-  );
-}
+  const [creating, setCreating] = useState(false);
 
-async function createDraft(){
-  try{
-    const r = await fetch('/api/newsroom/drafts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ title: 'Untitled draft' })});
-    const d = await r.json();
-    const id = d?.id || d?._id;
-    if (id) location.href = `/newsroom/drafts/${id}`;
-    else alert('Failed to create draft');
-  }catch{ alert('Failed to create draft'); }
-}
-async function del(id:string){
-  if (!confirm('Delete this draft? This cannot be undone.')) return;
-  const r = await fetch(`/api/newsroom/drafts/${encodeURIComponent(id)}/delete`, { method:'POST' });
-  if (!r.ok) { const d = await r.json().catch(()=>({})); return alert(d?.error || 'Delete failed'); }
-  location.reload();
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/newsroom/drafts");
+        const d = await r.json();
+        if (mounted) setDrafts(d?.items || []);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function onNewDraft() {
+    if (creating) return;
+    setCreating(true);
+    try {
+      const r = await fetch("/api/newsroom/drafts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "Untitled draft" }),
+      });
+      const d = await r.json();
+      const id = d?.id || d?.draft?._id || d?.draft?.id;
+      if (id) window.location.href = `/newsroom/drafts/${id}`;
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  return (
+    <Page
+      title="Publisher"
+      subtitle="Create, edit, and submit stories for review."
+      actions={
+        <button
+          onClick={onNewDraft}
+          disabled={creating}
+          className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900 disabled:opacity-50"
+        >
+          {creating ? "Creating…" : "New draft"}
+        </button>
+      }
+    >
+      <SectionCard title="Your drafts">
+        {loading ? (
+          <p className="text-gray-600">Loading…</p>
+        ) : drafts.length === 0 ? (
+          <p className="text-gray-600">No drafts yet. Click “New draft” to start writing.</p>
+        ) : (
+          <ul className="divide-y">
+            {drafts.map((d) => (
+              <li key={d._id} className="py-3 flex items-center justify-between">
+                <div className="min-w-0">
+                  <div className="font-medium truncate">{d.title || "Untitled"}</div>
+                  <div className="text-xs text-gray-500">{d.status || "draft"}</div>
+                </div>
+                <div className="shrink-0 flex items-center gap-3">
+                  <Link href={`/newsroom/drafts/${d._id}`} className="text-sm text-blue-600 hover:underline">
+                    Open
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </SectionCard>
+    </Page>
+  );
 }
