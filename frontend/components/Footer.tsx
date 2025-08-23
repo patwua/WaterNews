@@ -1,6 +1,7 @@
 // Add FAQ link to footer nav
 import Link from "next/link";
 import Image from "next/image";
+import { withCloudinaryAuto } from "@/lib/media";
 
 export default function Footer() {
   return (
@@ -8,7 +9,15 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-10">
         <div className="flex flex-col items-center justify-center gap-6 text-center">
           <Link href="/" aria-label="WaterNews — Home" className="inline-flex items-center gap-2">
-            <Image src="/logo-mini.svg" alt="WaterNews mini logo" width={32} height={32} className="h-8 w-8" />
+            <Image
+              src={withCloudinaryAuto(
+                "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
+              )}
+              alt="WaterNews mini logo"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
             <span className="sr-only">WaterNews</span>
           </Link>
           <nav className="flex flex-wrap items-center justify-center gap-4">

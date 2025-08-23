@@ -1,4 +1,5 @@
 import React from "react";
+import { withCloudinaryAuto } from "@/lib/media";
 
 // Per-glyph viewBox so our logo (SVG file) renders crisply.
 const GLYPHS = {
@@ -61,11 +62,22 @@ const GLYPHS = {
   // NEW: brand mini logo as an Icon glyph.
   // We reference the real SVG file to preserve exact curves/colors and keep the bundle small.
   // It renders inside the same <svg>, so you can size/color it like other icons if desired.
-  logo: { viewBox: "0 0 24 24", node: (
-    // Note: we use an <image> tag to bring the vector file in at icon size.
-    // If you prefer fully-inlined paths, keep using <BrandLogo/> (img) or ask me to inline the paths next.
-    <image href="/logo-mini.svg" x="0" y="0" width="24" height="24" />
-  )},
+  logo: {
+    viewBox: "0 0 24 24",
+    node: (
+      // Note: we use an <image> tag to bring the vector file in at icon size.
+      // If you prefer fully-inlined paths, keep using <BrandLogo/> (img) or ask me to inline the paths next.
+      <image
+        href={withCloudinaryAuto(
+          "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755835806/WM_mini_logo_SVg_-_Black_ofk65a.svg"
+        )}
+        x="0"
+        y="0"
+        width="24"
+        height="24"
+      />
+    ),
+  },
 };
 
 export default function Icon({ name, size = 24, className = "" }) {
