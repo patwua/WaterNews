@@ -46,6 +46,18 @@ export default function ShellProvider({ children }: { children: React.ReactNode 
     } catch {}
   }, [isCollapsed]);
 
+  // Ensure collapse doesn’t accidentally apply on mobile (visual safety)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => {
+      if (!mq.matches && isCollapsed) setIsCollapsed(false);
+    };
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, [isCollapsed]);
+
   // Close drawer on route changes
   useEffect(() => {
     if (typeof window === "undefined") return;

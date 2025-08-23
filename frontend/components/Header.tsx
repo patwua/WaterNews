@@ -6,9 +6,11 @@ import Link from "next/link";
 import BrandLogo from "./BrandLogo";
 import { useEffect, useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
+import { useShell } from "@/components/Newsroom/ShellContext";
 
 export default function Header() {
   const [me, setMe] = useState<any>(null);
+  const { user } = useShell();
   useEffect(() => {
     (async () => {
       try {
@@ -36,6 +38,11 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <SearchBox />
           <NotificationsBellMenu />
+          {!user && (
+            <Link href="/newsroom" className="text-sm text-gray-700 hover:underline">
+              Newsroom
+            </Link>
+          )}
           {me && (
             <Link href="/account" className="inline-flex items-center">
               <ProfilePhoto
