@@ -11,9 +11,11 @@ if (!cached) cached = (global as any)._mongoose = { conn: null, promise: null }
 export async function dbConnect() {
   if (cached.conn) return cached.conn
   if (!cached.promise) {
-    // Cast options as any to avoid ConnectOptions type dependency
     cached.promise = mongoose
-      .connect(MONGODB_URI, { bufferCommands: false } as any)
+      .connect(
+        MONGODB_URI,
+        { dbName: process.env.MONGODB_DB || 'patwua' } as any
+      )
       .then((m) => m)
   }
   cached.conn = await cached.promise
