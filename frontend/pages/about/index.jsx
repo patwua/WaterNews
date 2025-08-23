@@ -15,7 +15,7 @@ const CTO = {
   name: "Dwuane Adams",
   title: "Chief Technology Officer",
   photo: withCloudinaryAuto(
-    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755883745/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
   ),
   bio: `Jamaican-born to Guyanese parents, Dwuane pairs a love of the outdoors—buggy trails, boulders, and big horizons—with deep focus on scalable systems. A computer science geek and serial entrepreneur by career, he leads WaterNews technology with a builder’s grit: fast, safe, and reliable.`,
 };
@@ -30,9 +30,6 @@ const CFO = {
 const COMMUNITY_PHOTOS = [
   withCloudinaryAuto(
     "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882180/file_00000000b20461fdbf3edcda97f1c2ab_1_e7igtj.png"
-  ),
-  withCloudinaryAuto(
-    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755883745/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
   ),
 ];
 
