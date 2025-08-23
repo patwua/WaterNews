@@ -51,20 +51,10 @@ export default function AboutPage() {
       >
         <div className="mb-4 flex items-center justify-center gap-4">
           <Image
-            src="/logo-mini.svg"
-            alt="WaterNews mini logo"
-            width={64}
-            height={64}
-            className="rounded-full bg-white/95 p-1.5 shadow-xl"
-            priority
-          />
-          <Image
-            src="/logo-waternews.svg"
-            alt="WaterNews full logo"
-            width={420}
-            height={96}
-            className="h-auto w-[60vw] max-w-[340px]"
-            priority
+            src=
+            withCloudinaryAuto(
+            "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882180/file_00000000b20461fdbf3edcda97f1c2ab_1_e7igtj.png"
+            ),
           />
         </div>
         <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
