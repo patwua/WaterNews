@@ -15,7 +15,7 @@ const CTO = {
   name: "Dwuane Adams",
   title: "Chief Technology Officer",
   photo: withCloudinaryAuto(
-    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755883745/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
+    "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961624/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
   ),
   bio: `Jamaican-born to Guyanese parents, Dwuane pairs a love of the outdoors—buggy trails, boulders, and big horizons—with deep focus on scalable systems. A computer science geek and serial entrepreneur by career, he leads WaterNews technology with a builder’s grit: fast, safe, and reliable.`,
 };
@@ -32,6 +32,13 @@ const COMMUNITY_PHOTOS = [
     "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882180/file_00000000b20461fdbf3edcda97f1c2ab_1_e7igtj.png"
   ),
 ];
+
+const MINI_LOGO = withCloudinaryAuto(
+  "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
+);
+const FULL_LOGO = withCloudinaryAuto(
+  "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
+);
 
 export default function AboutPage() {
   return (
@@ -50,12 +57,8 @@ export default function AboutPage() {
         style={{ backgroundImage: "linear-gradient(to bottom, #0f6cad, #0b5d95, #0a4f7f)" }}
       >
         <div className="mb-4 flex items-center justify-center gap-4">
-          <Image
-            src=
-            withCloudinaryAuto(
-            "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882180/file_00000000b20461fdbf3edcda97f1c2ab_1_e7igtj.png"
-            ),
-          />
+          <Image src={MINI_LOGO} alt="WaterNews mini logo" width={48} height={48} />
+          <Image src={FULL_LOGO} alt="WaterNews logo" width={220} height={60} />
         </div>
         <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
           About WaterNews
@@ -132,7 +135,7 @@ export default function AboutPage() {
         {/* Our Story */}
         <section className="mb-10">
           <div className="mb-2 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="" width={28} height={28} />
+            <Image src={MINI_LOGO} alt="" width={28} height={28} />
             <div>
               <h3 className="m-0 text-xl font-bold">Our Story</h3>
               <p className="m-0 text-sm text-slate-600">
@@ -154,7 +157,7 @@ export default function AboutPage() {
         {/* What We Publish */}
         <section className="mb-10">
           <div className="mb-3 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="" width={28} height={28} />
+            <Image src={MINI_LOGO} alt="" width={28} height={28} />
             <div>
               <h3 className="m-0 text-xl font-bold">What We Publish</h3>
               <p className="m-0 text-sm text-slate-600">
@@ -193,7 +196,7 @@ export default function AboutPage() {
         {/* Values */}
         <section className="mb-10">
           <div className="mb-3 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="" width={28} height={28} />
+            <Image src={MINI_LOGO} alt="" width={28} height={28} />
             <div>
               <h3 className="m-0 text-xl font-bold">Our Values</h3>
               <p className="m-0 text-sm text-slate-600">
@@ -228,7 +231,7 @@ export default function AboutPage() {
         {/* Leadership */}
         <section id="team" className="mb-10 rounded-2xl bg-white p-6 shadow">
           <div className="mb-3 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="" width={28} height={28} />
+            <Image src={MINI_LOGO} alt="" width={28} height={28} />
             <h3 className="m-0 text-xl font-bold">Leadership</h3>
           </div>
 
@@ -289,7 +292,7 @@ export default function AboutPage() {
         {/* Editorial Standards & Fact-Check Policy */}
         <section className="mb-10 rounded-2xl bg-white p-6 shadow">
           <div className="mb-3 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="" width={28} height={28} />
+            <Image src={MINI_LOGO} alt="" width={28} height={28} />
             <h3 className="m-0 text-xl font-bold">Editorial Standards &amp; Fact-Check Policy</h3>
           </div>
 
@@ -385,7 +388,7 @@ export default function AboutPage() {
 
       <footer className="px-4 pb-16 text-center text-slate-500">
         <Image
-          src="/logo-mini.svg"
+          src={MINI_LOGO}
           alt="WaterNews mini logo"
           width={36}
           height={36}

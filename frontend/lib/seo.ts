@@ -1,6 +1,8 @@
 // Minimal, framework-agnostic JSON-LD builders for WaterNews
 // Keep objects small, avoid undefineds, and emit a single script per page.
 
+import { withCloudinaryAuto } from "@/lib/media";
+
 type Publisher = {
   name: string;
   logoUrl: string;
@@ -11,7 +13,9 @@ export function getPublisher(origin: string): Publisher {
   const site = origin || "https://www.waternewsgy.com";
   return {
     name: "WaterNewsGY",
-    logoUrl: `${site}/logo-waternews.svg`,
+    logoUrl: withCloudinaryAuto(
+      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
+    ),
     url: site,
   };
 }

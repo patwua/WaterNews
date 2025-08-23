@@ -77,7 +77,9 @@ export default function MastheadPage() {
             "@type": "NewsMediaOrganization",
             name: "WaterNews",
             url: "https://waternews.onrender.com",
-            logo: "https://waternews.onrender.com/logo-waternews.svg",
+            logo: withCloudinaryAuto(
+              "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
+            ),
             slogan: "Dive Into Current Stories",
             foundingLocation: "Georgetown, Guyana",
             contactPoint: [
@@ -100,7 +102,15 @@ export default function MastheadPage() {
       <header className="bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 py-14 text-white">
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="mini" width={40} height={40} className="rounded-full bg-white/95 p-1" />
+            <Image
+              src={withCloudinaryAuto(
+                "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
+              )}
+              alt="mini"
+              width={40}
+              height={40}
+              className="rounded-full bg-white/95 p-1"
+            />
             <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
               Masthead &amp; Contacts
             </h1>
@@ -134,7 +144,14 @@ export default function MastheadPage() {
         {/* Masthead */}
         <section className="mb-10">
           <div className="mb-3 flex items-center gap-3">
-            <Image src="/logo-mini.svg" alt="" width={28} height={28} />
+            <Image
+              src={withCloudinaryAuto(
+                "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
+              )}
+              alt=""
+              width={28}
+              height={28}
+            />
             <h2 className="m-0 text-xl font-bold">Editorial Team</h2>
           </div>
 
@@ -190,7 +207,9 @@ export default function MastheadPage() {
 
       <footer className="px-4 pb-16 text-center text-slate-500">
         <Image
-          src="/logo-mini.svg"
+          src={withCloudinaryAuto(
+            "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
+          )}
           alt="WaterNews mini logo"
           width={36}
           height={36}

@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
+import { withCloudinaryAuto } from "@/lib/media";
 import { useState } from "react";
 import { SUBJECTS } from "@/lib/cms-routing";
 import Toast from "@/components/Toast";
@@ -42,7 +43,9 @@ export default function CorrectionsPage() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 flex items-center gap-3">
             <Image
-              src="/logo-waternews.svg"
+              src={withCloudinaryAuto(
+                "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
+              )}
               alt="WaterNews"
               width={220}
               height={60}
