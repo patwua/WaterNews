@@ -1,18 +1,33 @@
 import React from "react";
-import { withCloudinaryAuto } from "@/lib/media";
+import { LOGO_FULL, LOGO_MINI, BRAND_NAME } from "@/lib/brand";
 
-export default function BrandLogo({ size = 28, className = "", title = "WaterNews" }) {
+/**
+ * BrandLogo — use everywhere for consistent logo rendering.
+ * - variant: "full" (wordmark) | "mini" (square mark)
+ * - onDark: when true, we invert via CSS to get a white mark without extra assets
+ */
+export default function BrandLogo({
+  variant = "full",
+  onDark = false,
+  className = "",
+  size = 32,
+}: {
+  variant?: "full" | "mini";
+  onDark?: boolean;
+  className?: string;
+  size?: number; // height in px; width auto
+}) {
+  const src = variant === "mini" ? LOGO_MINI : LOGO_FULL;
+  const invert = onDark ? "invert" : "";
+  const alt = `${BRAND_NAME} logo`;
   return (
     <img
-      src={withCloudinaryAuto(
-        "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
-      )}
-      alt={title}
-      width={size}
+      src={src}
+      alt={alt}
       height={size}
-      className={className}
+      style={{ height: size, width: "auto" }}
+      className={`${invert} ${className}`}
       loading="lazy"
-      decoding="async"
     />
   );
 }

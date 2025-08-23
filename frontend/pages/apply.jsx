@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import { withCloudinaryAuto } from "@/lib/media";
+import BrandLogo from "@/components/BrandLogo";
 import { useState } from "react";
 import { SUBJECTS } from "@/lib/cms-routing";
 import Toast from "@/components/Toast";
@@ -48,15 +49,7 @@ export default function ApplyPage() {
       <header className="bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 py-14 text-white">
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 flex items-center gap-3">
-            <Image
-              src={withCloudinaryAuto(
-                "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
-              )}
-              alt="WaterNews"
-              width={220}
-              height={60}
-              priority
-            />
+            <BrandLogo variant="full" onDark size={60} />
             <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
               Apply to Contribute
             </h1>

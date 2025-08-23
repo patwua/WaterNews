@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useShell } from "./ShellContext";
 import { withCloudinaryAuto } from "@/lib/media";
+import ProfilePhoto from "@/components/User/ProfilePhoto";
 
 // Constants for layout
 const RAIL_W = 280; // px expanded
@@ -79,11 +80,11 @@ function RailContents() {
           onClick={() => router.push("/newsroom/dashboard")}
           title="Go to Newsroom dashboard"
         >
-          <img
-            src={photo || "/placeholders/headshot.svg"}
-            alt="Your profile"
-            className={`object-cover border ${isCollapsed ? "w-10 h-10 rounded-full" : "w-12 h-12 rounded-full"}`}
-            loading="lazy"
+          <ProfilePhoto
+            name={user?.displayName || user?.name || "You"}
+            url={photo || undefined}
+            size={isCollapsed ? 40 : 48}
+            className="border"
           />
           {!isCollapsed && (
             <div className="min-w-0">
@@ -142,11 +143,11 @@ function MobileTopBar() {
           className="flex items-center gap-2 min-w-0"
           title="Go to Newsroom dashboard"
         >
-          <img
-            src={photo || "/placeholders/headshot.svg"}
-            alt="Your profile"
-            className="w-8 h-8 rounded-full object-cover border"
-            loading="lazy"
+          <ProfilePhoto
+            name={user?.displayName || user?.name || "You"}
+            url={photo || undefined}
+            size={32}
+            className="border"
           />
           <div className="min-w-0">
             <div className="text-sm font-semibold leading-5 truncate">
