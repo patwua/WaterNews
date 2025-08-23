@@ -1,17 +1,18 @@
-let cloudinary = null;
+// Guarded require so installs without the SDK return 503 gracefully
+let cloudinary;
 try {
   // Defer to runtime; avoids type resolution during build/typecheck
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  cloudinary = require("cloudinary").v2;
-  require("@/lib/cloudinary"); // keep your config side-effects
+  cloudinary = require('cloudinary').v2;
+  require('@/lib/cloudinary'); // keep your config side-effects
 } catch (_) {
   cloudinary = null;
 }
 
 export default async function handler(req, res) {
-  if (!cloudinary) {
-    // Graceful failure if the module isn’t present in a given environment
-    return res.status(503).json({ error: "Cloudinary unavailable" });
+  if (!cloudinary || !process.env.CLOUDINARY_URL) {
+    res.status(503).json({ error: 'Media service unavailable' });
+    return;
   }
   const { q, nextCursor } = req.query;
   const search = q ? `filename:${q} OR tags:${q}` : "";

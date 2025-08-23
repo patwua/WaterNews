@@ -14,6 +14,7 @@ export default async function handler(req, res) {
   if (!who) return res.status(401).json({ error: 'Unauthorized' });
 
   const { dataUrl, url } = req.body || {};
+  // Guarded require (optional dependency)
   let cloudinary; try { cloudinary = require('cloudinary').v2; } catch { cloudinary = null; }
 
   let finalUrl = url || null;
