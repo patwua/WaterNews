@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useShell } from "./ShellContext";
@@ -9,7 +9,7 @@ const RAIL_W = 280; // px expanded
 const RAIL_W_COLLAPSED = 76; // px collapsed
 
 export default function GlobalShell({ children }: { children: React.ReactNode }) {
-  const { user, setUser } = useShell();
+  const { user, setUser, closeMobile } = useShell();
   const router = useRouter();
 
   // Bootstrap the signed-in user so the shell can render on mobile
@@ -35,6 +35,13 @@ export default function GlobalShell({ children }: { children: React.ReactNode })
       cancelled = true;
     };
   }, [user, setUser]);
+
+  // Close mobile drawer on route changes (client router)
+  useEffect(() => {
+    const onStart = () => closeMobile();
+    router.events.on("routeChangeStart", onStart);
+    return () => router.events.off("routeChangeStart", onStart);
+  }, [router.events, closeMobile]);
 
   // Only render shell for logged-in users
   if (!user) return <>{children}</>;
@@ -128,7 +135,7 @@ function MobileTopBar() {
   const router = useRouter();
   const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
   return (
-    <div className="md:hidden sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
+    <div className="md:hidden sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
       <div className="h-14 px-3 flex items-center gap-3">
         <button
           onClick={() => router.push("/newsroom/dashboard")}
@@ -167,7 +174,7 @@ function MobileTopBar() {
 }
 
 function MobileDrawer({ children }: { children: React.ReactNode }) {
-  const { isMobileOpen, closeMobile } = useShell();
+  const { isMobileOpen, closeMobile, openMobile } = useShell();
   // Lock body scroll when open
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -184,21 +191,81 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [closeMobile]);
+
+  // Focus trap + return focus
+  const [initialButton, setInitialButton] = useState<HTMLButtonElement | null>(null);
+  const [panelRef, setPanelRef] = useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!isMobileOpen || !panelRef) return;
+    const focusables = panelRef.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusables[0], last = focusables[focusables.length - 1];
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      if (focusables.length === 0) return;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); (last || first).focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); (first || last).focus();
+      }
+    };
+    panelRef.addEventListener("keydown", onKeyDown as any);
+    (first || panelRef).focus();
+    return () => panelRef.removeEventListener("keydown", onKeyDown as any);
+  }, [isMobileOpen, panelRef]);
+
+  // Edge-swipe gestures
+  useEffect(() => {
+    let startX = 0, startY = 0, tracking = false;
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      startX = t.clientX; startY = t.clientY;
+      if (!isMobileOpen && startX < 24) tracking = true;
+      if (isMobileOpen && (t.target as HTMLElement)?.closest?.("aside[data-nr-drawer]")) tracking = true;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!tracking) return;
+      const t = e.touches[0];
+      const dx = t.clientX - startX;
+      const dy = Math.abs(t.clientY - startY);
+      if (dy > 30) { tracking = false; return; }
+      if (!isMobileOpen && dx > 40) { openMobile(); tracking = false; }
+      if (isMobileOpen && dx < -40) { closeMobile(); tracking = false; }
+    };
+    const onTouchEnd = () => { tracking = false; };
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart as any);
+      window.removeEventListener("touchmove", onTouchMove as any);
+      window.removeEventListener("touchend", onTouchEnd as any);
+    };
+  }, [isMobileOpen, openMobile, closeMobile]);
   return (
     <div
       className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
       aria-hidden={!isMobileOpen}
+      role="presentation"
     >
       {/* Backdrop */}
       <div
         className={`absolute inset-0 bg-black/40 transition-opacity ${isMobileOpen ? "opacity-100" : "opacity-0"}`}
         onClick={closeMobile}
+        aria-hidden="true"
       />
       {/* Panel */}
       <aside
-        className={`absolute left-0 top-0 h-full w-[84vw] max-w-[320px] bg-white shadow-xl transition-transform ${
+        className={`absolute left-0 top-0 h-full w-[84vw] max-w-[320px] bg-white shadow-xl outline-none transition-transform ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        aria-modal="true"
+        role="dialog"
+        aria-label="Newsroom menu"
+        data-nr-drawer
+        tabIndex={-1}
+        ref={setPanelRef as any}
       >
         <div className="h-14 flex items-center justify-between px-3 border-b">
           <span className="font-semibold">NewsRoom</span>
@@ -207,6 +274,7 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
             className="inline-flex items-center justify-center w-9 h-9 rounded-md border bg-white hover:bg-gray-50"
             aria-label="Close Newsroom menu"
             title="Close"
+            ref={setInitialButton as any}
           >
             {/* X */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
