@@ -1,31 +1,30 @@
-import NewsroomLayout from '@/components/Newsroom/NewsroomLayout';
-import type { GetServerSideProps } from 'next';
-import { requireAuthSSR } from '@/lib/user-guard';
+import React from "react";
+import Page from "@/components/UX/Page";
+import SectionCard from "@/components/UX/SectionCard";
+import Callout from "@/components/UX/Callout";
 
-export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx as any);
-
-export default function HelpPage(){
+export default function NewsroomHelp() {
   return (
-    <NewsroomLayout>
-      <h1 className="text-2xl font-semibold mb-4">Help for Members</h1>
-      <div className="grid md:grid-cols-2 gap-4">
-        <section className="border rounded-xl p-4">
-          <div className="font-medium mb-1">Getting started</div>
-          <p className="text-sm text-gray-600">Use Publisher to create drafts, insert media, and submit for review. The Dashboard shows your stats and quick actions.</p>
-        </section>
-        <section className="border rounded-xl p-4">
-          <div className="font-medium mb-1">Editorial workflow</div>
-          <p className="text-sm text-gray-600">Submit for review when ready. Editors will approve or request changes; you’ll receive email notifications.</p>
-        </section>
-        <section className="border rounded-xl p-4">
-          <div className="font-medium mb-1">Media tips</div>
-          <p className="text-sm text-gray-600">Open Media from the draft to insert images/videos. Uploads live in Cloudinary and can be reused across drafts.</p>
-        </section>
-        <section className="border rounded-xl p-4">
-          <div className="font-medium mb-1">Policies</div>
-          <p className="text-sm text-gray-600">Review our <a className="text-blue-600 underline" href="/editorial-standards">Editorial Standards</a> and <a className="text-blue-600 underline" href="/privacy">Privacy</a>.</p>
-        </section>
+    <Page title="Help" subtitle="Guides, best practices, and shortcuts">
+      <div className="grid gap-6">
+        <Callout title="TL;DR">
+          Draft → Add media → Submit for review → (optional) Schedule → Publish
+        </Callout>
+        <SectionCard title="Writing">
+          <ul className="list-disc list-inside text-sm text-gray-700">
+            <li>Use headings and short paragraphs for scannability.</li>
+            <li>Add captions and alt text for accessibility.</li>
+            <li>Link sources — we encourage transparent citations.</li>
+          </ul>
+        </SectionCard>
+        <SectionCard title="Media">
+          <ul className="list-disc list-inside text-sm text-gray-700">
+            <li>Prefer horizontal images ≥ 1600px on the long edge.</li>
+            <li>Use the library to reuse approved assets.</li>
+          </ul>
+        </SectionCard>
       </div>
-    </NewsroomLayout>
+    </Page>
   );
 }
+

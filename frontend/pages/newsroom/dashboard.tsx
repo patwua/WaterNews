@@ -1,67 +1,91 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
+import KPI from "@/components/UX/KPI";
 
 export default function Dashboard() {
-  return (
-    <Page
-      title="Newsroom"
-      subtitle="Your writing hub — drafts, schedules, and activity."
-      actions={
-        <div className="flex gap-2">
-          <Link href="/newsroom" className="px-3 py-2 rounded-md bg-black text-white hover:bg-gray-900">
-            Write
-          </Link>
-          <Link href="/newsroom/notice-board" className="px-3 py-2 rounded-md border hover:bg-gray-50">
-            New notice
-          </Link>
-        </div>
+  const [stats, setStats] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/newsroom/stats");
+        const d = await r.json();
+        if (!alive) return;
+        setStats(d || {});
+      } catch {
+        if (!alive) return;
+        setStats({});
+      } finally {
+        if (alive) setLoading(false);
       }
-    >
-      <div className="grid gap-6 sm:grid-cols-2">
-        <SectionCard title="At a glance">
-          <ul className="text-sm text-gray-700 space-y-1">
-            <li>
-              Drafts in progress: <span className="font-medium">—</span>
-            </li>
-            <li>
-              Scheduled for publish: <span className="font-medium">—</span>
-            </li>
-            <li>
-              Last 7 days views: <span className="font-medium">—</span>
-            </li>
-          </ul>
-        </SectionCard>
-        <SectionCard title="Shortcuts">
-          <div className="flex flex-wrap gap-2">
-            <Link href="/newsroom" className="px-3 py-2 rounded-md border hover:bg-gray-50">
-              Open Publisher
-            </Link>
-            <Link href="/newsroom/media" className="px-3 py-2 rounded-md border hover:bg-gray-50">
-              Browse Media
-            </Link>
-            <Link href="/newsroom/collab" className="px-3 py-2 rounded-md border hover:bg-gray-50">
-              Collaboration
-            </Link>
-            <Link href="/newsroom/profile" className="px-3 py-2 rounded-md border hover:bg-gray-50">
-              Profile & Settings
-            </Link>
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  return (
+    <Page title="Newsroom" subtitle="Your writer dashboard">
+      <div className="grid gap-6">
+        <SectionCard>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <KPI title="Drafts" value={stats?.drafts ?? 0} data={stats?.spark?.drafts ?? []} />
+            <KPI title="Scheduled" value={stats?.scheduled ?? 0} data={stats?.spark?.scheduled ?? []} />
+            <KPI title="Published" value={stats?.published ?? 0} data={stats?.spark?.published ?? []} />
+            <KPI
+              title="Views (7d)"
+              value={stats?.views7d ?? 0}
+              delta={stats?.viewsDelta ?? 0}
+              data={stats?.spark?.views ?? []}
+            />
           </div>
         </SectionCard>
-      </div>
-      <div className="mt-6 grid gap-6 sm:grid-cols-2">
-        <SectionCard title="Recent activity">
-          <p className="text-gray-600 text-sm">Your latest edits, comments, and approvals will appear here.</p>
-        </SectionCard>
-        <SectionCard title="Tips">
-          <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
-            <li>Use the Media Library to re-use newsroom assets.</li>
-            <li>Submit for review early; you can keep editing.</li>
-            <li>Try the AI Assistant to outline complex explainers.</li>
-          </ul>
-        </SectionCard>
+        <div className="grid lg:grid-cols-2 gap-6">
+          <SectionCard title="Quick actions">
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/newsroom"
+                className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900"
+              >
+                New draft
+              </Link>
+              <Link
+                href="/newsroom/posts"
+                className="px-4 py-2 rounded-md border hover:bg-gray-50"
+              >
+                My posts
+              </Link>
+              <Link
+                href="/newsroom/notice-board#new"
+                className="px-4 py-2 rounded-md border hover:bg-gray-50"
+              >
+                New notice
+              </Link>
+              <Link
+                href="/newsroom/media"
+                className="px-4 py-2 rounded-md border hover:bg-gray-50"
+              >
+                Media library
+              </Link>
+            </div>
+          </SectionCard>
+          <SectionCard title="Tips">
+            <ul className="list-disc list-inside text-sm text-gray-700">
+              <li>
+                Attach media directly from the editor via <em>/</em> menu or drag-drop.
+              </li>
+              <li>
+                Use “Submit for review” to notify editors; scheduling auto-publishes.
+              </li>
+            </ul>
+          </SectionCard>
+        </div>
       </div>
     </Page>
   );
 }
+
