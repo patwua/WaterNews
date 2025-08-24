@@ -37,6 +37,23 @@ export function orgJsonLd() {
   };
 }
 
+export function aboutPageJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: BRAND_NAME,
+    logo: absoluteUrl(LOGO_FULL),
+    sameAs: [
+      "https://twitter.com/WaterNewsGY",
+      "https://facebook.com/WaterNewsGY",
+    ],
+    hasPart: [
+      { "@type": "WebPage", "@id": absoluteUrl("/about/masthead"), name: "Masthead & News Team" },
+      { "@type": "WebPage", "@id": absoluteUrl("/about/leadership"), name: "Leadership Team" },
+    ],
+  };
+}
+
 export function publisherForArticle() {
   return {
     "@type": "Organization",

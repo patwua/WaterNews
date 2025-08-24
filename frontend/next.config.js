@@ -23,6 +23,26 @@ const nextConfig = {
         destination: "/news/:slug",
         permanent: true,
       },
+      {
+        source: "/editorial-standards",
+        destination: "/about#standards",
+        permanent: true,
+      },
+      {
+        source: "/apply",
+        destination: "/contact?subject=apply",
+        permanent: true,
+      },
+      {
+        source: "/corrections",
+        destination: "/contact?subject=correction",
+        permanent: true,
+      },
+      {
+        source: "/suggest-story",
+        destination: "/contact?subject=suggest-story",
+        permanent: true,
+      },
     ];
   },
   // ⚠️ Emergency-only: let builds pass even with TS errors

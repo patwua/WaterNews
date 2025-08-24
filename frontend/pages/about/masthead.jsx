@@ -1,209 +1,101 @@
 import Head from "next/head";
 import Link from "next/link";
-import Script from "next/script";
+import { useState } from "react";
+import SectionCard from "@/components/UX/SectionCard";
+import BrandLogo from "@/components/BrandLogo";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
-import { colors, LOGO_FULL } from "@/lib/brand-tokens";
-import BrandLogo from "@/components/BrandLogo";
-import { absoluteUrl } from "@/lib/brand";
+import { colors } from "@/lib/brand-tokens";
 
-const contacts = [
-  {
-    label: "News Tips",
-    email: "tips@waternewsgy.com",
-    description:
-      "Story ideas, leaks, firsthand accounts, documents. We respect source safety and can discuss confidentiality.",
-  },
-  {
-    label: "Corrections",
-    email: "corrections@waternewsgy.com",
-    description:
-      "Spotted an error? Tell us what we got wrong and include a link or quote and the correct information.",
-  },
-  {
-    label: "General Inquiries",
-    email: "hello@waternewsgy.com",
-    description: "Partnerships, press, events, and everything else.",
-  },
-  {
-    label: "Advertising",
-    email: "ads@waternewsgy.com",
-    description:
-      "Sponsorships, display, branded content requests. We clearly label ads and sponsored posts.",
-  },
-];
-
-const people = [
+const team = [
   {
     name: "Tatiana Chow",
     role: "Editor-in-Chief — Current Events & Lifestyle",
-    bio: `Guyana-born editor focused on clear, inclusive storytelling across current events and lifestyle. Leads WaterNews’ editorial direction and standards.`,
-    email: "editor@waternewsgy.com",
-    headshot: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
-    ),
+    bio: "Guyana-born editor focused on clear, inclusive storytelling across current events and lifestyle.",
+    slug: "tatiana-chow",
+    headshot: withCloudinaryAuto("https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"),
   },
   {
     name: "Contributor (Open Role)",
     role: "News Reporter",
     bio: "Pitch breaking news and enterprise stories across Guyana and the Caribbean.",
-    email: "careers@waternewsgy.com",
+    slug: "", // no author page yet
     headshot: null,
   },
   {
     name: "Contributor (Open Role)",
     role: "Opinion Editor",
     bio: "Commission and edit letters and opinion essays from diverse voices.",
-    email: "careers@waternewsgy.com",
+    slug: "",
     headshot: null,
   },
 ];
 
 export default function MastheadPage() {
+  const [query, setQuery] = useState("");
+  const [show, setShow] = useState(6);
   const brandVars = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,
     "--brand-lighter": colors.primaryLighter,
     "--brand-soft-from": colors.primarySoftFrom,
     "--brand-soft-to": colors.primarySoftTo,
-    "--brand-blue": colors.brandBlue,
-    "--brand-blue-dark": colors.brandBlueDark,
-    "--brand-blue-darker": colors.brandBlueDarker,
   };
+  const filtered = team.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()));
   return (
     <>
       <Head>
-        <title>Masthead & Contacts — WaterNews</title>
-        <meta
-          name="description"
-          content="WaterNews masthead and contact information for tips, corrections, partnerships, and advertising."
-        />
+        <title>Masthead & News Team — WaterNews</title>
+        <meta name="description" content="WaterNews masthead and newsroom staff." />
       </Head>
-
-      <Script
-        id="newsroom-jsonld"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "NewsMediaOrganization",
-            name: "WaterNews",
-            url: "https://waternews.onrender.com",
-            logo: absoluteUrl(LOGO_FULL),
-            slogan: "Dive Into Current Stories",
-            foundingLocation: "Georgetown, Guyana",
-            contactPoint: [
-              { "@type": "ContactPoint", contactType: "News Tips", email: "tips@waternewsgy.com" },
-              { "@type": "ContactPoint", contactType: "Corrections", email: "corrections@waternewsgy.com" },
-              { "@type": "ContactPoint", contactType: "General", email: "hello@waternewsgy.com" },
-            ],
-            employee: [
-              {
-                "@type": "Person",
-                name: "Tatiana Chow",
-                jobTitle: "Editor-in-Chief",
-                email: "editor@waternewsgy.com",
-              },
-            ],
-          }),
-        }}
-      />
-
-      <header style={brandVars} className="bg-gradient-to-b from-[var(--brand-blue)] via-[var(--brand-blue-dark)] to-[var(--brand-blue-darker)] px-4 py-14 text-white">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-5 flex items-center gap-3">
-            <BrandLogo variant="mark" tone="dark" width={40} height={40} className="rounded-full bg-white/95 p-1" />
-            <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
-              Masthead &amp; Contacts
-            </h1>
-          </div>
-          <p className="max-w-3xl text-sm md:text-base opacity-95">
-            Reach the right desk fast. For sensitive tips, contact us and request a secure channel.
-          </p>
-        </div>
+      <header
+        className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 text-center text-white"
+        style={{ backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})` }}
+      >
+        <BrandLogo variant="mark" width={56} height={56} />
+        <h1 className="mt-4 text-4xl font-extrabold">Masthead &amp; News Team</h1>
       </header>
-
-      <main style={brandVars} className="mx-auto my-10 max-w-5xl px-4">
-        {/* Contacts */}
-        <section className="mb-10 rounded-2xl bg-white p-6 shadow">
-          <h2 className="text-xl font-bold">Contact</h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {contacts.map((c) => (
-              <div key={c.label} className="rounded-xl border border-slate-200 p-4">
-                <p className="m-0 text-sm font-semibold">{c.label}</p>
-                <p className="m-0 text-[13px] text-slate-600">{c.description}</p>
-                <a
-                  className="mt-2 inline-block rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-1.5 text-sm font-semibold text-[var(--brand)]"
-                  href={`mailto:${c.email}`}
-                >
-                  {c.email}
-                </a>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Masthead */}
-        <section className="mb-10">
-          <div className="mb-3 flex items-center gap-3">
-            <BrandLogo variant="mark" width={28} height={28} />
-            <h2 className="m-0 text-xl font-bold">Editorial Team</h2>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {people.map((p) => (
-              <article key={p.name} className="rounded-2xl bg-white p-5 shadow">
-                <div
-                  className={`grid min-h-[120px] place-items-center rounded-md border border-slate-200 ${
-                    p.headshot ? "" : "bg-gradient-to-br from-[var(--brand-soft-from)] to-[var(--brand-soft-to)]"
-                  }`}
-                >
-                  <ProfilePhoto
-                    name={p.name}
-                    url={p.headshot}
-                    isVerified={false}
-                    isOrganization={false}
-                    size={160}
-                  />
+      <main style={brandVars} className="mx-auto -mt-12 mb-16 max-w-5xl px-4">
+        <SectionCard className="mb-8">
+          <h2 className="text-xl font-bold">News Team</h2>
+          <input
+            placeholder="Search by name"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="mt-3 w-full rounded-lg border border-slate-300 px-3 py-2"
+          />
+          <div className="mt-4 grid gap-6 sm:grid-cols-3">
+            {filtered.slice(0, show).map((p) => (
+              <article key={p.name} className="rounded-xl bg-white p-4 shadow">
+                <div className="flex justify-center">
+                  <ProfilePhoto name={p.name} url={p.headshot} isVerified={false} isOrganization={false} size={80} />
                 </div>
-                <h3 className="mt-3 text-base font-semibold">{p.name}</h3>
-                <p className="m-0 text-[13px] text-slate-600">{p.role}</p>
+                <h3 className="mt-3 text-base font-semibold">
+                  {p.slug ? <Link href={`/author/${p.slug}`}>{p.name}</Link> : p.name}
+                </h3>
+                <p className="m-0 text-sm text-slate-600">{p.role}</p>
                 <p className="mt-2 text-[14px] text-slate-700">{p.bio}</p>
-                {p.email && (
-                  <a
-                    className="mt-2 inline-block rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-1.5 text-sm font-semibold text-[var(--brand)]"
-                    href={`mailto:${p.email}`}
-                  >
-                    {p.email}
-                  </a>
-                )}
               </article>
             ))}
           </div>
-        </section>
-
-        <section className="rounded-2xl bg-white p-6 shadow">
-          <h2 className="text-xl font-bold">Policies &amp; Standards</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Read our <Link className="text-[var(--brand)]" href="/about#editorial-standards">Editorial Standards &amp; Fact-Check Policy</Link> and how to request corrections.
-          </p>
-          <div className="mt-3">
-            <Link
-              href="/about"
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
-            >
-              Back to About WaterNews
-            </Link>
-            <Link
-              href="/contact"
-              className="ml-2 inline-flex items-center gap-2 rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
-            >
-              Contact Us
-            </Link>
+          {show < filtered.length && (
+            <div className="mt-4 text-center">
+              <button onClick={() => setShow(show + 6)} className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white">
+                Load more
+              </button>
+            </div>
+          )}
+          {filtered.length === 0 && <p className="mt-4 text-sm text-slate-600">No results.</p>}
+        </SectionCard>
+        <SectionCard>
+          <h2 className="text-xl font-bold">Business &amp; Media</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/contact?subject=partnerships" className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white">Partnerships &amp; Ads</Link>
+            <Link href="/contact?subject=press" className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white">Press &amp; Speaking</Link>
+            <Link href="/contact?subject=careers" className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white">Careers</Link>
           </div>
-        </section>
+        </SectionCard>
       </main>
-
       <footer className="px-4 pb-16 text-center text-slate-500">
         <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
         <div className="mt-2">&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
@@ -211,4 +103,3 @@ export default function MastheadPage() {
     </>
   );
 }
-

@@ -20,9 +20,8 @@ export default function Page({
           backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})`,
         }}
       >
-        <div className="mb-4 flex items-center justify-center gap-4">
+        <div className="mb-4 flex items-center justify-center">
           <BrandLogo variant="mark" width={48} height={48} />
-          <BrandLogo variant="full" width={220} height={60} />
         </div>
         <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">{title}</h1>
         {subtitle && (
