@@ -1,32 +1,28 @@
-import { getDb } from '@/lib/db';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { getDb } from "@/lib/db";
+import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
-  const session = await getServerSession(req, res, authOptions);
-  const who = session?.user?.email || null;
-  if (!who) return res.status(401).json({ error: 'Unauthorized' });
-  const { displayName, handle, bio, avatarUrl, profilePhotoUrl } = req.body || {};
-  const db = await getDb();
-  const users = db.collection('users');
-  const updates: any = { updatedAt: new Date().toISOString() };
-  if (displayName != null) updates.displayName = String(displayName).slice(0, 120);
-  if (handle != null) updates.handle = String(handle).slice(0, 60);
-  if (bio != null) updates.bio = String(bio).slice(0, 2000);
-  // Align on profilePhotoUrl in DB; accept either key from UI
-  const photo = (profilePhotoUrl ?? avatarUrl);
-  if (photo != null) updates.profilePhotoUrl = String(photo).slice(0, 2048);
-  if (handle) {
-    const exists = await users.findOne({ handle: String(handle).toLowerCase(), email: { $ne: who } });
-    if (exists) return res.status(409).json({ error: 'Handle already taken' });
-    updates.handle = String(handle).toLowerCase();
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  try {
+    const { displayName, handle, bio, prefs } = req.body || {};
+    const db = await getDb();
+    const email = (req as any).user?.email || (req.headers["x-user-email"] as string);
+    if (!email) return res.status(401).json({ error: "Unauthorized" });
+
+    const update: any = {};
+    if (displayName) update.displayName = String(displayName).trim().slice(0, 120);
+    if (handle) {
+      update.handle = String(handle).toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24);
+      // ensure uniqueness (simple check)
+      const exists = await db.collection("users").findOne({ handle: update.handle, email: { $ne: email.toLowerCase() } });
+      if (exists) return res.status(409).json({ error: "Handle already taken" });
+    }
+    if (bio !== undefined) update.bio = String(bio).slice(0, 2000);
+    if (prefs) update.prefs = prefs;
+
+    const r = await db.collection("users").updateOne({ email: email.toLowerCase() }, { $set: update });
+    return res.json({ ok: true, modified: r.modifiedCount });
+  } catch (e) {
+    return res.status(500).json({ error: "Unexpected error" });
   }
-  const result = await users.updateOne({ email: who }, { $set: { email: who, ...updates } }, { upsert: true });
-  const me = await users.findOne(
-    { email: who },
-    { projection: { email:1, displayName:1, handle:1, bio:1, profilePhotoUrl:1, followers:1, updatedAt:1 } }
-  );
-  res.json({ ok: true, user: me, upserted: !!result?.upsertedId });
 }
-

@@ -30,7 +30,8 @@ export default async function handler(req, res) {
     authorProfilePhotoUrl: author?.profilePhotoUrl || author?.avatarUrl || null,
     publishedAt: new Date().toISOString(),
     threadUrl: draft.threadUrl || null,
-    coverImage: draft.coverImage || null
+    coverImage: draft.coverImage || null,
+    status: 'published',
   };
   await posts.updateOne({ slug }, { $set: post }, { upsert: true });
   await drafts.updateOne({ _id: draft._id }, { $set: { status: 'published', publishedAt: post.publishedAt, slug } });

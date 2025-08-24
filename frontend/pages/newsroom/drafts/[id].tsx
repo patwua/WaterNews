@@ -120,8 +120,7 @@ export default function WriterDraftEditor() {
                 const r = await fetch(`/api/newsroom/drafts/${id}/publish`, { method: 'POST' });
                 const d = await r.json();
                 if (!r.ok) return alert(d?.error || 'Failed to publish');
-                alert('Published');
-                location.href = `/news/${d?.post?.slug}`;
+                  location.href = `/news/${d.slug}`;
               }}
               className="px-3 py-2 rounded bg-black text-white text-sm"
             >
