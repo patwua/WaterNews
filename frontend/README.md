@@ -1,5 +1,9 @@
 # Frontend
 
+## Routes
+- `/news/[slug]` – canonical article view.
+- `/article/[slug]` – legacy path now redirected to `/news/[slug]`.
+
 ## Environment Variables
 - `PATWUA_FORWARD_URL`: optional URL to forward comments to Patwua.
 - `PATWUA_API_KEY`: optional API key for Patwua requests.

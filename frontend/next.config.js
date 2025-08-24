@@ -16,6 +16,15 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/article/:slug",
+        destination: "/news/:slug",
+        permanent: true,
+      },
+    ];
+  },
   // ⚠️ Emergency-only: let builds pass even with TS errors
   // typescript: {
   //   ignoreBuildErrors: true,
