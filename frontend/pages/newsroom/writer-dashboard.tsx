@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Page from "@/components/UX/Page";
+import DashboardLayout from "@/components/UX/DashboardLayout";
 import SectionCard from "@/components/UX/SectionCard";
 import KPI from "@/components/UX/KPI";
 
-export default function Dashboard() {
+export default function WriterDashboard() {
   const [stats, setStats] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +29,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <Page title="Newsroom" subtitle="Your writer dashboard">
+    <DashboardLayout title="Writer Dashboard" subtitle="Your newsroom overview">
       <div className="grid gap-6">
         <SectionCard>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -85,7 +85,7 @@ export default function Dashboard() {
           </SectionCard>
         </div>
       </div>
-    </Page>
+    </DashboardLayout>
   );
 }
 

@@ -76,7 +76,7 @@ export default function DraftEditor() {
         onPreview={onPreview}
         onSubmit={onSubmit}
         onPublish={onPublish}
-        onBack={() => router.push("/newsroom/dashboard")}
+        onBack={() => router.push("/newsroom/writer-dashboard")}
         rightExtra={draft?.status ? <StatusPill status={draft.status} /> : null}
       />
       <SharedEditor

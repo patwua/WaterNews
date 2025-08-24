@@ -77,8 +77,8 @@ function RailContents() {
       <div className="p-4 border-b flex items-center gap-3">
         <button
           className="flex items-center gap-3 text-left group"
-          onClick={() => router.push("/newsroom/dashboard")}
-          title="Go to Newsroom dashboard"
+          onClick={() => router.push("/newsroom/writer-dashboard")}
+          title="Go to Writer dashboard"
         >
           <ProfilePhoto
             name={user?.displayName || user?.name || "You"}
@@ -109,7 +109,7 @@ function RailContents() {
         {!isCollapsed && (
           <div className="text-xs uppercase tracking-wide text-gray-500 px-2 mb-2">NewsRoom</div>
         )}
-        <SectionLink href="/newsroom/dashboard" label={isCollapsed ? "Home" : "Dashboard"} />
+        <SectionLink href="/newsroom/writer-dashboard" label={isCollapsed ? "Home" : "Dashboard"} />
         <SectionLink href="/newsroom" label={isCollapsed ? "Write" : "Publisher"} />
         <SectionLink href="/newsroom/collab" label={isCollapsed ? "Collab" : "Collaboration"} />
         <SectionLink href="/newsroom/media" label="Media" />
@@ -139,9 +139,9 @@ function MobileTopBar() {
     <div className="md:hidden sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
       <div className="h-14 px-3 flex items-center gap-3">
         <button
-          onClick={() => router.push("/newsroom/dashboard")}
+          onClick={() => router.push("/newsroom/writer-dashboard")}
           className="flex items-center gap-2 min-w-0"
-          title="Go to Newsroom dashboard"
+          title="Go to Writer dashboard"
         >
           <ProfilePhoto
             name={user?.displayName || user?.name || "You"}
