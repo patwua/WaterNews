@@ -77,9 +77,7 @@ export default function MastheadPage() {
             "@type": "NewsMediaOrganization",
             name: "WaterNews",
             url: "https://waternews.onrender.com",
-            logo: withCloudinaryAuto(
-              "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
-            ),
+            logo: withCloudinaryAuto("/logo-waternews.svg"),
             slogan: "Dive Into Current Stories",
             foundingLocation: "Georgetown, Guyana",
             contactPoint: [
