@@ -2,8 +2,19 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ["images.unsplash.com", "res.cloudinary.com"],
+    // Modern config (replaces deprecated images.domains)
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
+    ],
     formats: ["image/avif", "image/webp"],
+  },
+  async headers() {
+    return [
+      {
+        source: "/:all*(svg|png|jpg|jpeg|webp|ico)",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+    ];
   },
   // ⚠️ Emergency-only: let builds pass even with TS errors
   // typescript: {
