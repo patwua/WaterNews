@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 
 export default function ProfilePhotoForm({ initialUrl, isOrganization=false }:{
   initialUrl?: string|null; isOrganization?: boolean;
@@ -16,14 +16,28 @@ export default function ProfilePhotoForm({ initialUrl, isOrganization=false }:{
 
     setBusy(true);
     try {
-      // Read to data URL and use session-aware JSON upload
-      const dataUrl = await new Promise<string>((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result)); fr.onerror=rej; fr.readAsDataURL(file); });
-      const upRes = await fetch("/api/users/avatar", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ dataUrl }) });
-      const up = await upRes.json(); if (!upRes.ok) throw new Error(up?.error || "Upload failed");
-      const photo = up.profilePhotoUrl || up.avatarUrl;
-      const saveRes = await fetch("/api/users/update", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ profilePhotoUrl: photo, isOrganization }) });
-      const sv = await saveRes.json(); if (!saveRes.ok) throw new Error(sv?.error || "Save failed");
-      setUrl(photo);
+      // Convert file -> data URL and POST JSON (no multipart; no sharp)
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(String(fr.result));
+        fr.onerror = () => reject(new Error("Failed to read file"));
+        fr.readAsDataURL(file);
+      });
+      const upRes = await fetch("/api/user/profile-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataUrl, isOrganization }),
+      });
+      const up = await upRes.json();
+      if (!upRes.ok) throw new Error(up?.error || "Upload failed");
+      const saveRes = await fetch("/api/user/save-profile-photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profilePhotoUrl: up.url, isOrganization }),
+      });
+      const sv = await saveRes.json();
+      if (!saveRes.ok) throw new Error(sv?.error || "Save failed");
+      setUrl(up.url);
     } catch (e:any) {
       setErr(e.message || "Something went wrong");
     } finally {
