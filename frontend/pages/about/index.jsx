@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { withCloudinaryAuto } from "@/lib/media";
+import { colors } from "@/lib/brand-tokens";
 
 const EIC = {
   name: "Tatiana Chow",
@@ -37,6 +38,16 @@ const MINI_LOGO = withCloudinaryAuto("/logo-mini.svg");
 const FULL_LOGO = withCloudinaryAuto("/logo-waternews.svg");
 
 export default function AboutPage() {
+  const brandVars = {
+    "--brand": colors.primary,
+    "--brand-light": colors.primaryLight,
+    "--brand-lighter": colors.primaryLighter,
+    "--brand-tag-bg": colors.primaryTagBg,
+    "--brand-tag-text": colors.primaryTagText,
+    "--brand-soft-from": colors.primarySoftFrom,
+    "--brand-soft-to": colors.primarySoftTo,
+  };
+
   return (
     <>
       <Head>
@@ -50,7 +61,7 @@ export default function AboutPage() {
       {/* HERO */}
       <header
         className="relative grid min-h-[58vh] place-items-center overflow-hidden px-4 text-center text-white"
-        style={{ backgroundImage: "linear-gradient(to bottom, #0f6cad, #0b5d95, #0a4f7f)" }}
+        style={{ backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})` }}
       >
         <div className="mb-4 flex items-center justify-center gap-4">
           <Image src={MINI_LOGO} alt="WaterNews mini logo" width={48} height={48} />
@@ -80,11 +91,11 @@ export default function AboutPage() {
       </header>
 
       {/* BODY */}
-      <main className="mx-auto -mt-14 mb-16 max-w-5xl px-4">
+      <main style={brandVars} className="mx-auto -mt-14 mb-16 max-w-5xl px-4">
         {/* Mission */}
         <section className="mb-12 grid gap-6 rounded-2xl bg-white p-6 shadow-lg md:grid-cols-[1.1fr,0.9fr]">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#e6f2fb] px-3 py-1 text-xs font-semibold text-[#0f6cad]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-tag-bg)] px-3 py-1 text-xs font-semibold text-[var(--brand-tag-text)]">
               Our Mission
             </span>
             <h2 className="mt-2 text-2xl font-bold">
@@ -101,18 +112,18 @@ export default function AboutPage() {
               <li>✅ Lifestyle features celebrating culture, food, and everyday life</li>
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
-              <a className="rounded-xl bg-[#1583c2] px-4 py-2 font-semibold text-white" href="#join">
+              <a className="rounded-xl bg-[var(--brand)] px-4 py-2 font-semibold text-white" href="#join">
                 Join Our Team
               </a>
-              <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#suggest">
+              <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#suggest">
                 Suggest a Story
               </a>
-              <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#follow">
+              <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#follow">
                 Follow for Updates
               </a>
             </div>
           </div>
-          <div className="grid gap-2 rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 sm:grid-cols-2">
+          <div className="grid gap-2 rounded-xl border border-slate-200 bg-gradient-to-br from-[var(--brand-soft-from)] to-[var(--brand-soft-to)] p-4 sm:grid-cols-2">
             {COMMUNITY_PHOTOS.map((src, i) => (
               <div key={i} className="relative aspect-video w-full overflow-hidden rounded-md">
                 <Image
@@ -319,10 +330,10 @@ export default function AboutPage() {
               <h4 className="mt-4 text-lg font-semibold">Corrections</h4>
               <p className="text-[15px] text-slate-700">
                 If we publish an error, we will correct it promptly and add a note indicating
-                what changed. Email <a className="text-[#1583c2]" href="mailto:corrections@waternewsgy.com">corrections@waternewsgy.com</a>.
+                what changed. Email <a className="text-[var(--brand)]" href="mailto:corrections@waternewsgy.com">corrections@waternewsgy.com</a>.
               </p>
               <div className="mt-3">
-                <Link href="/about/masthead" className="inline-flex items-center gap-2 rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-2 text-sm font-semibold text-[#1583c2]">
+                <Link href="/about/masthead" className="inline-flex items-center gap-2 rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]">
                   View Masthead &amp; Contacts
                 </Link>
               </div>
@@ -338,10 +349,10 @@ export default function AboutPage() {
             regional storytelling.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <a className="rounded-xl bg-[#1583c2] px-4 py-2 font-semibold text-white" href="/apply">
+            <a className="rounded-xl bg-[var(--brand)] px-4 py-2 font-semibold text-white" href="/apply">
               Become an Author
             </a>
-            <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#suggest">
+            <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#suggest">
               Suggest a Story
             </a>
           </div>
@@ -354,7 +365,7 @@ export default function AboutPage() {
             formed pitch.
           </p>
           <div className="mt-3">
-            <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="mailto:tips@waternewsgy.com">
+            <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="mailto:tips@waternewsgy.com">
               tips@waternewsgy.com
             </a>
           </div>
@@ -366,16 +377,16 @@ export default function AboutPage() {
             Get the latest headlines and features as they publish.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#">
+            <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#">
               @WaterNewsGY
             </a>
-            <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#">
+            <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#">
               Facebook
             </a>
-            <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#">
+            <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#">
               Instagram
             </a>
-            <a className="rounded-xl border border-[#cfe6f7] bg-[#eff7fd] px-4 py-2 font-semibold text-[#1583c2]" href="#">
+            <a className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]" href="#">
               X (Twitter)
             </a>
           </div>

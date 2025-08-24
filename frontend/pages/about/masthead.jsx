@@ -3,6 +3,7 @@ import Link from "next/link";
 import Script from "next/script";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
+import { colors } from "@/lib/brand-tokens";
 import BrandLogo from "@/components/BrandLogo";
 
 const contacts = [
@@ -58,6 +59,16 @@ const people = [
 ];
 
 export default function MastheadPage() {
+  const brandVars = {
+    "--brand": colors.primary,
+    "--brand-light": colors.primaryLight,
+    "--brand-lighter": colors.primaryLighter,
+    "--brand-soft-from": colors.primarySoftFrom,
+    "--brand-soft-to": colors.primarySoftTo,
+    "--brand-blue": colors.brandBlue,
+    "--brand-blue-dark": colors.brandBlueDark,
+    "--brand-blue-darker": colors.brandBlueDarker,
+  };
   return (
     <>
       <Head>
@@ -97,7 +108,7 @@ export default function MastheadPage() {
         }}
       />
 
-      <header className="bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 py-14 text-white">
+      <header style={brandVars} className="bg-gradient-to-b from-[var(--brand-blue)] via-[var(--brand-blue-dark)] to-[var(--brand-blue-darker)] px-4 py-14 text-white">
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 flex items-center gap-3">
             <BrandLogo variant="mini" onDark size={40} className="rounded-full bg-white/95 p-1" />
@@ -111,7 +122,7 @@ export default function MastheadPage() {
         </div>
       </header>
 
-      <main className="mx-auto my-10 max-w-5xl px-4">
+      <main style={brandVars} className="mx-auto my-10 max-w-5xl px-4">
         {/* Contacts */}
         <section className="mb-10 rounded-2xl bg-white p-6 shadow">
           <h2 className="text-xl font-bold">Contact</h2>
@@ -121,7 +132,7 @@ export default function MastheadPage() {
                 <p className="m-0 text-sm font-semibold">{c.label}</p>
                 <p className="m-0 text-[13px] text-slate-600">{c.description}</p>
                 <a
-                  className="mt-2 inline-block rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-1.5 text-sm font-semibold text-[#1583c2]"
+                  className="mt-2 inline-block rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-1.5 text-sm font-semibold text-[var(--brand)]"
                   href={`mailto:${c.email}`}
                 >
                   {c.email}
@@ -141,7 +152,7 @@ export default function MastheadPage() {
           <div className="grid gap-4 md:grid-cols-3">
             {people.map((p) => (
               <article key={p.name} className="rounded-2xl bg-white p-5 shadow">
-                <div className="grid min-h-[120px] place-items-center rounded-md border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff]">
+                <div className="grid min-h-[120px] place-items-center rounded-md border border-slate-200 bg-gradient-to-br from-[var(--brand-soft-from)] to-[var(--brand-soft-to)]">
                   <ProfilePhoto
                     name={p.name}
                     url={p.headshot}
@@ -155,7 +166,7 @@ export default function MastheadPage() {
                 <p className="mt-2 text-[14px] text-slate-700">{p.bio}</p>
                 {p.email && (
                   <a
-                    className="mt-2 inline-block rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-1.5 text-sm font-semibold text-[#1583c2]"
+                    className="mt-2 inline-block rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-1.5 text-sm font-semibold text-[var(--brand)]"
                     href={`mailto:${p.email}`}
                   >
                     {p.email}
@@ -169,18 +180,18 @@ export default function MastheadPage() {
         <section className="rounded-2xl bg-white p-6 shadow">
           <h2 className="text-xl font-bold">Policies &amp; Standards</h2>
           <p className="mt-2 text-[15px] text-slate-700">
-            Read our <Link className="text-[#1583c2]" href="/about#editorial-standards">Editorial Standards &amp; Fact-Check Policy</Link> and how to request corrections.
+            Read our <Link className="text-[var(--brand)]" href="/about#editorial-standards">Editorial Standards &amp; Fact-Check Policy</Link> and how to request corrections.
           </p>
           <div className="mt-3">
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-2 text-sm font-semibold text-[#1583c2]"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
             >
               Back to About WaterNews
             </Link>
             <Link
               href="/contact"
-              className="ml-2 inline-flex items-center gap-2 rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-2 text-sm font-semibold text-[#1583c2]"
+              className="ml-2 inline-flex items-center gap-2 rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
             >
               Contact Us
             </Link>

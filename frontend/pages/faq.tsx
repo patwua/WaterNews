@@ -2,8 +2,13 @@ import Head from "next/head";
 import Link from "next/link";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
+import { colors } from "@/lib/brand-tokens";
 
 export default function FAQ() {
+  const brandVars = {
+    "--brand": colors.primary,
+  } as Record<string, string>;
+
   return (
     <>
       <Head>
@@ -15,12 +20,12 @@ export default function FAQ() {
         subtitle="Answers for readers and visitors. For member help, see the NewsRoom dashboard."
       >
         <SectionCard>
-          <div className="space-y-6">
+          <div style={brandVars} className="space-y-6">
             <section>
               <h2 className="font-medium">How do I submit a story tip?</h2>
               <p>
                 Use the{" "}
-                <Link className="font-semibold text-[#1583c2]" href="/suggest-story">
+                <Link className="font-semibold text-[var(--brand)]" href="/suggest-story">
                   Suggest a Story
                 </Link>{" "}
                 page.
@@ -30,7 +35,7 @@ export default function FAQ() {
               <h2 className="font-medium">How do I contact the newsroom?</h2>
               <p>
                 Visit{" "}
-                <Link className="font-semibold text-[#1583c2]" href="/contact">
+                <Link className="font-semibold text-[var(--brand)]" href="/contact">
                   Contact
                 </Link>{" "}
                 for email and forms.
@@ -40,11 +45,11 @@ export default function FAQ() {
               <h2 className="font-medium">Corrections policy?</h2>
               <p>
                 See{" "}
-                <Link className="font-semibold text-[#1583c2]" href="/corrections">
+                <Link className="font-semibold text-[var(--brand)]" href="/corrections">
                   Corrections
                 </Link>{" "}
                 and our{" "}
-                <Link className="font-semibold text-[#1583c2]" href="/editorial-standards">
+                <Link className="font-semibold text-[var(--brand)]" href="/editorial-standards">
                   Editorial Standards
                 </Link>
                 .
