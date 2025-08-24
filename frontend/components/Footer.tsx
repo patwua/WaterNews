@@ -9,7 +9,7 @@ export default function Footer() {
         <BrandLogo variant="mark" tone="dark" width={28} height={28} className="opacity-95" />
         <nav className="text-sm flex-1 flex flex-wrap gap-x-6 gap-y-2">
           <a href="/about" className="hover:underline">About</a>
-          <a href="/editorial-standards" className="hover:underline">Editorial Standards</a>
+          <a href="/about#standards" className="hover:underline">Editorial Standards</a>
           <a href="/contact" className="hover:underline">Contact</a>
           <a href="/faq" className="hover:underline">FAQ</a>
           <a href="/privacy" className="hover:underline">Privacy</a>

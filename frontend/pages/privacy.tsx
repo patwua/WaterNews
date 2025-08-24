@@ -24,6 +24,14 @@ export default function Privacy() {
             <p>Update or delete your account anytime in <strong>Newsroom → Profile &amp; Settings</strong>.</p>
           </div>
         </SectionCard>
+        <SectionCard>
+          <div className="prose max-w-none">
+            <h3>Governance &amp; Compliance</h3>
+            <p>
+              WaterNews operates under Guyanese and international privacy laws and is committed to legal compliance and reader protections.
+            </p>
+          </div>
+        </SectionCard>
       </div>
     </Page>
   );

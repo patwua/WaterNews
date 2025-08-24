@@ -25,7 +25,7 @@ export default function FAQ() {
               <h2 className="font-medium">How do I submit a story tip?</h2>
               <p>
                 Use the{" "}
-                <Link className="font-semibold text-[var(--brand)]" href="/suggest-story">
+                <Link className="font-semibold text-[var(--brand)]" href="/contact?subject=suggest-story">
                   Suggest a Story
                 </Link>{" "}
                 page.
@@ -45,11 +45,11 @@ export default function FAQ() {
               <h2 className="font-medium">Corrections policy?</h2>
               <p>
                 See{" "}
-                <Link className="font-semibold text-[var(--brand)]" href="/corrections">
+                <Link className="font-semibold text-[var(--brand)]" href="/contact?subject=correction">
                   Corrections
                 </Link>{" "}
                 and our{" "}
-                <Link className="font-semibold text-[var(--brand)]" href="/editorial-standards">
+                <Link className="font-semibold text-[var(--brand)]" href="/about#standards">
                   Editorial Standards
                 </Link>
                 .
