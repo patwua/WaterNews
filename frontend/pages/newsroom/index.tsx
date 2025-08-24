@@ -7,6 +7,7 @@ export default function Publisher() {
   const [drafts, setDrafts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -41,6 +42,20 @@ export default function Publisher() {
     }
   }
 
+  async function onDelete(id: string) {
+    if (deleting) return;
+    if (!confirm("Delete this draft?")) return;
+    setDeleting(id);
+    try {
+      const r = await fetch(`/api/newsroom/drafts/${id}/delete`, { method: "POST" });
+      const json = await r.json();
+      if (!r.ok || !json?.ok) throw new Error("Failed to delete");
+      setDrafts((ds) => ds.filter((d) => d._id !== id));
+    } finally {
+      setDeleting(null);
+    }
+  }
+
   return (
     <Page
       title="Publisher"
@@ -49,7 +64,7 @@ export default function Publisher() {
         <button
           onClick={onNewDraft}
           disabled={creating}
-          className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900 disabled:opacity-50"
+          className="rounded-xl bg-[#1583c2] px-4 py-2 font-semibold text-white hover:brightness-110 disabled:opacity-60"
         >
           {creating ? "Creating…" : "New draft"}
         </button>
@@ -69,9 +84,19 @@ export default function Publisher() {
                   <div className="text-xs text-gray-500">{d.status || "draft"}</div>
                 </div>
                 <div className="shrink-0 flex items-center gap-3">
-                  <Link href={`/newsroom/drafts/${d._id}`} className="text-sm text-blue-600 hover:underline">
+                  <Link
+                    href={`/newsroom/drafts/${d._id}`}
+                    className="text-sm font-semibold text-[#1583c2] hover:underline"
+                  >
                     Open
                   </Link>
+                  <button
+                    onClick={() => onDelete(d._id)}
+                    disabled={deleting === d._id}
+                    className="text-sm text-red-600 hover:underline disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
                 </div>
               </li>
             ))}
