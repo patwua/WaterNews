@@ -1,12 +1,8 @@
 import Image from "next/image";
 import { withCloudinaryAuto } from "@/lib/media";
 
-const MINI_LOGO = withCloudinaryAuto(
-  "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
-);
-const FULL_LOGO = withCloudinaryAuto(
-  "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
-);
+const MINI_LOGO = withCloudinaryAuto("/logo-mini.svg");
+const FULL_LOGO = withCloudinaryAuto("/logo-waternews.svg");
 
 export default function Page({
   title,
