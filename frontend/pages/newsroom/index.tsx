@@ -1,29 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
+import DraftList, { Column } from "@/components/Newsroom/DraftList";
 
 export default function Publisher() {
-  const [drafts, setDrafts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const r = await fetch("/api/newsroom/drafts");
-        const d = await r.json();
-        if (mounted) setDrafts(d?.items || []);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const columns: Column[] = [
+    { key: "title", label: "Title", render: (d) => d.title || "Untitled" },
+    { key: "status", label: "Status", render: (d) => d.status || "draft" },
+  ];
 
   async function onNewDraft() {
     if (creating) return;
@@ -50,7 +39,7 @@ export default function Publisher() {
       const r = await fetch(`/api/newsroom/drafts/${id}/delete`, { method: "POST" });
       const json = await r.json();
       if (!r.ok || !json?.ok) throw new Error("Failed to delete");
-      setDrafts((ds) => ds.filter((d) => d._id !== id));
+      setRefreshKey((k) => k + 1);
     } finally {
       setDeleting(null);
     }
@@ -71,37 +60,28 @@ export default function Publisher() {
       }
     >
       <SectionCard title="Your drafts">
-        {loading ? (
-          <p className="text-gray-600">Loading…</p>
-        ) : drafts.length === 0 ? (
-          <p className="text-gray-600">No drafts yet. Click “New draft” to start writing.</p>
-        ) : (
-          <ul className="divide-y">
-            {drafts.map((d) => (
-              <li key={d._id} className="py-3 flex items-center justify-between">
-                <div className="min-w-0">
-                  <div className="font-medium truncate">{d.title || "Untitled"}</div>
-                  <div className="text-xs text-gray-500">{d.status || "draft"}</div>
-                </div>
-                <div className="shrink-0 flex items-center gap-3">
-                  <Link
-                    href={`/newsroom/drafts/${d._id}`}
-                    className="text-sm font-semibold text-[#1583c2] hover:underline"
-                  >
-                    Open
-                  </Link>
-                  <button
-                    onClick={() => onDelete(d._id)}
-                    disabled={deleting === d._id}
-                    className="text-sm text-red-600 hover:underline disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <DraftList
+          fetchUrl="/api/newsroom/drafts"
+          columns={columns}
+          actions={(d) => (
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/newsroom/drafts/${d._id}`}
+                className="text-sm font-semibold text-[#1583c2] hover:underline"
+              >
+                Open
+              </Link>
+              <button
+                onClick={() => onDelete(d._id)}
+                disabled={deleting === d._id}
+                className="text-sm text-red-600 hover:underline disabled:opacity-50"
+              >
+                Delete
+              </button>
+            </div>
+          )}
+          refreshDeps={[refreshKey]}
+        />
       </SectionCard>
     </Page>
   );
