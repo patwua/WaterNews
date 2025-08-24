@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
+import BrandLogo from "@/components/BrandLogo";
 
 const EIC = {
   name: "Tatiana Chow",
@@ -34,8 +35,6 @@ const COMMUNITY_PHOTOS = [
   ),
 ];
 
-const MINI_LOGO = withCloudinaryAuto("/logo-mini.svg");
-const FULL_LOGO = withCloudinaryAuto("/logo-waternews.svg");
 
 export default function AboutPage() {
   const brandVars = {
@@ -64,8 +63,8 @@ export default function AboutPage() {
         style={{ backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})` }}
       >
         <div className="mb-4 flex items-center justify-center gap-4">
-          <Image src={MINI_LOGO} alt="WaterNews mini logo" width={48} height={48} />
-          <Image src={FULL_LOGO} alt="WaterNews logo" width={220} height={60} />
+          <BrandLogo variant="mark" width={48} height={48} />
+          <BrandLogo variant="full" width={220} height={60} />
         </div>
         <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
           About WaterNews
@@ -142,7 +141,7 @@ export default function AboutPage() {
         {/* Our Story */}
         <section className="mb-10">
           <div className="mb-2 flex items-center gap-3">
-            <Image src={MINI_LOGO} alt="" width={28} height={28} />
+            <BrandLogo variant="mark" width={28} height={28} />
             <div>
               <h3 className="m-0 text-xl font-bold">Our Story</h3>
               <p className="m-0 text-sm text-slate-600">
@@ -164,7 +163,7 @@ export default function AboutPage() {
         {/* What We Publish */}
         <section className="mb-10">
           <div className="mb-3 flex items-center gap-3">
-            <Image src={MINI_LOGO} alt="" width={28} height={28} />
+            <BrandLogo variant="mark" width={28} height={28} />
             <div>
               <h3 className="m-0 text-xl font-bold">What We Publish</h3>
               <p className="m-0 text-sm text-slate-600">
@@ -203,7 +202,7 @@ export default function AboutPage() {
         {/* Values */}
         <section className="mb-10">
           <div className="mb-3 flex items-center gap-3">
-            <Image src={MINI_LOGO} alt="" width={28} height={28} />
+            <BrandLogo variant="mark" width={28} height={28} />
             <div>
               <h3 className="m-0 text-xl font-bold">Our Values</h3>
               <p className="m-0 text-sm text-slate-600">
@@ -238,7 +237,7 @@ export default function AboutPage() {
         {/* Leadership */}
         <section id="team" className="mb-10 rounded-2xl bg-white p-6 shadow">
           <div className="mb-3 flex items-center gap-3">
-            <Image src={MINI_LOGO} alt="" width={28} height={28} />
+            <BrandLogo variant="mark" width={28} height={28} />
             <h3 className="m-0 text-xl font-bold">Leadership</h3>
           </div>
 
@@ -299,7 +298,7 @@ export default function AboutPage() {
         {/* Editorial Standards & Fact-Check Policy */}
         <section className="mb-10 rounded-2xl bg-white p-6 shadow">
           <div className="mb-3 flex items-center gap-3">
-            <Image src={MINI_LOGO} alt="" width={28} height={28} />
+            <BrandLogo variant="mark" width={28} height={28} />
             <h3 className="m-0 text-xl font-bold">Editorial Standards &amp; Fact-Check Policy</h3>
           </div>
 
@@ -394,13 +393,7 @@ export default function AboutPage() {
       </main>
 
       <footer className="px-4 pb-16 text-center text-slate-500">
-        <Image
-          src={MINI_LOGO}
-          alt="WaterNews mini logo"
-          width={36}
-          height={36}
-          className="mx-auto rounded-full"
-        />
+        <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
         <div className="mt-2">&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
       </footer>
     </>

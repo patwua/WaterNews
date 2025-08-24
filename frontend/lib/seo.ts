@@ -1,7 +1,10 @@
 // Minimal, framework-agnostic JSON-LD builders for WaterNews
 // Keep objects small, avoid undefineds, and emit a single script per page.
 
-import { absoluteUrl, BRAND_NAME, LOGO_MINI } from "@/lib/brand";
+import { absoluteUrl, BRAND_NAME } from "@/lib/brand";
+import { LOGO_FULL, OG_DEFAULT } from "@/lib/brand-tokens";
+
+export const DEFAULT_OG_IMAGE = OG_DEFAULT;
 
 type Publisher = {
   name: string;
@@ -13,7 +16,7 @@ export function getPublisher(origin: string): Publisher {
   const site = origin || "https://www.waternewsgy.com";
   return {
     name: BRAND_NAME,
-    logoUrl: absoluteUrl(LOGO_MINI),
+    logoUrl: absoluteUrl(LOGO_FULL),
     url: site,
   };
 }
@@ -24,7 +27,7 @@ export function orgJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: BRAND_NAME,
-    logo: absoluteUrl(LOGO_MINI),
+    logo: absoluteUrl(LOGO_FULL),
   };
 }
 
@@ -34,7 +37,7 @@ export function publisherForArticle() {
     name: BRAND_NAME,
     logo: {
       "@type": "ImageObject",
-      url: absoluteUrl(LOGO_MINI),
+      url: absoluteUrl(LOGO_FULL),
     },
   };
 }

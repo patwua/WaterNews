@@ -1,5 +1,5 @@
 import React from "react";
-import { LOGO_MINI } from "@/lib/brand";
+import { pickLogo } from "@/lib/brand-tokens";
 
 // Per-glyph viewBox so our logo (SVG file) renders crisply.
 const GLYPHS = {
@@ -61,7 +61,8 @@ const GLYPHS = {
 };
 export default function Icon({ name, size = 24, className = "", ...props }) {
   if (name === "logo") {
-    return <img src={LOGO_MINI} alt="WaterNewsGY mini logo" className={className} width={size} height={size} {...props} />;
+    const src = pickLogo({ variant: "mark", tone: "light" });
+    return <img src={src} alt="WaterNewsGY logo" className={className} width={size} height={size} {...props} />;
   }
   const glyph = GLYPHS[name];
   if (!glyph) return null;

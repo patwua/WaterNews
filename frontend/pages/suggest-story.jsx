@@ -1,12 +1,9 @@
 import { useState } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import { SUBJECTS } from "@/lib/cms-routing";
 import Toast from "@/components/Toast";
-import { withCloudinaryAuto } from "@/lib/media";
-
-const MINI_LOGO = withCloudinaryAuto("/logo-mini.svg");
-const FULL_LOGO = withCloudinaryAuto("/logo-waternews.svg");
+import BrandLogo from "@/components/BrandLogo";
+import { colors } from "@/lib/brand-tokens";
 
 export default function SuggestStory() {
   const [anonymous, setAnonymous] = useState(false);
@@ -60,11 +57,13 @@ export default function SuggestStory() {
       {/* HERO (copied from About) */}
       <header
         className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 text-center text-white"
-        style={{ backgroundImage: "linear-gradient(to bottom, #0f6cad, #0b5d95, #0a4f7f)" }}
+        style={{
+          backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})`,
+        }}
       >
         <div className="mb-4 flex items-center justify-center gap-4">
-          <Image src={MINI_LOGO} alt="WaterNews mini logo" width={48} height={48} />
-          <Image src={FULL_LOGO} alt="WaterNews logo" width={220} height={60} />
+          <BrandLogo variant="mark" width={48} height={48} />
+          <BrandLogo variant="full" width={220} height={60} />
         </div>
         <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">Suggest a Story</h1>
         <p className="mt-2 font-serif text-base opacity-95 md:text-lg">
