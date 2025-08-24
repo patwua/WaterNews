@@ -7,6 +7,8 @@ import { withCloudinaryAuto } from "@/lib/media";
 
 const MINI_LOGO = withCloudinaryAuto("/logo-mini.svg");
 const FULL_LOGO = withCloudinaryAuto("/logo-waternews.svg");
+const WAVE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="200" viewBox="0 0 1600 200"><path d="M0 80 C 200 160, 400 0, 600 80 S 1000 160, 1200 80 S 1400 0, 1600 80 V200 H0 Z" fill="black"/></svg>`;
+const WAVE_MASK = `url("data:image/svg+xml;utf8,${encodeURIComponent(WAVE_SVG)}") center/cover no-repeat`;
 
 export default function SuggestStory() {
   const [anonymous, setAnonymous] = useState(false);
@@ -74,10 +76,8 @@ export default function SuggestStory() {
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 h-40 opacity-50"
           style={{
-            WebkitMask:
-              "url(\\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='200' viewBox='0 0 1600 200'><path d='M0 80 C 200 160, 400 0, 600 80 S 1000 160, 1200 80 S 1400 0, 1600 80 V200 H0 Z' fill=\\"black\\"/></svg>\\") center/cover no-repeat",
-            mask:
-              "url(\\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='200' viewBox='0 0 1600 200'><path d='M0 80 C 200 160, 400 0, 600 80 S 1000 160, 1200 80 S 1400 0, 1600 80 V200 H0 Z' fill=\\"black\\"/></svg>\\") center/cover no-repeat",
+            WebkitMask: WAVE_MASK,
+            mask: WAVE_MASK,
             background:
               "radial-gradient(45% 80% at 30% 20%, rgba(255,255,255,.15), transparent 60%), linear-gradient(0deg, rgba(255,255,255,.15), rgba(255,255,255,0) 60%)",
           }}
