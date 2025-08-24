@@ -1,7 +1,16 @@
 import { useState } from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { SUBJECTS } from "@/lib/cms-routing";
 import Toast from "@/components/Toast";
+import { withCloudinaryAuto } from "@/lib/media";
+
+const MINI_LOGO = withCloudinaryAuto(
+  "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755962658/logo-mini_uhsj21.png"
+);
+const FULL_LOGO = withCloudinaryAuto(
+  "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961127/WN_Logo_Full_JPG_s1tkic_0238af.png"
+);
 
 export default function SuggestStory() {
   const [anonymous, setAnonymous] = useState(false);
@@ -52,12 +61,31 @@ export default function SuggestStory() {
         <title>Suggest a Story • WaterNews</title>
       </Head>
 
-      {/* Hero (align with About/Contact aesthetic) */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-400 text-white py-16 text-center">
-        <h1 className="text-4xl font-bold">Suggest a Story</h1>
-        <p className="mt-2 text-lg text-blue-100">
+      {/* HERO (copied from About) */}
+      <header
+        className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 text-center text-white"
+        style={{ backgroundImage: "linear-gradient(to bottom, #0f6cad, #0b5d95, #0a4f7f)" }}
+      >
+        <div className="mb-4 flex items-center justify-center gap-4">
+          <Image src={MINI_LOGO} alt="WaterNews mini logo" width={48} height={48} />
+          <Image src={FULL_LOGO} alt="WaterNews logo" width={220} height={60} />
+        </div>
+        <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">Suggest a Story</h1>
+        <p className="mt-2 font-serif text-base opacity-95 md:text-lg">
           Share your tip with confidence — your privacy is our priority.
         </p>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-40 opacity-50"
+          style={{
+            WebkitMask:
+              "url(\\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='200' viewBox='0 0 1600 200'><path d='M0 80 C 200 160, 400 0, 600 80 S 1000 160, 1200 80 S 1400 0, 1600 80 V200 H0 Z' fill=\\"black\\"/></svg>\\") center/cover no-repeat",
+            mask:
+              "url(\\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='200' viewBox='0 0 1600 200'><path d='M0 80 C 200 160, 400 0, 600 80 S 1000 160, 1200 80 S 1400 0, 1600 80 V200 H0 Z' fill=\\"black\\"/></svg>\\") center/cover no-repeat",
+            background:
+              "radial-gradient(45% 80% at 30% 20%, rgba(255,255,255,.15), transparent 60%), linear-gradient(0deg, rgba(255,255,255,.15), rgba(255,255,255,0) 60%)",
+          }}
+        />
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-12 grid gap-8 lg:grid-cols-3">
@@ -178,7 +206,7 @@ export default function SuggestStory() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center justify-center px-5 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition disabled:opacity-70"
+                className="rounded-xl bg-black px-4 py-2 font-semibold text-white hover:bg-gray-900 disabled:opacity-60"
               >
                 {submitting ? "Submitting…" : "Submit Story"}
               </button>
