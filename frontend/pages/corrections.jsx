@@ -5,11 +5,20 @@ import { SUBJECTS } from "@/lib/cms-routing";
 import Toast from "@/components/Toast";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
+import { colors } from "@/lib/brand-tokens";
 
 export default function CorrectionsPage() {
   const [state, setState] = useState({ name: "", email: "", url: "", correction: "", subject: "correction" });
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
+
+  const brandVars = {
+    "--brand": colors.primary,
+    "--brand-light": colors.primaryLight,
+    "--brand-lighter": colors.primaryLighter,
+    "--brand-soft-from": colors.primarySoftFrom,
+    "--brand-soft-to": colors.primarySoftTo,
+  };
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -43,14 +52,15 @@ export default function CorrectionsPage() {
         title="Request a Correction"
         subtitle="We correct the record. Share the link and what needs fixing."
       >
-        <SectionCard className="grid gap-6 md:grid-cols-[1.1fr,0.9fr]">
+        <SectionCard>
+          <div style={brandVars} className="grid gap-6 md:grid-cols-[1.1fr,0.9fr]">
           <form onSubmit={onSubmit} className="grid gap-3">
             <h2 className="text-xl font-bold">Submit a correction</h2>
             <label className="block">
               <span className="text-sm font-medium">Your name</span>
               <input
                 required
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-light)]"
                 value={state.name}
                 onChange={(e) => setState((s) => ({ ...s, name: e.target.value }))}
               />
@@ -60,7 +70,7 @@ export default function CorrectionsPage() {
               <input
                 required
                 type="email"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-light)]"
                 value={state.email}
                 onChange={(e) => setState((s) => ({ ...s, email: e.target.value }))}
               />
@@ -68,7 +78,7 @@ export default function CorrectionsPage() {
             <label className="block">
               <span className="text-sm font-medium">Subject</span>
               <select
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-light)]"
                 value={state.subject}
                 onChange={(e) => setState((s) => ({ ...s, subject: e.target.value }))}
                 name="subject"
@@ -86,7 +96,7 @@ export default function CorrectionsPage() {
                 required
                 type="url"
                 placeholder="https://waternews…"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-light)]"
                 value={state.url}
                 onChange={(e) => setState((s) => ({ ...s, url: e.target.value }))}
               />
@@ -96,7 +106,7 @@ export default function CorrectionsPage() {
               <textarea
                 required
                 rows={6}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[#1583c2] focus:ring-2 focus:ring-[#cfe6f7]"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand-light)]"
                 value={state.correction}
                 onChange={(e) => setState((s) => ({ ...s, correction: e.target.value }))}
               />
@@ -112,17 +122,18 @@ export default function CorrectionsPage() {
             </div>
           </form>
 
-          <aside className="grid place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 text-slate-600">
+          <aside className="grid place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[var(--brand-soft-from)] to-[var(--brand-soft-to)] p-4 text-slate-600">
             <div className="text-center">
               <Image src="/placeholders/newsroom.svg" alt="" width={320} height={180} />
               <p className="mt-3 text-sm">
-                Prefer email? Write {" "}
-                <a className="font-semibold text-[#1583c2]" href="mailto:corrections@waternewsgy.com">
+                Prefer email? Write{" "}
+                <a className="font-semibold text-[var(--brand)]" href="mailto:corrections@waternewsgy.com">
                   corrections@waternewsgy.com
                 </a>
               </p>
             </div>
           </aside>
+          </div>
         </SectionCard>
       </Page>
       {toast && <Toast {...toast} onDone={() => setToast(null)} />}
