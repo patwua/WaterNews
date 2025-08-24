@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { GetServerSideProps } from 'next';
 import { requireAdminSSR } from '@/lib/admin-guard';
+import DashboardLayout from '@/components/UX/DashboardLayout';
+import KPI from '@/components/UX/KPI';
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAdminSSR(ctx as any);
 
@@ -31,17 +33,15 @@ export default function ModerationDashboard() {
   if (err) return <div className="p-6 text-red-600">{err}</div>;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Moderation Dashboard</h1>
-
+    <DashboardLayout title="Moderation Dashboard">
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Kpi title="Pending" value={stats?.pending ?? 0} />
-        <Kpi title="Ready" value={stats?.ready ?? 0} />
-        <Kpi title="Needs 2nd" value={stats?.needs_second_review ?? 0} />
-        <Kpi title="Changes" value={stats?.changes_requested ?? 0} />
-        <Kpi title="Scheduled" value={stats?.scheduled ?? 0} />
-        <Kpi title="Published (24h)" value={stats?.published_24h ?? 0} />
+        <KPI title="Pending" value={stats?.pending ?? 0} />
+        <KPI title="Ready" value={stats?.ready ?? 0} />
+        <KPI title="Needs 2nd" value={stats?.needs_second_review ?? 0} />
+        <KPI title="Changes" value={stats?.changes_requested ?? 0} />
+        <KPI title="Scheduled" value={stats?.scheduled ?? 0} />
+        <KPI title="Published (24h)" value={stats?.published_24h ?? 0} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="border rounded-xl p-4">
@@ -58,16 +58,7 @@ export default function ModerationDashboard() {
         <div className="font-medium mb-2">Editor workload</div>
         <SimpleTable rows={work?.editor || []} />
       </div>
-    </div>
-  );
-}
-
-function Kpi({ title, value }: { title: string; value: number }) {
-  return (
-    <div className="border rounded-xl p-4">
-      <div className="text-xs uppercase tracking-wide text-gray-500">{title}</div>
-      <div className="text-3xl font-semibold">{value}</div>
-    </div>
+    </DashboardLayout>
   );
 }
 

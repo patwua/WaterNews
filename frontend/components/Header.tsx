@@ -24,7 +24,7 @@ export default function Header() {
       {/* Top row: logo • SmartMenu • actions */}
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4">
         <Link
-          href={me?.email ? "/newsroom/dashboard" : "/"}
+          href={me?.email ? "/newsroom/writer-dashboard" : "/"}
           aria-label="WaterNews — Home"
           className="shrink-0 inline-flex items-center"
         >
