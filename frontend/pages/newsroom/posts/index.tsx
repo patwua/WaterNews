@@ -1,67 +1,91 @@
-import { useEffect, useState } from 'react';
-import type { GetServerSideProps } from 'next';
-import Link from 'next/link';
-import { requireAuthSSR } from '@/lib/user-guard';
+import React, { useEffect, useState } from "react";
+import type { GetServerSideProps } from "next";
+import { requireAuthSSR } from "@/lib/user-guard";
+import Page from "@/components/UX/Page";
+import SectionCard from "@/components/UX/SectionCard";
+import EmptyState from "@/components/UX/EmptyState";
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
+type Post = {
+  _id?: string;
+  slug: string;
+  title: string;
+  excerpt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export default function MyPosts() {
-  const [items, setItems] = useState<any[]>([]);
-  const [q, setQ] = useState('');
+  const [items, setItems] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [q, setQ] = useState("");
 
   useEffect(() => {
-    let mounted = true;
+    let alive = true;
     (async () => {
       try {
-        const qs = new URLSearchParams({});
-        if (q) qs.set('q', q);
-        const r = await fetch(`/api/newsroom/posts?${qs.toString()}`);
-        if (!r.ok) throw new Error('Failed to load');
+        const r = await fetch("/api/newsroom/posts");
         const d = await r.json();
-        if (!mounted) return;
-        setItems(d.items || []);
-      } catch (e: any) {
-        if (!mounted) return;
-        setError(e?.message || 'Error');
+        if (!alive) return;
+        setItems(Array.isArray(d?.items) ? d.items : []);
+      } catch {
+        if (!alive) return;
+        setItems([]);
       } finally {
-        if (mounted) setLoading(false);
+        if (alive) setLoading(false);
       }
     })();
-    return () => { mounted = false; };
-  }, [q]);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const visible = items.filter((p) =>
+    !q.trim() || (p.title || "").toLowerCase().includes(q.trim().toLowerCase())
+  );
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Posts</h1>
-        <Link href="/newsroom" className="text-sm underline underline-offset-4">Back to Newsroom</Link>
+    <Page title="My Posts" subtitle="Published articles you’ve authored">
+      <div className="grid gap-6">
+        <SectionCard title="Search">
+          <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
+            <input
+              className="flex-1 border px-3 py-2 rounded"
+              placeholder="Search my posts…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </form>
+        </SectionCard>
+        <SectionCard title="Published">
+          {loading ? (
+            <div>Loading…</div>
+          ) : visible.length === 0 ? (
+            <EmptyState title={q ? "No matches" : "No posts yet"}>
+              {q ? "Try a different search." : "Publish your first story from the Newsroom."}
+            </EmptyState>
+          ) : (
+            <ul className="divide-y">
+              {visible.map((p) => (
+                <li key={p.slug} className="py-3">
+                  <a href={`/news/${p.slug}`} className="font-medium hover:underline">
+                    {p.title}
+                  </a>
+                  {p.excerpt && <div className="text-sm text-gray-600">{p.excerpt}</div>}
+                  <div className="text-xs text-gray-500 mt-1">
+                    {p.updatedAt
+                      ? `Updated ${new Date(p.updatedAt).toLocaleString()}`
+                      : p.createdAt
+                      ? `Published ${new Date(p.createdAt).toLocaleString()}`
+                      : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SectionCard>
       </div>
-      <div className="flex gap-2">
-        <input className="border rounded px-3 py-2 w-full" placeholder="Search posts…" value={q} onChange={e=>setQ(e.target.value)} />
-      </div>
-      {loading ? (
-        <div className="text-gray-500">Loading…</div>
-      ) : error ? (
-        <div className="text-red-600">{error}</div>
-      ) : items.length === 0 ? (
-        <div className="border rounded-xl p-6 text-gray-600">No published posts yet.</div>
-      ) : (
-        <ul className="divide-y rounded-xl border">
-          {items.map((it: any) => (
-            <li key={it._id} className="flex items-center justify-between p-4">
-              <div>
-                <div className="font-medium">{it.title}</div>
-                <div className="text-xs text-gray-500">
-                  {it.publishedAt ? new Date(it.publishedAt).toLocaleString() : '—'}
-                </div>
-              </div>
-              <Link href={`/news/${it.slug}`} className="text-blue-600 hover:underline">View</Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    </Page>
   );
 }
