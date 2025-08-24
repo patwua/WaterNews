@@ -3,6 +3,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { SUBJECTS } from "@/lib/cms-routing";
 import Toast from "@/components/Toast";
+import Page from "@/components/UX/Page";
+import SectionCard from "@/components/UX/SectionCard";
 
 export default function ContactPage() {
   const [state, setState] = useState({ name: "", email: "", subject: "general", message: "" });
@@ -40,63 +42,46 @@ export default function ContactPage() {
           content="Reach WaterNews for tips, partnerships, advertising, and general inquiries."
         />
       </Head>
+      <Page
+        title="Contact WaterNews"
+        subtitle="We read every message. For sensitive tips, email and request a secure channel."
+      >
+        <div className="grid gap-6">
+          <SectionCard className="grid gap-4 md:grid-cols-3">
+            {[
+              {
+                label: "News Tips",
+                email: "tips@waternewsgy.com",
+                desc: "Story ideas, documents, eyewitness info.",
+              },
+              {
+                label: "Corrections",
+                email: "corrections@waternewsgy.com",
+                desc: "Tell us what needs fixing.",
+              },
+              {
+                label: "Partnerships",
+                email: "hello@waternewsgy.com",
+                desc: "Press, events, advertising.",
+              },
+            ].map((c) => (
+              <a
+                key={c.label}
+                href={`mailto:${c.email}`}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow transition hover:shadow-md"
+              >
+                <p className="m-0 text-sm font-semibold">{c.label}</p>
+                <p className="m-0 text-[13px] text-slate-600">{c.desc}</p>
+                <span className="mt-2 inline-block rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-1.5 text-xs font-semibold text-[#1583c2]">
+                  {c.email}
+                </span>
+              </a>
+            ))}
+          </SectionCard>
 
-      {/* HERO */}
-      <header className="relative grid min-h-[48vh] place-items-center overflow-hidden bg-gradient-to-b from-[#0f6cad] via-[#0b5d95] to-[#0a4f7f] px-4 text-white">
-        <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
-          <Image
-            src="/placeholders/contact-hero.svg"
-            alt=""
-            width={520}
-            height={220}
-            priority
-          />
-          <h1 className="mt-4 text-3xl font-extrabold md:text-5xl">Contact WaterNews</h1>
-          <p className="mt-2 max-w-2xl text-sm opacity-95 md:text-base">
-            We read every message. For sensitive tips, email and request a secure channel.
-          </p>
-        </div>
-      </header>
-
-      <main className="mx-auto -mt-10 mb-16 max-w-5xl px-4">
-        {/* Quick routes */}
-        <section className="mb-8 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              label: "News Tips",
-              email: "tips@waternewsgy.com",
-              desc: "Story ideas, documents, eyewitness info.",
-            },
-            {
-              label: "Corrections",
-              email: "corrections@waternewsgy.com",
-              desc: "Tell us what needs fixing.",
-            },
-            {
-              label: "Partnerships",
-              email: "hello@waternewsgy.com",
-              desc: "Press, events, advertising.",
-            },
-          ].map((c) => (
-            <a
-              key={c.label}
-              href={`mailto:${c.email}`}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow transition hover:shadow-md"
-            >
-              <p className="m-0 text-sm font-semibold">{c.label}</p>
-              <p className="m-0 text-[13px] text-slate-600">{c.desc}</p>
-              <span className="mt-2 inline-block rounded-lg border border-[#cfe6f7] bg-[#eff7fd] px-3 py-1.5 text-xs font-semibold text-[#1583c2]">
-                {c.email}
-              </span>
-            </a>
-          ))}
-        </section>
-
-        {/* Contact form */}
-        <section className="grid gap-6 rounded-2xl bg-white p-6 shadow md:grid-cols-[1.1fr,0.9fr]">
-          <form onSubmit={onSubmit}>
-            <h2 className="text-xl font-bold">Send us a message</h2>
-            <div className="mt-3 grid gap-3">
+          <SectionCard className="grid gap-6 md:grid-cols-[1.1fr,0.9fr]">
+            <form onSubmit={onSubmit} className="grid gap-3">
+              <h2 className="text-xl font-bold">Send us a message</h2>
               <label className="block">
                 <span className="text-sm font-medium">Your name</span>
                 <input
@@ -144,28 +129,27 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="mt-1 inline-flex items-center justify-center rounded-xl bg-[#1583c2] px-4 py-2 font-semibold text-white hover:brightness-110 disabled:opacity-60"
+                className="mt-1 inline-flex items-center justify-center rounded-xl bg-black px-4 py-2 font-semibold text-white hover:bg-gray-900 disabled:opacity-60"
               >
                 {submitting ? "Sending…" : "Send message"}
               </button>
-            </div>
-          </form>
+            </form>
 
-          <aside className="grid place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 text-slate-600">
-            <div className="text-center">
-              <Image src="/placeholders/community-1.svg" alt="" width={320} height={180} />
-              <p className="mt-3 text-sm">
-                Prefer social? Follow {" "}
-                <a className="font-semibold text-[#1583c2]" href="#">
-                  @WaterNewsGY
-                </a>{" "}
-                for headlines & highlights.
-              </p>
-            </div>
-          </aside>
-        </section>
-      </main>
-
+            <aside className="grid place-items-center rounded-xl border border-slate-200 bg-gradient-to-br from-[#e8f4fd] to-[#f7fbff] p-4 text-slate-600">
+              <div className="text-center">
+                <Image src="/placeholders/community-1.svg" alt="" width={320} height={180} />
+                <p className="mt-3 text-sm">
+                  Prefer social? Follow {" "}
+                  <a className="font-semibold text-[#1583c2]" href="#">
+                    @WaterNewsGY
+                  </a>{" "}
+                  for headlines & highlights.
+                </p>
+              </div>
+            </aside>
+          </SectionCard>
+        </div>
+      </Page>
       {toast && <Toast {...toast} onDone={() => setToast(null)} />}
     </>
   );
