@@ -3,8 +3,9 @@ import Link from "next/link";
 import Script from "next/script";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
-import { colors } from "@/lib/brand-tokens";
+import { colors, LOGO_FULL } from "@/lib/brand-tokens";
 import BrandLogo from "@/components/BrandLogo";
+import { absoluteUrl } from "@/lib/brand";
 
 const contacts = [
   {
@@ -88,7 +89,7 @@ export default function MastheadPage() {
             "@type": "NewsMediaOrganization",
             name: "WaterNews",
             url: "https://waternews.onrender.com",
-            logo: withCloudinaryAuto("/logo-waternews.svg"),
+            logo: absoluteUrl(LOGO_FULL),
             slogan: "Dive Into Current Stories",
             foundingLocation: "Georgetown, Guyana",
             contactPoint: [
@@ -111,7 +112,7 @@ export default function MastheadPage() {
       <header style={brandVars} className="bg-gradient-to-b from-[var(--brand-blue)] via-[var(--brand-blue-dark)] to-[var(--brand-blue-darker)] px-4 py-14 text-white">
         <div className="mx-auto max-w-5xl">
           <div className="mb-5 flex items-center gap-3">
-            <BrandLogo variant="mini" onDark size={40} className="rounded-full bg-white/95 p-1" />
+            <BrandLogo variant="mark" tone="dark" width={40} height={40} className="rounded-full bg-white/95 p-1" />
             <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
               Masthead &amp; Contacts
             </h1>
@@ -145,14 +146,18 @@ export default function MastheadPage() {
         {/* Masthead */}
         <section className="mb-10">
           <div className="mb-3 flex items-center gap-3">
-            <BrandLogo variant="mini" size={28} />
+            <BrandLogo variant="mark" width={28} height={28} />
             <h2 className="m-0 text-xl font-bold">Editorial Team</h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             {people.map((p) => (
               <article key={p.name} className="rounded-2xl bg-white p-5 shadow">
-                <div className="grid min-h-[120px] place-items-center rounded-md border border-slate-200 bg-gradient-to-br from-[var(--brand-soft-from)] to-[var(--brand-soft-to)]">
+                <div
+                  className={`grid min-h-[120px] place-items-center rounded-md border border-slate-200 ${
+                    p.headshot ? "" : "bg-gradient-to-br from-[var(--brand-soft-from)] to-[var(--brand-soft-to)]"
+                  }`}
+                >
                   <ProfilePhoto
                     name={p.name}
                     url={p.headshot}
@@ -200,7 +205,7 @@ export default function MastheadPage() {
       </main>
 
       <footer className="px-4 pb-16 text-center text-slate-500">
-        <BrandLogo variant="mini" size={36} className="mx-auto rounded-full" />
+        <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
         <div className="mt-2">&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
       </footer>
     </>

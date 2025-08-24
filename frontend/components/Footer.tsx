@@ -6,7 +6,7 @@ export default function Footer() {
   return (
     <footer className="mt-16 border-t bg-black text-white">
       <div className="max-w-6xl mx-auto px-4 py-10 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
-        <BrandLogo variant="mini" onDark size={28} className="opacity-95" />
+        <BrandLogo variant="mark" tone="dark" width={28} height={28} className="opacity-95" />
         <nav className="text-sm flex-1 flex flex-wrap gap-x-6 gap-y-2">
           <a href="/about" className="hover:underline">About</a>
           <a href="/editorial-standards" className="hover:underline">Editorial Standards</a>

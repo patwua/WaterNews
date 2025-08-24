@@ -22,7 +22,7 @@ export default function Apply() {
           </form>
         </SectionCard>
         <div className="flex items-center gap-3 opacity-80">
-          <BrandLogo variant="mini" size={20} /> <span className="text-sm">WaterNewsGY</span>
+          <BrandLogo variant="mark" width={20} height={20} /> <span className="text-sm">WaterNewsGY</span>
         </div>
       </div>
     </Page>

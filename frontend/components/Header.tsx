@@ -28,7 +28,7 @@ export default function Header() {
           aria-label="WaterNews — Home"
           className="shrink-0 inline-flex items-center"
         >
-          <BrandLogo size={64} className="h-16 w-auto" />
+          <BrandLogo width={160} height={64} className="h-16 w-auto" />
         </Link>
         {/* center: SmartMenu */}
         <div className="flex-1 min-w-0">

@@ -34,12 +34,43 @@ export const spacing = {
   xl: '32px',
 };
 
-import { LOGO_FULL, LOGO_MINI } from './brand';
+// Logo and icon asset tokens
+export const LOGO_FULL = "/brand/logo-full.svg";
+export const LOGO_FULL_DARK = "/brand/logo-full-dark.svg";
+export const LOGO_MARK = "/brand/logo-mark.svg";
+export const LOGO_MARK_DARK = "/brand/logo-mark-dark.svg";
+
+export const OG_DEFAULT = "/brand/og-default.png";
+export const FAVICON_16 = "/brand/favicon-16x16.png";
+export const FAVICON_32 = "/brand/favicon-32x32.png";
+export const APPLE_TOUCH = "/brand/apple-touch-icon.png";
+export const MASK_ICON = "/brand/mask-icon.svg";
+export const CHROME_192 = "/brand/android-chrome-192x192.png";
+export const CHROME_512 = "/brand/android-chrome-512x512.png";
+
+// Legacy paths kept for backward compatibility
+export const LEGACY_LOGO_FULL = "/logo-waternews.svg";
+export const LEGACY_LOGO_MARK = "/logo-mini.svg";
 
 export const logos = {
   full: LOGO_FULL,
-  mini: LOGO_MINI,
+  fullDark: LOGO_FULL_DARK,
+  mark: LOGO_MARK,
+  markDark: LOGO_MARK_DARK,
 };
+
+export function pickLogo({
+  variant = "full",
+  tone = "light",
+}: {
+  variant: "full" | "mark";
+  tone: "light" | "dark";
+}) {
+  if (variant === "mark") {
+    return tone === "dark" ? LOGO_MARK_DARK : LOGO_MARK;
+  }
+  return tone === "dark" ? LOGO_FULL_DARK : LOGO_FULL;
+}
 
 export default {
   colors,

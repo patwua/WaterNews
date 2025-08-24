@@ -1,33 +1,32 @@
 import React from "react";
-import { LOGO_FULL, LOGO_MINI, BRAND_NAME } from "@/lib/brand";
+import { BRAND_NAME } from "@/lib/brand";
+import { pickLogo } from "@/lib/brand-tokens";
 
 /**
  * BrandLogo — use everywhere for consistent logo rendering.
- * - variant: "full" (wordmark) | "mini" (square mark)
- * - onDark: when true, we invert via CSS to get a white mark without extra assets
+ * - variant: "full" (wordmark) | "mark" (square mark)
+ * - tone: "light" (default) or "dark" for inverted assets
  */
 export default function BrandLogo({
   variant = "full",
-  onDark = false,
+  tone = "light",
   className = "",
-  size = 32,
+  width,
+  height,
 }: {
-  variant?: "full" | "mini";
-  onDark?: boolean;
+  variant?: "full" | "mark";
+  tone?: "light" | "dark";
   className?: string;
-  size?: number; // height in px; width auto
+  width?: number;
+  height?: number;
 }) {
-  const src = variant === "mini" ? LOGO_MINI : LOGO_FULL;
-  const invert = onDark ? "invert" : "";
+  const src = pickLogo({ variant, tone });
+  const defaultDims =
+    variant === "mark" ? { width: 32, height: 32 } : { width: 120, height: 32 };
+  const w = width ?? defaultDims.width;
+  const h = height ?? defaultDims.height;
   const alt = `${BRAND_NAME} logo`;
   return (
-    <img
-      src={src}
-      alt={alt}
-      height={size}
-      style={{ height: size, width: "auto" }}
-      className={`${invert} ${className}`}
-      loading="lazy"
-    />
+    <img src={src} alt={alt} width={w} height={h} className={className} loading="lazy" />
   );
 }
