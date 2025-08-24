@@ -4,8 +4,6 @@ import { useRouter } from "next/router";
 import { requireAuthSSR } from "@/lib/user-guard";
 import Page from "@/components/UX/Page";
 import SharedEditor from "@/components/Newsroom/SharedEditor";
-import StatusPill from "@/components/StatusPill";
-import EditorBar from "@/components/Newsroom/EditorBar";
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -13,7 +11,6 @@ export default function DraftEditor() {
   const router = useRouter();
   const { id } = router.query as { id?: string };
   const [draft, setDraft] = useState<any>(null);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -32,7 +29,6 @@ export default function DraftEditor() {
 
   async function save(next: any) {
     if (!id) return;
-    setSaving(true);
     try {
       const r = await fetch(`/api/newsroom/drafts/${id}`, {
         method: "PATCH",
@@ -41,9 +37,7 @@ export default function DraftEditor() {
       });
       const d = await r.json();
       setDraft(d);
-    } finally {
-      setSaving(false);
-    }
+    } catch {}
   }
 
   function onChange(body: string) {
@@ -54,8 +48,12 @@ export default function DraftEditor() {
 
   async function onPublish() {
     if (!id) return;
-    await fetch(`/api/newsroom/drafts/${id}/publish`, { method: "POST" });
-    router.push("/newsroom/posts");
+    const r = await fetch(`/api/newsroom/drafts/${id}/publish`, {
+      method: "POST",
+    });
+    const d = await r.json();
+    setDraft(d);
+    return d;
   }
 
   function onPreview() {
@@ -69,17 +67,8 @@ export default function DraftEditor() {
 
   return (
     <Page title="Editor" subtitle="Write, attach media, and publish">
-      <EditorBar
-        title={draft?.title}
-        status={draft?.status}
-        saving={saving}
-        onPreview={onPreview}
-        onSubmit={onSubmit}
-        onPublish={onPublish}
-        onBack={() => router.push("/newsroom/writer-dashboard")}
-        rightExtra={draft?.status ? <StatusPill status={draft.status} /> : null}
-      />
       <SharedEditor
+        title={draft?.title}
         value={draft?.body || ""}
         onChange={onChange}
         status={draft?.status || "draft"}
@@ -89,6 +78,10 @@ export default function DraftEditor() {
           save(next);
         }}
         draftId={draft?._id}
+        scheduleAt={draft?.publishAt || draft?.scheduledFor || null}
+        onPreview={onPreview}
+        onSubmit={onSubmit}
+        onPublish={onPublish}
       />
     </Page>
   );
