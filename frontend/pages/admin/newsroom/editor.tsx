@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { api } from "@/lib/api";
-import EditorBar from "@/components/Newsroom/EditorBar";
+import { LegacyEditorBar } from "@/components/Newsroom/EditorBar";
 import MarkdownEditor from "@/components/Newsroom/MarkdownEditor";
 import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
 import ModerationNotesDrawer from "@/components/Newsroom/ModerationNotesDrawer";
@@ -100,7 +100,7 @@ export default function EditorPage() {
 
   return (
     <main className="max-w-7xl mx-auto pb-24">
-      <EditorBar
+      <LegacyEditorBar
         value={barValue as any}
         onChange={(patch) => {
           if (patch.title !== undefined) setTitle(patch.title);
