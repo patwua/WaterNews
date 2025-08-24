@@ -3,8 +3,7 @@ import type { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { requireAuthSSR } from "@/lib/user-guard";
 import Page from "@/components/UX/Page";
-import SectionCard from "@/components/UX/SectionCard";
-import MarkdownEditor from "@/components/Newsroom/MarkdownEditor";
+import SharedEditor from "@/components/Newsroom/SharedEditor";
 import StatusPill from "@/components/StatusPill";
 import EditorBar from "@/components/Newsroom/EditorBar";
 
@@ -80,9 +79,17 @@ export default function DraftEditor() {
         onBack={() => router.push("/newsroom/dashboard")}
         rightExtra={draft?.status ? <StatusPill status={draft.status} /> : null}
       />
-      <SectionCard className="mt-4">
-        <MarkdownEditor value={draft?.body || ""} onChange={onChange} />
-      </SectionCard>
+      <SharedEditor
+        value={draft?.body || ""}
+        onChange={onChange}
+        status={draft?.status || "draft"}
+        onStatusChange={(s) => {
+          const next = { ...draft, status: s };
+          setDraft(next);
+          save(next);
+        }}
+        draftId={draft?._id}
+      />
     </Page>
   );
 }
