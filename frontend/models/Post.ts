@@ -13,6 +13,7 @@ export interface PostDoc {
   authorId?: string | null;
   engagementScore?: number;
   isBreaking?: boolean;
+  ogImageUrl?: string;
 }
 
 const PostSchema = new Schema<PostDoc>(
@@ -28,6 +29,7 @@ const PostSchema = new Schema<PostDoc>(
     authorId: { type: String, default: null },
     engagementScore: { type: Number, default: 0 },
     isBreaking: { type: Boolean, default: false, index: true },
+    ogImageUrl: { type: String },
   },
   { timestamps: true }
 );

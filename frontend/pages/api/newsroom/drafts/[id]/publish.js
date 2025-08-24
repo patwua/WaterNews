@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { slugify } from '@/lib/slugify';
+import { buildOgForPost } from '@/lib/og';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -33,8 +34,9 @@ export default async function handler(req, res) {
     coverImage: draft.coverImage || null,
     status: 'published',
   };
+  post.ogImageUrl = buildOgForPost(post);
   await posts.updateOne({ slug }, { $set: post }, { upsert: true });
   await drafts.updateOne({ _id: draft._id }, { $set: { status: 'published', publishedAt: post.publishedAt, slug } });
-  res.json({ ok: true, slug, url: `/news/${slug}` });
+  res.json({ ok: true, slug, url: `/news/${slug}`, ogImageUrl: post.ogImageUrl });
 }
 
