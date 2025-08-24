@@ -2,6 +2,7 @@ import React from "react";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import ProfilePhotoForm from "@/components/Settings/ProfilePhotoForm";
+import ProfileSettings from "@/components/ProfileSettings";
 
 export default function Profile() {
   return (
@@ -16,12 +17,7 @@ export default function Profile() {
         </SectionCard>
       </div>
       <div className="mt-6">
-        <SectionCard title="Danger zone">
-          <p className="text-sm text-gray-700">Delete your account (this action cannot be undone).</p>
-          <button className="mt-3 px-3 py-2 rounded-md border border-red-300 text-red-700 hover:bg-red-50">
-            Delete account
-          </button>
-        </SectionCard>
+        <ProfileSettings />
       </div>
     </Page>
   );
