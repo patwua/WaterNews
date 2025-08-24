@@ -3,8 +3,14 @@
 
 import { absoluteUrl, BRAND_NAME } from "@/lib/brand";
 import { LOGO_FULL, OG_DEFAULT } from "@/lib/brand-tokens";
+import { buildOgForPost } from "@/lib/og";
 
 export const DEFAULT_OG_IMAGE = OG_DEFAULT;
+
+export function ogImageForPost(post: any | null) {
+  const maybe = post?.ogImageUrl || (post ? buildOgForPost(post) : null);
+  return maybe || absoluteUrl(OG_DEFAULT);
+}
 
 type Publisher = {
   name: string;

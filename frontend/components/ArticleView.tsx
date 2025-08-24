@@ -7,7 +7,7 @@ import PrevNext from "@/components/PrevNext";
 import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
-import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript } from "@/lib/seo";
+import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript, ogImageForPost } from "@/lib/seo";
 
 export type ArticleViewProps = {
   post: any | null;
@@ -43,6 +43,7 @@ export default function ArticleView({
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
       : window.location.origin;
   const canonicalPath = `/${basePath}/${post.slug}`;
+  const ogImage = ogImageForPost(post);
   const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
     { name: "Home", url: "/" },
     { name: sectionLabel, url: `/${basePath}` },
@@ -53,7 +54,7 @@ export default function ArticleView({
     url: canonicalPath,
     headline: post.title,
     description: post.excerpt || post.description || undefined,
-    image: post.coverImage || post.image || undefined,
+    image: post.coverImage || ogImage || undefined,
     datePublished: post.publishedAt || post.createdAt,
     dateModified: post.updatedAt || undefined,
     section: post.category || post.section || undefined,
@@ -90,6 +91,10 @@ export default function ArticleView({
       <Head>
         <title>{post.title} — WaterNewsGY</title>
         <link rel="canonical" href={`${origin}${canonicalPath}`} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript([breadcrumbs, articleLd]) }}
