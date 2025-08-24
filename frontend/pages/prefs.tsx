@@ -1,262 +1,79 @@
-import { useEffect, useId, useMemo, useState } from 'react'
-import Link from 'next/link'
-import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag } from '@/utils/follow'
+import React, { useState, useEffect } from "react";
+import Page from "@/components/UX/Page";
+import SectionCard from "@/components/UX/SectionCard";
+import InlineHelp from "@/components/UX/InlineHelp";
 
-type Cadence = 'realtime' | 'daily' | 'off'
-const CADENCE_KEY = 'wn_notify_cadence'
-
-export default function PreferencesPage() {
-  const [authors, setAuthors] = useState<string[]>([])
-  const [tags, setTags] = useState<string[]>([])
-  const [cadence, setCadence] = useState<Cadence>('realtime')
-  const [authorInput, setAuthorInput] = useState('')
-  const [tagInput, setTagInput] = useState('')
-  const [json, setJson] = useState('')
-
-  const cadenceId = useId()
-
-  // Load from localStorage on mount
+export default function Prefs() {
+  const [prefs, setPrefs] = useState<any>({});
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch("/api/users/me");
+        const d = await r.json();
+        setPrefs(d?.prefs || {});
+      } catch {
+        setPrefs({});
+      }
+    })();
+  }, []);
+  async function onSave(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSaving(true);
     try {
-      setAuthors(Array.from(getFollowedAuthors()))
-      setTags(Array.from(getFollowedTags()))
-      const c = (localStorage.getItem(CADENCE_KEY) as Cadence) || 'realtime'
-      setCadence(c)
-    } catch {}
-  }, [])
-
-  const prefsJson = useMemo(() => {
-    return JSON.stringify(
-      {
-        authors,
-        tags,
-        cadence
-      },
-      null,
-      2
-    )
-  }, [authors, tags, cadence])
-
-  const addAuthor = () => {
-    const v = authorInput.trim()
-    if (!v) return
-    const following = toggleFollowAuthor(v)
-    setAuthors((list) => {
-      const set = new Set(list)
-      if (following) set.add(v)
-      else set.delete(v)
-      return Array.from(set)
-    })
-    setAuthorInput('')
-  }
-
-  const removeAuthor = (id: string) => {
-    const following = toggleFollowAuthor(id) // toggles off if present
-    if (!following) setAuthors(list => list.filter(a => a !== id))
-  }
-
-  const addTag = () => {
-    const v = tagInput.trim().toLowerCase().replace(/^#/, '')
-    if (!v) return
-    const following = toggleFollowTag(v)
-    setTags((list) => {
-      const set = new Set(list)
-      if (following) set.add(v)
-      else set.delete(v)
-      return Array.from(set)
-    })
-    setTagInput('')
-  }
-
-  const removeTag = (t: string) => {
-    const following = toggleFollowTag(t) // toggles off if present
-    if (!following) setTags(list => list.filter(x => x !== t))
-  }
-
-  const saveCadence = (c: Cadence) => {
-    setCadence(c)
-    try { localStorage.setItem(CADENCE_KEY, c) } catch {}
-  }
-
-  const doExport = () => {
-    setJson(prefsJson)
-  }
-
-  const doImport = () => {
-    try {
-      const data = JSON.parse(json || '{}')
-      const importedAuthors: string[] = Array.isArray(data.authors) ? data.authors : []
-      const importedTags: string[] = Array.isArray(data.tags) ? data.tags : []
-      const importedCadence: Cadence = (['realtime','daily','off'].includes(data.cadence) ? data.cadence : 'realtime') as Cadence
-
-      // Replace local sets with imported values
-      // (Use utils to ensure consistent serialization)
-      for (const a of authors) toggleFollowAuthor(a) // clear existing
-      for (const t of tags) toggleFollowTag(t)
-      for (const a of importedAuthors) if (a) toggleFollowAuthor(String(a))
-      for (const t of importedTags) if (t) toggleFollowTag(String(t))
-
-      setAuthors(Array.from(getFollowedAuthors()))
-      setTags(Array.from(getFollowedTags()))
-      saveCadence(importedCadence)
-      alert('Imported preferences')
-    } catch {
-      alert('Invalid JSON — please check and try again')
+      const r = await fetch("/api/users/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prefs }),
+      });
+      if (!r.ok) throw new Error("Save failed");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      alert("Save failed");
+    } finally {
+      setSaving(false);
     }
   }
-
   return (
-    <main className="max-w-3xl mx-auto px-4 py-6">
-      <header className="mb-4">
-        <h1 className="text-2xl font-semibold">Preferences</h1>
-        <p className="text-sm text-neutral-600">
-          These settings are saved on this device only. No account required.
-        </p>
-      </header>
-
-      {/* Followed authors */}
-      <section className="rounded-2xl ring-1 ring-black/5 bg-white p-4 mb-4">
-        <h2 className="text-lg font-semibold">Authors you follow</h2>
-        <div className="mt-2 flex gap-2">
-          <input
-            type="text"
-            value={authorInput}
-            onChange={(e) => setAuthorInput(e.target.value)}
-            placeholder="Add author (slug, name, or id)"
-            className="flex-1 rounded-lg border px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          />
-          <button
-            type="button"
-            onClick={addAuthor}
-            className="rounded-lg px-3 py-2 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          >
-            Add
-          </button>
-        </div>
-
-        {authors.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-600">
-            You’re not following any authors. Follow from an author page or add one above.
-          </p>
-        ) : (
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {authors.map((a) => (
-              <li key={a} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 text-neutral-800 px-3 py-1">
-                <span className="text-sm">{a}</span>
-                <button
-                  type="button"
-                  onClick={() => removeAuthor(a)}
-                  className="text-xs text-neutral-600 hover:text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
-                  aria-label={`Unfollow ${a}`}
-                  title="Unfollow"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Followed tags */}
-      <section className="rounded-2xl ring-1 ring-black/5 bg-white p-4 mb-4">
-        <h2 className="text-lg font-semibold">Tags you follow</h2>
-        <div className="mt-2 flex gap-2">
-          <input
-            type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            placeholder="Add tag (e.g., #floods)"
-            className="flex-1 rounded-lg border px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          />
-          <button
-            type="button"
-            onClick={addTag}
-            className="rounded-lg px-3 py-2 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          >
-            Add
-          </button>
-        </div>
-
-        {tags.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-600">
-            You’re not following any tags. Try topics like <span className="font-medium">#floods</span> or <span className="font-medium">#infrastructure</span>.
-          </p>
-        ) : (
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {tags.map((t) => (
-              <li key={t} className="inline-flex items-center gap-2 rounded-full bg-neutral-100 text-neutral-800 px-3 py-1">
-                <span className="text-sm">#{t.replace(/^#/, '')}</span>
-                <button
-                  type="button"
-                  onClick={() => removeTag(t)}
-                  className="text-xs text-neutral-600 hover:text-neutral-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500 rounded"
-                  aria-label={`Unfollow ${t}`}
-                  title="Unfollow"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {/* Notification cadence */}
-      <section className="rounded-2xl ring-1 ring-black/5 bg-white p-4 mb-4">
-        <h2 className="text-lg font-semibold">Notifications</h2>
-        <label htmlFor={cadenceId} className="block text-sm font-medium">
-          Cadence
-        </label>
-        <select
-          id={cadenceId}
-          className="mt-1 rounded-lg border px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          value={cadence}
-          onChange={(e) => saveCadence(e.target.value as Cadence)}
-        >
-          <option value="realtime">Realtime (site only)</option>
-          <option value="daily">Daily summary (site only)</option>
-          <option value="off">Off</option>
-        </select>
-        <p className="text-xs text-neutral-600 mt-1">
-          Stored locally in your browser — not sent to a server.
-        </p>
-      </section>
-
-      {/* Export / Import */}
-      <section className="rounded-2xl ring-1 ring-black/5 bg-white p-4">
-        <h2 className="text-lg font-semibold">Export / Import</h2>
-        <div className="mt-2 flex gap-2">
-          <button
-            type="button"
-            onClick={doExport}
-            className="rounded-lg px-3 py-2 text-sm font-medium bg-white ring-1 ring-black/10 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          >
-            Export to JSON
-          </button>
-          <button
-            type="button"
-            onClick={doImport}
-            className="rounded-lg px-3 py-2 text-sm font-medium bg-neutral-900 text-white hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          >
-            Import from JSON
-          </button>
-        </div>
-        <textarea
-          className="mt-2 w-full min-h-[140px] rounded-lg border px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-500"
-          placeholder="Paste exported JSON here…"
-          value={json}
-          onChange={(e) => setJson(e.target.value)}
-        />
-        <p className="text-xs text-neutral-600 mt-1">
-          Tip: Export on one device and import on another to carry over your preferences.
-        </p>
-      </section>
-
-      <div className="mt-6">
-        <Link href="/" className="text-blue-700 underline">← Back to Home</Link>
-      </div>
-    </main>
-  )
+    <Page title="Preferences" subtitle="Control notifications and reading experience.">
+      <SectionCard>
+        <form onSubmit={onSave} className="space-y-5">
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={!!prefs?.emailDigest}
+                onChange={(e) => setPrefs({ ...prefs, emailDigest: e.target.checked })}
+              />
+              Email digests for new comments on my posts
+            </label>
+            <InlineHelp>We’ll email a brief summary instead of individual messages.</InlineHelp>
+          </div>
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={!!prefs?.productUpdates}
+                onChange={(e) => setPrefs({ ...prefs, productUpdates: e.target.checked })}
+              />
+              Product updates and tips
+            </label>
+            <InlineHelp>Occasional notes on new newsroom features.</InlineHelp>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900" disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </button>
+            {saved && (
+              <span className="text-sm px-2 py-1 rounded bg-green-50 text-green-700 ring-1 ring-green-200">
+                Saved
+              </span>
+            )}
+          </div>
+        </form>
+      </SectionCard>
+    </Page>
+  );
 }
-

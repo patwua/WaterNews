@@ -20,18 +20,20 @@ export default function ProfilePhoto({
   const shape = isOrganization ? "rounded-lg" : "rounded-full";
   const alt = isOrganization ? `${name} logo` : `Photo of ${name}`;
 
+  const hasUrl = !!url;
   return (
     <div className={`relative inline-block ${className}`} style={dim} aria-label={alt}>
-      {url ? (
+      {hasUrl && (
         <img
-          src={url}
+          src={url as string}
           alt={alt}
           width={size}
           height={size}
-          className={`${shape} object-cover w-full h-full`}
+          className={`${shape} object-cover w-full h-full block`}
           loading="lazy"
         />
-      ) : (
+      )}
+      {!hasUrl && (
         <div
           className={`${shape} bg-gray-200 text-gray-700 grid place-items-center font-semibold`}
           style={dim}
