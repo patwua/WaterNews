@@ -28,7 +28,24 @@ export default function Privacy() {
           <div className="prose max-w-none">
             <h3>Governance &amp; Compliance</h3>
             <p>
-              WaterNews operates under Guyanese and international privacy laws and is committed to legal compliance and reader protections.
+              Anonymous tips can be submitted without logging in; we store only
+              the text you send and the minimal routing data needed to deliver
+              it. We do not retain IP addresses or device fingerprints, and tip
+              contents are purged after review.
+            </p>
+            <p>
+              Wherever possible, preferences and sessions live in your
+              browser's local storage rather than our servers so control stays
+              with you.
+            </p>
+            <p>
+              We do not pool or sell user data and share it only with services
+              strictly necessary to run WaterNews.
+            </p>
+            <p>
+              WaterNews follows Guyana's data protection legislation and
+              international frameworks like the EU's GDPR to guide responsible
+              handling of personal information.
             </p>
           </div>
         </SectionCard>
