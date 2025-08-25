@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
-import BrandLogo from "@/components/BrandLogo";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 import { aboutPageJsonLd } from "@/lib/seo";
@@ -101,13 +100,12 @@ export default function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageJsonLd()) }}
       />
       <header
-        className="relative grid min-h-[58vh] place-items-center overflow-hidden px-4 text-center text-white"
+        className="relative grid min-h-[58vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"
         style={{
           backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})`,
         }}
       >
-        <BrandLogo variant="mark" width={56} height={56} />
-        <h1 className="mt-4 text-4xl font-extrabold">About WaterNews</h1>
+        <h1 className="text-4xl font-extrabold">About WaterNews</h1>
         <p className="mt-2 font-serif text-base opacity-95 md:text-lg">
           Dive Into Current Stories — giving Guyanese, Caribbean, and diaspora voices a modern platform.
         </p>
@@ -295,9 +293,8 @@ export default function AboutPage() {
           </SectionCard>
         </div>
       </main>
-      <footer className="px-4 pb-16 text-center text-slate-500">
-        <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
-        <div className="mt-2">&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
+      <footer className="px-4 py-16 text-center text-slate-500">
+        <div>&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
       </footer>
     </>
   );

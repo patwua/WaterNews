@@ -2,7 +2,6 @@ import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
-import BrandLogo from "@/components/BrandLogo";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 
@@ -49,11 +48,10 @@ export default function LeadershipPage() {
         <meta name="description" content="Meet the executives guiding WaterNews." />
       </Head>
       <header
-        className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 text-center text-white"
+        className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"
         style={{ backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})` }}
       >
-        <BrandLogo variant="mark" width={56} height={56} />
-        <h1 className="mt-4 text-4xl font-extrabold">Leadership Team</h1>
+        <h1 className="text-4xl font-extrabold">Leadership Team</h1>
       </header>
       <main style={brandVars} className="mx-auto -mt-12 mb-16 max-w-5xl px-4">
         <SectionCard>
@@ -87,9 +85,8 @@ export default function LeadershipPage() {
           </div>
         </SectionCard>
       </main>
-      <footer className="px-4 pb-16 text-center text-slate-500">
-        <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
-        <div className="mt-2">&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
+      <footer className="px-4 py-16 text-center text-slate-500">
+        <div>&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
       </footer>
     </>
   );
