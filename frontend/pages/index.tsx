@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import Hero from '../components/Hero'
@@ -6,6 +7,7 @@ import MasonryFeed from '../components/MasonryFeed'
 import dynamic from 'next/dynamic'
 import RecircSkeleton from '@/components/Recirculation/RecircSkeleton'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
+import { canonicalHref } from '@/lib/seo'
 
 const RecircWidget = dynamic(() => import('@/components/Recirculation/RecircWidget'), { ssr: false, loading: () => <RecircSkeleton /> })
 const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false, loading: () => <RecircSkeleton /> })
@@ -149,8 +151,12 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
+    <>
+      <Head>
+        <link rel="canonical" href={canonicalHref('/')} />
+      </Head>
+      <div className="min-h-screen bg-gray-50">
+        <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
         {/* Contextual hero */}
           <Hero
             category={activeCategory}
@@ -181,7 +187,8 @@ export default function HomePage() {
               <MasonryFeed items={articles} />
             </div>
         }
+        </div>
       </div>
-    </div>
+    </>
   )
 }

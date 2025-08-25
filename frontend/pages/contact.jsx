@@ -6,6 +6,7 @@ import Page from "@/components/UX/Page";
 import Toast from "@/components/Toast";
 import { SUBJECTS } from "@/lib/cms-routing";
 import contactCopy from "@/lib/copy/contact";
+import { canonicalHref } from "@/lib/seo";
 
 export default function ContactPage() {
   const router = useRouter();
@@ -58,6 +59,7 @@ export default function ContactPage() {
       <Head>
         <title>{current.hero.title} — WaterNews</title>
         <meta name="description" content={current.hero.subtitle} />
+        <link rel="canonical" href={canonicalHref("/contact")} />
       </Head>
       <Page title={current.hero.title} subtitle={current.hero.subtitle} style={{ minHeight: "70vh" }}>
         <SectionCard>

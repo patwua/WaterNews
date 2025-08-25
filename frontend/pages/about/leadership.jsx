@@ -4,6 +4,7 @@ import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
+import { canonicalHref } from "@/lib/seo";
 
 const leaders = [
   {
@@ -46,6 +47,7 @@ export default function LeadershipPage() {
       <Head>
         <title>Leadership Team — WaterNews</title>
         <meta name="description" content="Meet the executives guiding WaterNews." />
+        <link rel="canonical" href={canonicalHref("/about/leadership")} />
       </Head>
       <header
         className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"

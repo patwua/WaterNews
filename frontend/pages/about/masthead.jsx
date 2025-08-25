@@ -4,6 +4,7 @@ import { useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
+import { canonicalHref } from "@/lib/seo";
 
 const team = [
   {
@@ -50,6 +51,7 @@ export default function MastheadPage() {
       <Head>
         <title>Masthead & News Team — WaterNews</title>
         <meta name="description" content="WaterNews masthead and newsroom staff." />
+        <link rel="canonical" href={canonicalHref("/about/masthead")} />
       </Head>
 
       <header

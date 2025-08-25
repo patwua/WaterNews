@@ -5,7 +5,7 @@ import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { aboutPageJsonLd } from "@/lib/seo";
+import { aboutPageJsonLd, canonicalHref } from "@/lib/seo";
 
 const leaders = [
   {
@@ -127,6 +127,7 @@ export default function AboutPage() {
           name="description"
           content="WaterNews gives Guyanese, Caribbean, and diaspora voices a modern platform for verified news, opinion, and lifestyle stories."
         />
+        <link rel="canonical" href={canonicalHref("/about")} />
       </Head>
       <Script
         id="about-jsonld"

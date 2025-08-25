@@ -7,7 +7,13 @@ import PrevNext from "@/components/PrevNext";
 import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
-import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript, ogImageForPost } from "@/lib/seo";
+import {
+  buildBreadcrumbsJsonLd,
+  buildNewsArticleJsonLd,
+  canonicalHref,
+  jsonLdScript,
+  ogImageForPost,
+} from "@/lib/seo";
 
 export type ArticleViewProps = {
   post: any | null;
@@ -90,7 +96,7 @@ export default function ArticleView({
     <>
       <Head>
         <title>{post.title} — WaterNewsGY</title>
-        <link rel="canonical" href={`${origin}${canonicalPath}`} />
+        <link rel="canonical" href={canonicalHref(canonicalPath)} />
         <meta property="og:image" content={ogImage} />
         <meta name="twitter:image" content={ogImage} />
         <meta property="og:image:width" content="1200" />

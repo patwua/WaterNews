@@ -12,6 +12,11 @@ export function ogImageForPost(post: any | null) {
   return maybe || absoluteUrl(OG_DEFAULT);
 }
 
+// Build an absolute URL for use in canonical link tags
+export function canonicalHref(path: string) {
+  return absoluteUrl(path || "/");
+}
+
 type Publisher = {
   name: string;
   logoUrl: string;
