@@ -10,19 +10,19 @@ import { aboutPageJsonLd } from "@/lib/seo";
 const leaders = [
   {
     name: "Tatiana Chow",
-    title: "Publisher & CEO / Editor in Chief",
+    title: "Publisher & CEO — Editor in Chief",
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
     ),
-    bio: "Guides WaterNews with a focus on rigorous, community-rooted journalism.",
+    bio: "Tatiana sets the editorial bar…",
   },
   {
     name: "Dwuane Adams",
-    title: "CTO / Co-founder",
+    title: "CTO — Co‑founder",
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961624/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
     ),
-    bio: "Jamaican-born technologist building fast, safe systems for storytelling.",
+    bio: "Jamaican-born to Guyanese parents…",
   },
   {
     name: "Sherman Rodriguez",
@@ -30,7 +30,7 @@ const leaders = [
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
     ),
-    bio: "Keeps budgets honest and partnerships viable for our mission.",
+    bio: "American, Guyanese father…",
   },
 ];
 
@@ -211,7 +211,7 @@ export default function AboutPage() {
           </div>
           <div className="mt-4 text-center">
             <Link href="/about/leadership" className="inline-block rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              Full leadership
+              → Meet the full leadership
             </Link>
           </div>
         </SectionCard>
