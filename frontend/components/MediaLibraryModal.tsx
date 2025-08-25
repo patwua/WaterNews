@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function MediaLibraryModal({
   open,
@@ -14,6 +14,8 @@ export default function MediaLibraryModal({
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -40,10 +42,44 @@ export default function MediaLibraryModal({
     }
   }
 
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      } else if (e.key === 'Tab') {
+        const nodes = dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!nodes || nodes.length === 0) return;
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            (last as HTMLElement).focus();
+          }
+        } else if (document.activeElement === last) {
+          e.preventDefault();
+          (first as HTMLElement).focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    closeRef.current?.focus();
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-xl w-[90vw] max-w-5xl p-4">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        className="bg-white rounded-xl shadow-xl w-[90vw] max-w-5xl p-4"
+      >
         <div className="flex items-center gap-3 mb-3">
           <div className="font-medium">Media Library</div>
           <input
@@ -54,7 +90,7 @@ export default function MediaLibraryModal({
             onKeyDown={(e)=>{ if (e.key === 'Enter') load(); }}
           />
           <button className="text-sm px-3 py-1 border rounded" onClick={()=>load()}>Search</button>
-          <button onClick={onClose} className="text-sm underline">Close</button>
+          <button ref={closeRef} onClick={onClose} className="text-sm underline">Close</button>
         </div>
 
         {error && <div className="text-red-600 text-sm mb-2">{error}</div>}

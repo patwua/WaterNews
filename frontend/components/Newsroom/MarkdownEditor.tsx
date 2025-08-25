@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import MediaLibraryModal from '@/components/MediaLibraryModal';
+import dynamic from 'next/dynamic';
+const MediaLibraryModal = dynamic(
+  () => import('@/components/MediaLibraryModal'),
+  { ssr: false }
+);
 
 type MarkdownEditorProps = {
   value: string;
