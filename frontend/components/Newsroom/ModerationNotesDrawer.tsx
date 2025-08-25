@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ModerationNotesDrawer({
   targetId,       // draftId or postId
@@ -11,6 +11,8 @@ export default function ModerationNotesDrawer({
   const [text, setText] = useState("");
   const [saving, setSaving] = useState(false);
   const [ok, setOk] = useState<null | "ok" | "err">(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
 
   async function saveNote() {
     if (!targetId || !text.trim()) return;
@@ -36,6 +38,35 @@ export default function ModerationNotesDrawer({
     }
   }
 
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+      } else if (e.key === "Tab") {
+        const nodes = dialogRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!nodes || nodes.length === 0) return;
+        const first = nodes[0];
+        const last = nodes[nodes.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            (last as HTMLElement).focus();
+          }
+        } else if (document.activeElement === last) {
+          e.preventDefault();
+          (first as HTMLElement).focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    closeRef.current?.focus();
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [open]);
+
   return (
     <>
       <button
@@ -48,10 +79,21 @@ export default function ModerationNotesDrawer({
       {open && (
         <div className="fixed inset-0 z-50 mb-16">
           <div className="absolute inset-0 bg-black/30" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl p-4 grid grid-rows-[auto,1fr,auto]">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl p-4 grid grid-rows-[auto,1fr,auto]"
+          >
             <header className="flex items-center justify-between">
               <h3 className="text-base font-semibold">Moderation notes (internal)</h3>
-              <button className="text-sm text-neutral-600 hover:underline" onClick={() => setOpen(false)}>Close</button>
+              <button
+                ref={closeRef}
+                className="text-sm text-neutral-600 hover:underline"
+                onClick={() => setOpen(false)}
+              >
+                Close
+              </button>
             </header>
             <div className="mt-3">
               <textarea

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import RelatedRail from "@/components/RelatedRail";
+import dynamic from "next/dynamic";
 import ShareRow from "@/components/ShareRow";
 import PrevNext from "@/components/PrevNext";
 import Image from "next/image";
@@ -10,6 +10,26 @@ import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
 import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript, ogImageForPost } from "@/lib/seo";
+
+const RelatedRail = dynamic(() => import("@/components/RelatedRail"), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-4 animate-pulse">
+      <div className="h-24 bg-gray-200 rounded" />
+      <div className="h-24 bg-gray-200 rounded" />
+    </div>
+  ),
+});
+
+const PrevNext = dynamic(() => import("@/components/PrevNext"), {
+  ssr: false,
+  loading: () => (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 animate-pulse">
+      <div className="h-16 bg-gray-200 rounded" />
+      <div className="h-16 bg-gray-200 rounded" />
+    </div>
+  ),
+});
 
 export type ArticleViewProps = {
   post: any | null;

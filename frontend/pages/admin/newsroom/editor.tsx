@@ -6,7 +6,11 @@ import { LegacyEditorBar } from "@/components/Newsroom/EditorBar";
 import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
 import SharedEditor from "@/components/Newsroom/SharedEditor";
 import LinkCheckerPanel from "@/components/Newsroom/LinkCheckerPanel";
-import SimilarityDrawer from "@/components/Newsroom/SimilarityDrawer";
+import dynamic from "next/dynamic";
+const SimilarityDrawer = dynamic(
+  () => import("@/components/Newsroom/SimilarityDrawer"),
+  { ssr: false }
+);
 import SummaryPanel from "@/components/Newsroom/SummaryPanel";
 import { slugify } from "@/lib/slugify";
 
