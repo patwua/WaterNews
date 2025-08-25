@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import SharedEditor from "@/components/Newsroom/SharedEditor";
 
@@ -13,6 +14,7 @@ function useDebouncedCallback(cb, delay=600) {
 export default function DraftEditor() {
   const { query } = useRouter();
   const { id } = query;
+  const isPreview = query.preview !== undefined;
   const [item, setItem] = useState(null);
   const [saving, setSaving] = useState(false);
   const [threadUrl, setThreadUrl] = useState(null);
@@ -56,10 +58,19 @@ export default function DraftEditor() {
     setSaving(false);
   }, 600);
 
-  if (!item) return <div className="p-6">Loading…</div>;
+  if (!item) {
+    return (
+      <>
+        <Head>{isPreview && <meta name="robots" content="noindex" />}</Head>
+        <div className="p-6">Loading…</div>
+      </>
+    );
+  }
 
   return (
-    <div className="p-6">
+    <>
+      <Head>{isPreview && <meta name="robots" content="noindex" />}</Head>
+      <div className="p-6">
       <div className="flex items-center gap-3 max-w-4xl">
         <input
           className="w-full text-xl font-semibold border-b focus:outline-none"
@@ -153,5 +164,6 @@ export default function DraftEditor() {
         }
       />
     </div>
+    </>
   );
 }

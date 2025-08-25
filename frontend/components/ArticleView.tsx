@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import RelatedRail from "@/components/RelatedRail";
 import ShareRow from "@/components/ShareRow";
 import PrevNext from "@/components/PrevNext";
@@ -24,6 +25,7 @@ export default function ArticleView({
   basePath = "news",
   sectionLabel = "News",
 }: ArticleViewProps) {
+  const router = useRouter();
   const [zoomSrc, setZoomSrc] = useState<string | null>(null);
 
   if (!post) {
@@ -44,6 +46,7 @@ export default function ArticleView({
       : window.location.origin;
   const canonicalPath = `/${basePath}/${post.slug}`;
   const ogImage = ogImageForPost(post);
+  const isPreview = router.query.preview !== undefined;
   const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
     { name: "Home", url: "/" },
     { name: sectionLabel, url: `/${basePath}` },
@@ -90,7 +93,8 @@ export default function ArticleView({
     <>
       <Head>
         <title>{post.title} — WaterNewsGY</title>
-        <link rel="canonical" href={`${origin}${canonicalPath}`} />
+        {!isPreview && <link rel="canonical" href={`${origin}${canonicalPath}`} />}
+        {isPreview && <meta name="robots" content="noindex" />}
         <meta property="og:image" content={ogImage} />
         <meta name="twitter:image" content={ogImage} />
         <meta property="og:image:width" content="1200" />

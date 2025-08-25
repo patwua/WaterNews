@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { GetServerSideProps } from "next";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { requireAuthSSR } from "@/lib/user-guard";
 import Page from "@/components/UX/Page";
@@ -10,6 +11,7 @@ export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ct
 export default function DraftEditor() {
   const router = useRouter();
   const { id } = router.query as { id?: string };
+  const isPreview = router.query.preview !== undefined;
   const [draft, setDraft] = useState<any>(null);
 
   useEffect(() => {
@@ -66,23 +68,26 @@ export default function DraftEditor() {
   }
 
   return (
-    <Page title="Editor" subtitle="Write, attach media, and publish">
+    <>
+      <Head>{isPreview && <meta name="robots" content="noindex" />}</Head>
+      <Page title="Editor" subtitle="Write, attach media, and publish">
       <SharedEditor
         title={draft?.title}
         value={draft?.body || ""}
         onChange={onChange}
         status={draft?.status || "draft"}
-        onStatusChange={(s) => {
-          const next = { ...draft, status: s };
-          setDraft(next);
-          save(next);
-        }}
-        draftId={draft?._id}
+          onStatusChange={(s) => {
+            const next = { ...draft, status: s };
+            setDraft(next);
+            save(next);
+          }}
+          draftId={draft?._id}
         scheduleAt={draft?.publishAt || draft?.scheduledFor || null}
         onPreview={onPreview}
         onSubmit={onSubmit}
         onPublish={onPublish}
       />
     </Page>
+  </>
   );
 }
