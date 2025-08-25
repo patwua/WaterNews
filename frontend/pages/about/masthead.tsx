@@ -33,8 +33,8 @@ const team = [
 ];
 
 export default function MastheadPage() {
-  const [query, setQuery] = useState("");
-  const [show, setShow] = useState(6);
+  const [query, setQuery] = useState<string>("");
+  const [show, setShow] = useState<number>(6);
   const brandVars = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,

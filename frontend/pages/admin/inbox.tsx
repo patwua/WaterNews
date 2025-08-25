@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import type { GetServerSideProps } from "next";
 // Unified SSR admin guard (NextAuth + shared helper)
 import { requireAdminSSR } from '@/lib/admin-guard';
 
+interface Ticket { _id: string; subject?: string; status?: string }
+
 export default function AdminInbox() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   useEffect(() => {
     fetch("/api/inbox/list").then((r) => r.json()).then((d) => {
       if (d.ok) setTickets(d.items);
@@ -25,8 +28,8 @@ export default function AdminInbox() {
   );
 }
 
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const guard = await requireAdminSSR(ctx);
   if (guard.redirect) return guard;
   return { props: {} };
-}
+};

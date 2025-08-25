@@ -20,5 +20,6 @@ declare module "cloudinary" {
 declare module "socket.io-client";
 declare module "socket.io";
 declare module "next-auth/jwt";
+declare module "next/script";
 
 declare module "react/jsx-runtime";

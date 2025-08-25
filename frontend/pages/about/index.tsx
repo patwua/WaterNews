@@ -220,7 +220,8 @@ export default function AboutPage() {
         </SectionCard>
 
         <div className="grid gap-8 lg:grid-cols-2">
-          <SectionCard id="standards">
+          <div id="standards">
+            <SectionCard>
             <h2 className="text-2xl font-bold">{standards.title}</h2>
             <p className="mt-2 text-[15px] text-slate-700">{standards.intro}</p>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
@@ -246,7 +247,8 @@ export default function AboutPage() {
                 {standards.corrections.linkText}
               </Link>
             </div>
-          </SectionCard>
+            </SectionCard>
+          </div>
           <SectionCard>
             <h2 className="text-2xl font-bold">{reachUs.title}</h2>
             <p className="mt-2 text-[15px] text-slate-700">{reachUs.desc}</p>

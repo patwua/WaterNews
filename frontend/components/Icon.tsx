@@ -1,8 +1,9 @@
 import React from "react";
+import type { SVGProps, ReactNode } from "react";
 import { pickLogo } from "@/lib/brand-tokens";
 
 // Per-glyph viewBox so our logo (SVG file) renders crisply.
-const GLYPHS = {
+const GLYPHS: Record<string, { viewBox: string; node: ReactNode }> = {
   // 24x24 line icons (stroke tuned to match WaterNews logo weight)
   home: { viewBox: "0 0 24 24", node: (
     <>
@@ -59,12 +60,30 @@ const GLYPHS = {
     </>
   )},
 };
-export default function Icon({ name, size = 24, className = "", ...props }) {
+
+type GlyphName = keyof typeof GLYPHS;
+
+interface IconProps extends SVGProps<SVGSVGElement> {
+  name: GlyphName | "logo";
+  size?: number;
+  className?: string;
+}
+
+export default function Icon({ name, size = 24, className = "", ...props }: IconProps) {
   if (name === "logo") {
     const src = pickLogo({ variant: "mark", tone: "light" });
-    return <img src={src} alt="WaterNewsGY logo" className={className} width={size} height={size} {...props} />;
+    return (
+      <img
+        src={src}
+        alt="WaterNewsGY logo"
+        className={className}
+        width={size}
+        height={size}
+        {...(props as any)}
+      />
+    );
   }
-  const glyph = GLYPHS[name];
+  const glyph = GLYPHS[name as GlyphName];
   if (!glyph) return null;
   return (
     <svg
