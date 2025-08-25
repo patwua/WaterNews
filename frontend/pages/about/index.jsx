@@ -65,13 +65,41 @@ const values = [
 ];
 
 const contacts = [
-  { label: "Send a Tip", token: "tip" },
-  { label: "Request a Correction", token: "correction" },
-  { label: "Suggest a Story", token: "suggest-story" },
-  { label: "Apply to Contribute", token: "apply" },
-  { label: "Partnerships & Advertising", token: "partnerships" },
-  { label: "Press & Speaking", token: "press" },
-  { label: "Careers", token: "careers" },
+  {
+    label: "Send a Tip",
+    token: "tip",
+    desc: "Know something we should report?",
+  },
+  {
+    label: "Request a Correction",
+    token: "correction",
+    desc: "Spotted an error? Let us know.",
+  },
+  {
+    label: "Suggest a Story",
+    token: "suggest-story",
+    desc: "Have an idea for us?",
+  },
+  {
+    label: "Apply to Contribute",
+    token: "apply",
+    desc: "Join our contributor network.",
+  },
+  {
+    label: "Partnerships & Advertising",
+    token: "partnerships",
+    desc: "Work with WaterNews.",
+  },
+  {
+    label: "Press & Speaking",
+    token: "press",
+    desc: "Reach out to our press team.",
+  },
+  {
+    label: "Careers",
+    token: "careers",
+    desc: "Work with us.",
+  },
 ];
 
 export default function AboutPage() {
@@ -279,17 +307,22 @@ export default function AboutPage() {
             <p className="mt-2 text-[15px] text-slate-700">
               Whether you're pitching a feature, flagging a typo, or exploring a partnership, we're just a click away. Choose a link below to reach the right team.
             </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+            <ul className="mt-4 space-y-4">
               {contacts.map((c) => (
-                <Link
-                  key={c.token}
-                  href={`/contact?subject=${c.token}`}
-                  className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
-                >
-                  {c.label}
-                </Link>
+                <li key={c.token} className="list-none">
+                  <Link
+                    href={`/contact?subject=${c.token}`}
+                    className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {c.label}
+                  </Link>
+                  <p className="mt-1 text-sm text-slate-600">{c.desc}</p>
+                </li>
               ))}
-            </div>
+            </ul>
+            <p className="mt-4 text-xs text-slate-500">
+              Privacy note: We respect your privacy and local laws.
+            </p>
           </SectionCard>
         </div>
       </main>
