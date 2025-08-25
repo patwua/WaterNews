@@ -26,7 +26,8 @@ export default function BrandLogo({
   const w = width ?? defaultDims.width;
   const h = height ?? defaultDims.height;
   const alt = `${BRAND_NAME} logo`;
+  const loading = variant === "mark" ? "eager" : "lazy";
   return (
-    <img src={src} alt={alt} width={w} height={h} className={className} loading="lazy" />
+    <img src={src} alt={alt} width={w} height={h} className={className} loading={loading} />
   );
 }

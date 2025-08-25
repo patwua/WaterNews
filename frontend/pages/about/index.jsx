@@ -202,6 +202,7 @@ export default function AboutPage() {
                 width={1536}
                 height={1024}
                 className="float-left mr-4 mb-2 w-40 h-auto rounded-lg"
+                sizes="(min-width: 1024px) 50vw, 100vw"
               />
               <p>
                 Guyana’s story extends beyond its borders. We examine remittances, migration, climate, culture, and policy as
@@ -262,6 +263,7 @@ export default function AboutPage() {
                   width={96}
                   height={96}
                   className="mx-auto rounded-full object-cover"
+                  sizes="(min-width: 1024px) 50vw, 100vw"
                 />
                 <h3 className="mt-3 text-base font-semibold">{p.name}</h3>
                 <p className="m-0 text-sm text-slate-600">{p.title}</p>
@@ -290,6 +292,7 @@ export default function AboutPage() {
               width={220}
               height={220}
               className="float-right ml-4 mb-2 h-auto w-24 object-contain"
+              sizes="(min-width: 1024px) 50vw, 100vw"
             />
             <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
             <p className="mt-2 text-[15px] text-slate-700">

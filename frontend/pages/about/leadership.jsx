@@ -75,7 +75,15 @@ export default function LeadershipPage() {
             {leaders.map((p) => (
               <article key={p.name} className="text-center">
                 {p.photo ? (
-                  <Image src={p.photo} alt="" width={96} height={96} className="mx-auto rounded-full object-cover" />
+                  <Image
+                    src={p.photo}
+                    alt=""
+                    width={96}
+                    height={96}
+                    className="mx-auto rounded-full object-cover"
+                    priority
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                  />
                 ) : (
                   <div className="mx-auto mb-2 flex h-24 w-24 items-center justify-center rounded-full bg-[var(--brand-soft-from)] text-sm text-slate-600">
                     No Photo
