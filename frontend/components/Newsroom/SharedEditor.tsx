@@ -136,7 +136,7 @@ export default function SharedEditor({
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => router.push("/newsroom/writer-dashboard")}
-              className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-md border hover:bg-gray-50"
+              className="shrink-0 inline-flex items-center justify-center w-11 h-11 p-2.5 rounded-md border hover:bg-gray-50"
               aria-label="Back to Newsroom"
               title="Back to Newsroom"
             >

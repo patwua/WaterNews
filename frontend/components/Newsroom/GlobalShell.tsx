@@ -160,7 +160,7 @@ function MobileTopBar() {
         </button>
         <button
           onClick={openMobile}
-          className="ml-auto inline-flex items-center justify-center w-9 h-9 rounded-md border bg-white hover:bg-gray-50"
+          className="ml-auto inline-flex items-center justify-center w-11 h-11 p-3 rounded-md border bg-white hover:bg-gray-50"
           aria-label="Open Newsroom menu"
           title="Open menu"
         >
@@ -272,7 +272,7 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
           <span className="font-semibold">NewsRoom</span>
           <button
             onClick={closeMobile}
-            className="inline-flex items-center justify-center w-9 h-9 rounded-md border bg-white hover:bg-gray-50"
+            className="inline-flex items-center justify-center w-11 h-11 p-3 rounded-md border bg-white hover:bg-gray-50"
             aria-label="Close Newsroom menu"
             title="Close"
             ref={setInitialButton as any}
