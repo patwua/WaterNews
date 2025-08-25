@@ -189,9 +189,20 @@ export default function AboutPage() {
           </SectionCard>
           <SectionCard>
             <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Guyana’s story extends beyond its borders… From Brooklyn and Toronto to London, see how the world touches Guyanese life.
-            </p>
+            <div className="mt-2 flow-root text-[15px] text-slate-700">
+              <Image
+                src="/brand/diaspora-card.png"
+                alt="Collage of Guyanese diaspora"
+                width={1536}
+                height={1024}
+                className="float-left mr-4 mb-2 w-40 h-auto rounded-lg"
+              />
+              <p>
+                Guyana’s story extends beyond its borders. We examine remittances, migration, climate, culture, and policy as
+                they flow between Georgetown and the diaspora. When global headlines hit home, we explain the why—not just the
+                what. From Brooklyn and Toronto to London, see how the world touches Guyanese life.
+              </p>
+            </div>
           </SectionCard>
         </div>
 
