@@ -217,14 +217,44 @@ export default function AboutPage() {
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Find editors, reporters, and contributors. Search and paging available.
-          </p>
-          <div className="mt-4">
-            <Link href="/about/masthead" className="rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              Meet the News Team
-            </Link>
+          <div className="flex flex-col items-center sm:flex-row">
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
+              <p className="mt-2 text-[15px] text-slate-700">
+                Editors, reporters, and contributors from across Guyana, the Caribbean, and the diaspora power every WaterNews story. Explore the newsroom directory to learn about their beats, bios, and latest work.
+              </p>
+              <h3 className="mt-4 text-lg font-semibold">What you'll find</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
+                <li>Author directory with beats and bios</li>
+                <li>Transparency on corrections and updates</li>
+                <li>Diaspora touch across regions and abroad</li>
+                <li>Profile photos &amp; badges identifying roles</li>
+              </ul>
+              <p className="mt-3 text-[15px] text-slate-700">
+                Want to reach us? Use the{' '}
+                <Link href="/contact" className="underline text-[var(--brand)]">
+                  contact page
+                </Link>{' '}
+                to connect directly.
+              </p>
+              <div className="mt-4">
+                <Link
+                  href="/about/masthead"
+                  className="rounded-xl bg-black px-4 py-2 font-semibold text-white"
+                >
+                  → Meet the news team (all authors; search + paging)
+                </Link>
+              </div>
+            </div>
+            <div className="mt-4 w-24 shrink-0 sm:mt-0 sm:ml-6">
+              <Image
+                src="/brand/diaspora-card.png"
+                alt="Diaspora card"
+                width={96}
+                height={96}
+                className="h-auto w-full object-contain"
+              />
+            </div>
           </div>
         </SectionCard>
 
