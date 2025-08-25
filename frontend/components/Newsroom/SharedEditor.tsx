@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import MarkdownEditor from "@/components/Newsroom/MarkdownEditor";
-import ModerationNotesDrawer from "@/components/Newsroom/ModerationNotesDrawer";
+import dynamic from "next/dynamic";
+const ModerationNotesDrawer = dynamic(
+  () => import("@/components/Newsroom/ModerationNotesDrawer"),
+  { ssr: false }
+);
 import StatusPill from "@/components/StatusPill";
 
 type SharedEditorProps = {
