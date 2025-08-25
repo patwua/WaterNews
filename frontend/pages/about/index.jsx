@@ -10,19 +10,19 @@ import { aboutPageJsonLd } from "@/lib/seo";
 const leaders = [
   {
     name: "Tatiana Chow",
-    title: "Publisher & CEO / Editor in Chief",
+    title: "Publisher & CEO — Editor in Chief",
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
     ),
-    bio: "Guides WaterNews with a focus on rigorous, community-rooted journalism.",
+    bio: "Tatiana sets the editorial bar and keeps the mission honest. She blends newsroom discipline with a builder’s instinct: fast when needed, patient when it matters.",
   },
   {
     name: "Dwuane Adams",
-    title: "CTO / Co-founder",
+    title: "CTO — Co‑founder",
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961624/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
     ),
-    bio: "Jamaican-born technologist building fast, safe systems for storytelling.",
+    bio: "Jamaican-born to Guyanese parents. Outdoors and adventure junkie; computer-science geek and serial entrepreneur by career. He builds the systems that make our journalism nimble and secure.",
   },
   {
     name: "Sherman Rodriguez",
@@ -30,7 +30,7 @@ const leaders = [
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
     ),
-    bio: "Keeps budgets honest and partnerships viable for our mission.",
+    bio: "American, Guyanese father. Finance, travel, culture and lifestyle nerd. He keeps the numbers honest so the reporting can be fearless.",
   },
 ];
 
@@ -192,7 +192,16 @@ export default function AboutPage() {
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Leadership</h2>
+          <span
+            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+            style={{ background: "var(--brand-tag-bg)", color: "var(--brand-tag-text)" }}
+          >
+            Leadership
+          </span>
+          <h2 className="mt-2 text-2xl font-bold">Strategy, stewardship, and standards</h2>
+          <p className="mt-1 text-[15px] text-slate-700">
+            Meet the team responsible for the mission, technology and sustainability of WaterNewsGY.
+          </p>
           <div className="mt-4 grid gap-6 sm:grid-cols-3">
             {leaders.map((p) => (
               <article key={p.name} className="text-center">
@@ -206,13 +215,11 @@ export default function AboutPage() {
                 <h3 className="mt-3 text-base font-semibold">{p.name}</h3>
                 <p className="m-0 text-sm text-slate-600">{p.title}</p>
                 <p className="mt-2 text-[15px] text-slate-700">{p.bio}</p>
+                <Link href="/about/leadership" className="mt-2 inline-block text-sm font-semibold text-black">
+                  → Meet the full leadership
+                </Link>
               </article>
             ))}
-          </div>
-          <div className="mt-4 text-center">
-            <Link href="/about/leadership" className="inline-block rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              Full leadership
-            </Link>
           </div>
         </SectionCard>
 
