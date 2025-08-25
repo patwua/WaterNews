@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import dynamic from "next/dynamic";
 import ShareRow from "@/components/ShareRow";
-import PrevNext from "@/components/PrevNext";
 import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";

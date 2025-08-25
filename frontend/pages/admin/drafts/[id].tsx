@@ -3,11 +3,11 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import SharedEditor from "@/components/Newsroom/SharedEditor";
 
-function useDebouncedCallback(cb, delay=600) {
-  const [t, setT] = useState(null);
-  return (...args) => {
+function useDebouncedCallback<T extends (...args: any[]) => void>(cb: T, delay = 600) {
+  const [t, setT] = useState<ReturnType<typeof setTimeout> | null>(null);
+  return (...args: Parameters<T>) => {
     if (t) clearTimeout(t);
-    setT(setTimeout(()=>cb(...args), delay));
+    setT(setTimeout(() => cb(...args), delay));
   };
 }
 
@@ -15,10 +15,10 @@ export default function DraftEditor() {
   const { query } = useRouter();
   const { id } = query;
   const isPreview = query.preview !== undefined;
-  const [item, setItem] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [threadUrl, setThreadUrl] = useState(null);
-  const [threadBusy, setThreadBusy] = useState(false);
+  const [item, setItem] = useState<any>(null);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [threadUrl, setThreadUrl] = useState<string | null>(null);
+  const [threadBusy, setThreadBusy] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
@@ -39,18 +39,18 @@ export default function DraftEditor() {
     return () => { mounted = false; };
   }, [id]);
 
-  const scheduleStr = useMemo(()=>{
+  const scheduleStr = useMemo(() => {
     if (!item?.scheduledAt) return "";
     const dt = new Date(item.scheduledAt);
-    const z = n=>String(n).padStart(2,"0");
-    return `${dt.getFullYear()}-${z(dt.getMonth()+1)}-${z(dt.getDate())}T${z(dt.getHours())}:${z(dt.getMinutes())}`;
+    const z = (n: number) => String(n).padStart(2, "0");
+    return `${dt.getFullYear()}-${z(dt.getMonth() + 1)}-${z(dt.getDate())}T${z(dt.getHours())}:${z(dt.getMinutes())}`;
   }, [item?.scheduledAt]);
 
-  const debouncedSave = useDebouncedCallback(async (patch) => {
+  const debouncedSave = useDebouncedCallback(async (patch: Record<string, any>) => {
     setSaving(true);
     await fetch("/api/drafts/update", {
       method: "PATCH",
-      headers: { "Content-Type":"application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, patch })
     });
     const d = await (await fetch(`/api/drafts/get?id=${id}`)).json();

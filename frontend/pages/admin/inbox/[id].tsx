@@ -1,12 +1,15 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import type { GetServerSideProps } from "next";
 // Unified SSR admin guard (NextAuth + shared helper)
 import { requireAdminSSR } from '@/lib/admin-guard';
+
+interface Ticket { _id: string; subject: string; name: string; email: string; body: string; }
 
 export default function TicketDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [ticket, setTicket] = useState(null);
+  const [ticket, setTicket] = useState<Ticket | null>(null);
   useEffect(() => {
     if (id) {
       fetch(`/api/inbox/get?id=${id}`).then((r) => r.json()).then((d) => {
@@ -15,7 +18,7 @@ export default function TicketDetail() {
     }
   }, [id]);
 
-  async function createDraftFromTicket() {
+  async function createDraftFromTicket(): Promise<void> {
     const r = await fetch("/api/drafts/from-ticket", {
       method: "POST",
       headers: { "Content-Type":"application/json" },
@@ -41,8 +44,8 @@ export default function TicketDetail() {
   );
 }
 
-export async function getServerSideProps(ctx) {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const guard = await requireAdminSSR(ctx);
   if (guard.redirect) return guard;
   return { props: {} };
-}
+};

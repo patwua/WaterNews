@@ -8,12 +8,19 @@ import { SUBJECTS } from "@/lib/cms-routing";
 import contactCopy from "@/lib/copy/contact";
 import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 
+type ToastState = { type: "success" | "error"; message: string } | null;
+interface Fields {
+  name: string;
+  email: string;
+  [key: string]: string | FileList | undefined;
+}
+
 export default function ContactPage() {
   const router = useRouter();
-  const [subject, setSubject] = useState("general");
-  const [fields, setFields] = useState({ name: "", email: "" });
-  const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [subject, setSubject] = useState<string>("general");
+  const [fields, setFields] = useState<Fields>({ name: "", email: "" });
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [toast, setToast] = useState<ToastState>(null);
 
   useEffect(() => {
     const q = router.query.subject;
@@ -25,11 +32,11 @@ export default function ContactPage() {
   const { shared } = contactCopy;
   const current = contactCopy[subject] || contactCopy.general;
 
-  function updateField(name, value) {
+  function updateField(name: string, value: string | FileList | undefined) {
     setFields((f) => ({ ...f, [name]: value }));
   }
 
-  async function onSubmit(e) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     if (submitting) return;
     setSubmitting(true);
@@ -39,7 +46,7 @@ export default function ContactPage() {
       Object.entries(fields).forEach(([k, v]) => {
         if (v instanceof FileList) {
           Array.from(v).forEach((file) => fd.append(k, file));
-        } else {
+        } else if (typeof v === "string") {
           fd.append(k, v);
         }
       });
@@ -48,7 +55,7 @@ export default function ContactPage() {
       if (!json.ok) throw new Error(json.error || "Failed");
       setToast({ type: "success", message: current.success.detail || shared.toasts.success });
       setFields({ name: "", email: "" });
-    } catch (err) {
+    } catch {
       setToast({ type: "error", message: shared.toasts.error });
     } finally {
       setSubmitting(false);
@@ -71,8 +78,9 @@ export default function ContactPage() {
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}
         />
       </Head>
-      <Page title={current.hero.title} subtitle={current.hero.subtitle} style={{ minHeight: "70vh" }}>
-        <SectionCard>
+      <div style={{ minHeight: "70vh" }}>
+        <Page title={current.hero.title} subtitle={current.hero.subtitle}>
+          <SectionCard>
           {subject === "tip" && current.meta && current.fieldsets.some((f) => f.type === "file") && (
             <div className="mb-3 space-y-1 text-sm text-slate-600">
               {current.meta.anonymousReassure && <p>{current.meta.anonymousReassure}</p>}
@@ -164,8 +172,9 @@ export default function ContactPage() {
           <p className="mt-2 text-xs text-slate-500">
             {current.meta.privacyShort} <a href="/privacy" className="underline">{shared.tips.privacyLink}</a>
           </p>
-        </SectionCard>
-      </Page>
+          </SectionCard>
+        </Page>
+      </div>
       {toast && <Toast {...toast} onDone={() => setToast(null)} />}
     </>
   );

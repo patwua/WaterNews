@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
-export default function Toast({ message, type = "success", onDone }) {
-  const [open, setOpen] = useState(true);
+
+interface ToastProps {
+  message: string;
+  type?: "success" | "error" | string;
+  onDone?: () => void;
+}
+
+export default function Toast({ message, type = "success", onDone }: ToastProps) {
+  const [open, setOpen] = useState<boolean>(true);
   useEffect(() => {
     const t = setTimeout(() => {
       setOpen(false);
       onDone?.();
     }, 3000);
     return () => clearTimeout(t);
-  }, []);
+  }, [onDone]);
   if (!open) return null;
   return (
     <div className="fixed bottom-4 right-4 z-50">

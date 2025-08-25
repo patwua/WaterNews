@@ -1,8 +1,15 @@
 import Link from "next/link";
 import DraftList from "@/components/Newsroom/DraftList";
+import type { ReactNode } from "react";
+
+interface Column {
+  key: string;
+  label: string;
+  render?: (x: any) => ReactNode;
+}
 
 export default function DraftsList() {
-  async function createDraft() {
+  async function createDraft(): Promise<void> {
     const r = await fetch("/api/drafts/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -12,7 +19,7 @@ export default function DraftsList() {
     if (d.id) location.href = `/admin/drafts/${d.id}`;
   }
 
-  const columns = [
+  const columns: Column[] = [
     {
       key: "updatedAt",
       label: "Updated",

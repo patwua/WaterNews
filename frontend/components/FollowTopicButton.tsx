@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 
-export default function FollowTopicButton({ topic }) {
-  const [following, setFollowing] = useState(false);
-  const [loading, setLoading] = useState(true);
+interface FollowTopicButtonProps {
+  topic: string;
+}
+
+export default function FollowTopicButton({ topic }: FollowTopicButtonProps) {
+  const [following, setFollowing] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -14,10 +18,12 @@ export default function FollowTopicButton({ topic }) {
         if (mounted) setLoading(false);
       }
     })();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [topic]);
 
-  async function toggle() {
+  async function toggle(): Promise<void> {
     setLoading(true);
     try {
       const res = await fetch("/api/follow/topic", {
