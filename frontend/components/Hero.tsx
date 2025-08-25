@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useMemo } from "react";
+import Image from "next/image";
 import { useLowData } from "@/utils/useLowData";
 
 /** Minimal article shape for hero */
@@ -70,8 +71,8 @@ export default function Hero(props: Props) {
         {/* Primary */}
         <article className="md:col-span-2 rounded-2xl overflow-hidden ring-1 ring-black/5 bg-white">
           {/* Fixed visual ratio to reduce layout shift */}
-          <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
-            {primary.coverVideo && !lowData ? (
+          {primary.coverVideo && !lowData ? (
+            <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
               <video
                 className="absolute inset-0 w-full h-full object-cover"
                 src={primary.coverVideo}
@@ -80,15 +81,18 @@ export default function Hero(props: Props) {
                 playsInline
                 poster={primary.coverImage || ""}
               />
-            ) : primary.coverImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={primary.coverImage}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            ) : null}
-          </div>
+            </div>
+          ) : primary.coverImage ? (
+            <Image
+              src={primary.coverImage}
+              alt=""
+              width={1200}
+              height={675}
+              className="w-full h-auto object-cover"
+              priority
+              sizes="(min-width: 768px) 66vw, 100vw"
+            />
+          ) : null}
           <div className="p-4">
             <h2 className="text-xl md:text-2xl font-bold leading-tight">
               <Link href={`/news/${primary.slug}`} className="hover:underline">

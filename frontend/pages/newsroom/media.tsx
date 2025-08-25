@@ -64,7 +64,13 @@ export default function Media() {
                 const src = withCloudinaryAuto(m.secure_url || m.url);
                 return (
                   <div key={m.asset_id || m.public_id} className="relative w-full aspect-square overflow-hidden rounded-lg ring-1 ring-gray-200">
-                    <Image src={src} alt={m.public_id || "Media"} fill className="object-cover" />
+                    <Image
+                      src={src}
+                      alt={m.public_id || "Media"}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                    />
                   </div>
                 );
               })}

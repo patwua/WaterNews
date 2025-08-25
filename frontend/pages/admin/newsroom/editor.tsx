@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import { api } from "@/lib/api";
 import { LegacyEditorBar } from "@/components/Newsroom/EditorBar";
 import EditorSidePanel from "@/components/Newsroom/EditorSidePanel";
@@ -118,8 +119,15 @@ export default function EditorPage() {
 
       {coverImage ? (
         <div className="max-w-4xl mx-auto mt-6 rounded-3xl overflow-hidden ring-1 ring-black/5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={coverImage} alt="" className="w-full h-auto object-cover" />
+          <Image
+            src={coverImage}
+            alt=""
+            width={1200}
+            height={675}
+            className="w-full h-auto object-cover"
+            priority
+            sizes="100vw"
+          />
         </div>
       ) : null}
 

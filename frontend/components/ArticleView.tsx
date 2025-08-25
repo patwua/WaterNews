@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import RelatedRail from "@/components/RelatedRail";
 import ShareRow from "@/components/ShareRow";
 import PrevNext from "@/components/PrevNext";
+import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
@@ -136,12 +137,15 @@ export default function ArticleView({
           </header>
 
           {post.coverImage ? (
-            <div className="relative w-full mb-4" style={{ paddingTop: "56.25%" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="mb-4">
+              <Image
                 src={post.coverImage}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover rounded-xl ring-1 ring-black/5"
+                width={1200}
+                height={675}
+                className="w-full h-auto object-cover rounded-xl ring-1 ring-black/5"
+                priority
+                sizes="100vw"
               />
             </div>
           ) : null}
