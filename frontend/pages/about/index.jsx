@@ -145,12 +145,23 @@ export default function AboutPage() {
           </div>
         </SectionCard>
 
-        <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Our Story</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Stories travel like waves — they echo from the coastlines of Guyana across the Caribbean and through diaspora communities worldwide. WaterNews captures those waves with clarity and context, keeping our readers informed and connected.
-          </p>
-        </SectionCard>
+        <div className="mb-8 grid gap-8 lg:grid-cols-2">
+          <SectionCard>
+            <h2 className="text-2xl font-bold">Who We Are</h2>
+            <p className="mt-2 text-[15px] text-slate-700">
+              Stories travel like waves — they echo from the coastlines of Guyana across the Caribbean and through diaspora communities worldwide. WaterNews captures those waves with clarity and context, keeping our readers informed and connected.
+            </p>
+            <p className="mt-2 text-[15px] text-slate-700">
+              Built by journalists and technologists from the region and its diaspora, we're independent, community-rooted, and driven by a commitment to verified reporting and cultural pride.
+            </p>
+          </SectionCard>
+          <SectionCard>
+            <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
+            <p className="mt-2 text-[15px] text-slate-700">
+              From Brooklyn and Toronto to London, we highlight how regional and global stories ripple across Guyanese lives.
+            </p>
+          </SectionCard>
+        </div>
 
         <SectionCard className="mb-8">
           <h2 className="text-2xl font-bold">What We Publish</h2>
@@ -219,73 +230,70 @@ export default function AboutPage() {
           </div>
         </SectionCard>
 
-        <SectionCard id="standards" className="mb-8">
-          <h2 className="text-2xl font-bold">Editorial Standards &amp; Fact-Check Policy</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            WaterNews follows a clear set of editorial practices to keep our reporting accurate, fair, and independent.
-          </p>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
-            <li>
-              <strong>Sourcing:</strong> Prefer on-the-record sources, public documents, and data. Anonymous sources are used sparingly with editor approval.
-            </li>
-            <li>
-              <strong>Verification:</strong> Names, titles, dates, locations, and figures are verified prior to publication. Hyperlinks and citations are included where practical.
-            </li>
-            <li>
-              <strong>Right of Reply:</strong> Subjects of critical coverage are given reasonable time to respond.
-            </li>
-            <li>
-              <strong>Conflicts:</strong> Reporters disclose potential conflicts; assignments can be reassigned if necessary.
-            </li>
-            <li>
-              <strong>Images:</strong> Photos and graphics should not materially alter reality; edits are limited to basic color/size/crop.
-            </li>
-            <li>
-              <strong>AI Use:</strong> We may use AI for drafting or summarization; editors review all output for accuracy and tone before publishing.
-            </li>
-          </ul>
-          <h3 className="mt-4 text-lg font-semibold">Fact-Check Workflow</h3>
-          <ol className="list-decimal space-y-2 pl-5 text-[15px] text-slate-700">
-            <li>Reporter drafts story with citations and supporting materials.</li>
-            <li>Section editor (or EIC) verifies key facts, quotes, names, dates.</li>
-            <li>If sensitive or contested, we seek an additional independent source.</li>
-            <li>Story is approved for publication with an audit note in the CMS.</li>
-          </ol>
-          <h3 className="mt-4 text-lg font-semibold">Corrections</h3>
-          <p className="text-[15px] text-slate-700">
-            If we publish an error, we will correct it promptly and add a note indicating what changed.
-          </p>
-          <div className="mt-3">
-            <Link
-              href="/contact?subject=correction"
-              className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
-            >
-              Request a Correction
-            </Link>
-          </div>
-        </SectionCard>
-
-        <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            From Brooklyn and Toronto to London, we highlight how regional and global stories ripple across Guyanese lives.
-          </p>
-        </SectionCard>
-
-        <SectionCard>
-          <h2 className="text-2xl font-bold">How to reach us</h2>
-          <div className="mt-4 flex flex-wrap gap-3">
-            {contacts.map((c) => (
+        <div className="grid gap-8 lg:grid-cols-2">
+          <SectionCard id="standards">
+            <h2 className="text-2xl font-bold">Editorial Standards &amp; Fact-Check Policy</h2>
+            <p className="mt-2 text-[15px] text-slate-700">
+              WaterNews follows a clear set of editorial practices to keep our reporting accurate, fair, and independent. We vet sources, provide context, and publish corrections when we fall short.
+            </p>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
+              <li>
+                <strong>Sourcing:</strong> Prefer on-the-record sources, public documents, and data. Anonymous sources are used sparingly with editor approval.
+              </li>
+              <li>
+                <strong>Verification:</strong> Names, titles, dates, locations, and figures are verified prior to publication. Hyperlinks and citations are included where practical.
+              </li>
+              <li>
+                <strong>Right of Reply:</strong> Subjects of critical coverage are given reasonable time to respond.
+              </li>
+              <li>
+                <strong>Conflicts:</strong> Reporters disclose potential conflicts; assignments can be reassigned if necessary.
+              </li>
+              <li>
+                <strong>Images:</strong> Photos and graphics should not materially alter reality; edits are limited to basic color/size/crop.
+              </li>
+              <li>
+                <strong>AI Use:</strong> We may use AI for drafting or summarization; editors review all output for accuracy and tone before publishing.
+              </li>
+            </ul>
+            <h3 className="mt-4 text-lg font-semibold">Fact-Check Workflow</h3>
+            <ol className="list-decimal space-y-2 pl-5 text-[15px] text-slate-700">
+              <li>Reporter drafts story with citations and supporting materials.</li>
+              <li>Section editor (or EIC) verifies key facts, quotes, names, dates.</li>
+              <li>If sensitive or contested, we seek an additional independent source.</li>
+              <li>Story is approved for publication with an audit note in the CMS.</li>
+            </ol>
+            <h3 className="mt-4 text-lg font-semibold">Corrections</h3>
+            <p className="text-[15px] text-slate-700">
+              If we publish an error, we will correct it promptly and add a note indicating what changed. Use the link below to request a correction.
+            </p>
+            <div className="mt-3">
               <Link
-                key={c.token}
-                href={`/contact?subject=${c.token}`}
-                className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
+                href="/contact?subject=correction"
+                className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
               >
-                {c.label}
+                Request a Correction
               </Link>
-            ))}
-          </div>
-        </SectionCard>
+            </div>
+          </SectionCard>
+          <SectionCard>
+            <h2 className="text-2xl font-bold">How to reach us</h2>
+            <p className="mt-2 text-[15px] text-slate-700">
+              Whether you're pitching a feature, flagging a typo, or exploring a partnership, we're just a click away. Choose a link below to reach the right team.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {contacts.map((c) => (
+                <Link
+                  key={c.token}
+                  href={`/contact?subject=${c.token}`}
+                  className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
+                >
+                  {c.label}
+                </Link>
+              ))}
+            </div>
+          </SectionCard>
+        </div>
       </main>
       <footer className="px-4 pb-16 text-center text-slate-500">
         <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
