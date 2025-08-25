@@ -4,6 +4,7 @@ import { useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
+import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 
 const team = [
   {
@@ -45,11 +46,20 @@ export default function MastheadPage() {
     "--brand-blue-darker": colors.brandBlueDarker,
   };
   const filtered = team.filter((p) => p.name.toLowerCase().includes(query.toLowerCase()));
+  const origin =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
+      : window.location.origin;
+  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" }, { name: "Masthead & News Team", url: "/about/masthead" });
   return (
     <>
       <Head>
         <title>Masthead & News Team — WaterNews</title>
         <meta name="description" content="WaterNews masthead and newsroom staff." />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}
+        />
       </Head>
 
       <header

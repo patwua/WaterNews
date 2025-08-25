@@ -6,6 +6,7 @@ import Page from "@/components/UX/Page";
 import Toast from "@/components/Toast";
 import { SUBJECTS } from "@/lib/cms-routing";
 import contactCopy from "@/lib/copy/contact";
+import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 
 export default function ContactPage() {
   const router = useRouter();
@@ -53,11 +54,21 @@ export default function ContactPage() {
     }
   }
 
+  const origin =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
+      : window.location.origin;
+  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "Contact", url: "/contact" });
+
   return (
     <>
       <Head>
         <title>{current.hero.title} — WaterNews</title>
         <meta name="description" content={current.hero.subtitle} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}
+        />
       </Head>
       <Page title={current.hero.title} subtitle={current.hero.subtitle} style={{ minHeight: "70vh" }}>
         <SectionCard>

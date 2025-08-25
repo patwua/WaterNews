@@ -6,8 +6,15 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ShellProvider from '@/components/Newsroom/ShellContext';
 import GlobalShell from '@/components/Newsroom/GlobalShell';
+import { jsonLdScript, orgJsonLd, webSiteJsonLd } from '@/lib/seo';
 
 export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  const origin =
+    typeof window === 'undefined'
+      ? process.env.NEXT_PUBLIC_SITE_URL || 'https://www.waternewsgy.com'
+      : window.location.origin;
+  const orgLd = orgJsonLd(origin);
+  const siteLd = webSiteJsonLd(origin);
   return (
     <>
       <Head>
@@ -15,6 +22,10 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
         <link rel="preconnect" href="https://waternews.onrender.com" />
         {/* Example: if you serve images or fonts from a CDN, add it here */}
         {/* <link rel="preconnect" href="https://cdn.example.com" crossOrigin="anonymous" /> */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript([orgLd, siteLd]) }}
+        />
       </Head>
       <SessionProvider session={session}>
         <ShellProvider>

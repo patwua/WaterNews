@@ -38,6 +38,7 @@ export default function ArticleView({
   const read = readingTime(post?.content || "").minutes;
   const authorName: string | undefined = post?.author || post?.byline;
   const authorSlug = authorName ? slugify(authorName) : null;
+  const authorUrl = authorSlug ? `/author/${authorSlug}` : undefined;
   const origin =
     typeof window === "undefined"
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
@@ -60,6 +61,7 @@ export default function ArticleView({
     section: post.category || post.section || undefined,
     keywords: Array.isArray(post.tags) ? post.tags : undefined,
     authorName,
+    authorUrl,
   });
 
   // Attach click-to-zoom on images inside the article body
