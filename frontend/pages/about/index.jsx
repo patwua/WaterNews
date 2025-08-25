@@ -14,7 +14,9 @@ const leaders = [
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
     ),
+
     bio: "Tatiana sets the editorial bar and keeps the mission honest. She blends newsroom discipline with a builder’s instinct: fast when needed, patient when it matters.",
+
   },
   {
     name: "Dwuane Adams",
@@ -22,7 +24,9 @@ const leaders = [
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961624/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
     ),
+
     bio: "Jamaican-born to Guyanese parents. Outdoors and adventure junkie; computer-science geek and serial entrepreneur by career. He builds the systems that make our journalism nimble and secure.",
+
   },
   {
     name: "Sherman Rodriguez",
@@ -30,7 +34,9 @@ const leaders = [
     photo: withCloudinaryAuto(
       "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
     ),
+
     bio: "American, Guyanese father. Finance, travel, culture and lifestyle nerd. He keeps the numbers honest so the reporting can be fearless.",
+
   },
 ];
 
@@ -65,13 +71,41 @@ const values = [
 ];
 
 const contacts = [
-  { label: "Send a Tip", token: "tip" },
-  { label: "Request a Correction", token: "correction" },
-  { label: "Suggest a Story", token: "suggest-story" },
-  { label: "Apply to Contribute", token: "apply" },
-  { label: "Partnerships & Advertising", token: "partnerships" },
-  { label: "Press & Speaking", token: "press" },
-  { label: "Careers", token: "careers" },
+  {
+    label: "Send a Tip",
+    token: "tip",
+    desc: "Know something we should report?",
+  },
+  {
+    label: "Request a Correction",
+    token: "correction",
+    desc: "Spotted an error? Let us know.",
+  },
+  {
+    label: "Suggest a Story",
+    token: "suggest-story",
+    desc: "Have an idea for us?",
+  },
+  {
+    label: "Apply to Contribute",
+    token: "apply",
+    desc: "Join our contributor network.",
+  },
+  {
+    label: "Partnerships & Advertising",
+    token: "partnerships",
+    desc: "Work with WaterNews.",
+  },
+  {
+    label: "Press & Speaking",
+    token: "press",
+    desc: "Reach out to our press team.",
+  },
+  {
+    label: "Careers",
+    token: "careers",
+    desc: "Work with us.",
+  },
 ];
 
 export default function AboutPage() {
@@ -156,7 +190,7 @@ export default function AboutPage() {
           <SectionCard>
             <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
             <p className="mt-2 text-[15px] text-slate-700">
-              From Brooklyn and Toronto to London, we highlight how regional and global stories ripple across Guyanese lives.
+              Guyana’s story extends beyond its borders… From Brooklyn and Toronto to London, see how the world touches Guyanese life.
             </p>
           </SectionCard>
         </div>
@@ -221,17 +255,54 @@ export default function AboutPage() {
               </article>
             ))}
           </div>
+
+          <div className="mt-4 text-center">
+            <Link href="/about/leadership" className="inline-block rounded-xl bg-black px-4 py-2 font-semibold text-white">
+              → Meet the full leadership
+            </Link>
+          </div>
+
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Find editors, reporters, and contributors. Search and paging available.
-          </p>
-          <div className="mt-4">
-            <Link href="/about/masthead" className="rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              Meet the News Team
-            </Link>
+          <div className="flex flex-col items-center sm:flex-row">
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
+              <p className="mt-2 text-[15px] text-slate-700">
+                Editors, reporters, and contributors from across Guyana, the Caribbean, and the diaspora power every WaterNews story. Explore the newsroom directory to learn about their beats, bios, and latest work.
+              </p>
+              <h3 className="mt-4 text-lg font-semibold">What you'll find</h3>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
+                <li>Author directory with beats and bios</li>
+                <li>Transparency on corrections and updates</li>
+                <li>Diaspora touch across regions and abroad</li>
+                <li>Profile photos &amp; badges identifying roles</li>
+              </ul>
+              <p className="mt-3 text-[15px] text-slate-700">
+                Want to reach us? Use the{' '}
+                <Link href="/contact" className="underline text-[var(--brand)]">
+                  contact page
+                </Link>{' '}
+                to connect directly.
+              </p>
+              <div className="mt-4">
+                <Link
+                  href="/about/masthead"
+                  className="rounded-xl bg-black px-4 py-2 font-semibold text-white"
+                >
+                  → Meet the news team (all authors; search + paging)
+                </Link>
+              </div>
+            </div>
+            <div className="mt-4 w-24 shrink-0 sm:mt-0 sm:ml-6">
+              <Image
+                src="/brand/diaspora-card.png"
+                alt="Diaspora card"
+                width={96}
+                height={96}
+                className="h-auto w-full object-contain"
+              />
+            </div>
           </div>
         </SectionCard>
 
@@ -286,17 +357,22 @@ export default function AboutPage() {
             <p className="mt-2 text-[15px] text-slate-700">
               Whether you're pitching a feature, flagging a typo, or exploring a partnership, we're just a click away. Choose a link below to reach the right team.
             </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+            <ul className="mt-4 space-y-4">
               {contacts.map((c) => (
-                <Link
-                  key={c.token}
-                  href={`/contact?subject=${c.token}`}
-                  className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
-                >
-                  {c.label}
-                </Link>
+                <li key={c.token} className="list-none">
+                  <Link
+                    href={`/contact?subject=${c.token}`}
+                    className="rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    {c.label}
+                  </Link>
+                  <p className="mt-1 text-sm text-slate-600">{c.desc}</p>
+                </li>
               ))}
-            </div>
+            </ul>
+            <p className="mt-4 text-xs text-slate-500">
+              Privacy note: We respect your privacy and local laws.
+            </p>
           </SectionCard>
         </div>
       </main>
