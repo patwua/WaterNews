@@ -156,7 +156,7 @@ export default function AboutPage() {
           <SectionCard>
             <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
             <p className="mt-2 text-[15px] text-slate-700">
-              From Brooklyn and Toronto to London, we highlight how regional and global stories ripple across Guyanese lives.
+              Guyana’s story extends beyond its borders… From Brooklyn and Toronto to London, see how the world touches Guyanese life.
             </p>
           </SectionCard>
         </div>
