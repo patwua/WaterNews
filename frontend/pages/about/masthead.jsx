@@ -161,7 +161,7 @@ export default function MastheadPage() {
               Back to About WaterNews
             </Link>
             <Link
-              href="/contact"
+              href="/contact?subject=general"
               className="ml-2 inline-flex items-center gap-2 rounded-lg border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
             >
               Contact Us
