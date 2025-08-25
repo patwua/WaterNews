@@ -8,8 +8,10 @@ import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo"
 import aboutCopy from "@/lib/copy/about";
 import type { CSSProperties } from "react";
 
+type BrandVars = CSSProperties & Record<string, string>;
+
 export default function AboutPage() {
-  const brandVars: CSSProperties = {
+  const brandVars: BrandVars = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,
     "--brand-lighter": colors.primaryLighter,
