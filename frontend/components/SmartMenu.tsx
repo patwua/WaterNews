@@ -33,6 +33,9 @@ export default function SmartMenu() {
       <Link href="/topics" className="hover:underline">
         Categories
       </Link>
+      <Link href="/credits" className="hover:underline">
+        Credits
+      </Link>
       {/* Newsroom link removed: logged-in users have persistent shell access */}
       {isAdmin && (
         <Link href="/admin" className="hover:underline">
