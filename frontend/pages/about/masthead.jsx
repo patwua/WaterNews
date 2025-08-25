@@ -4,7 +4,6 @@ import { useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import BrandLogo from "@/components/BrandLogo";
 
 const team = [
   {
@@ -58,13 +57,8 @@ export default function MastheadPage() {
         className="bg-gradient-to-b from-[var(--brand-blue)] via-[var(--brand-blue-dark)] to-[var(--brand-blue-darker)] px-4 py-14 text-white"
       >
         <div className="mx-auto max-w-5xl">
-          <div className="mb-5 flex items-center gap-3">
-            <BrandLogo variant="mark" width={40} height={40} className="rounded-full bg-white/95 p-1" />
-            <h1 className="m-0 text-3xl font-extrabold leading-tight md:text-5xl">
-              Masthead &amp; News Team
-            </h1>
-          </div>
-          <p className="max-w-3xl text-sm md:text-base opacity-95">
+          <h1 className="mb-5 text-3xl font-extrabold leading-tight md:text-5xl">Masthead &amp; News Team</h1>
+          <p className="max-w-3xl text-sm opacity-95 md:text-base">
             Meet the journalists and staff behind WaterNews.
           </p>
         </div>
@@ -73,10 +67,7 @@ export default function MastheadPage() {
       <main style={brandVars} className="mx-auto my-10 max-w-5xl px-4">
         {/* News Team */}
         <section className="mb-10">
-          <div className="mb-3 flex items-center gap-3">
-            <BrandLogo variant="mark" width={28} height={28} />
-            <h2 className="m-0 text-xl font-bold">News Team</h2>
-          </div>
+          <h2 className="mb-3 text-xl font-bold">News Team</h2>
 
           <input
             placeholder="Search by name"
@@ -170,9 +161,8 @@ export default function MastheadPage() {
         </section>
       </main>
 
-      <footer className="px-4 pb-16 text-center text-slate-500">
-        <BrandLogo variant="mark" width={36} height={36} className="mx-auto rounded-full" />
-        <div className="mt-2">&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
+      <footer className="px-4 py-16 text-center text-slate-500">
+        <div>&copy; {new Date().getFullYear()} WaterNews — All rights reserved.</div>
       </footer>
     </>
   );
