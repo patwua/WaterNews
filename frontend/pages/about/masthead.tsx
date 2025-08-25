@@ -5,6 +5,7 @@ import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import type { CSSProperties } from "react";
 
 const team = [
   {
@@ -35,7 +36,7 @@ const team = [
 export default function MastheadPage() {
   const [query, setQuery] = useState<string>("");
   const [show, setShow] = useState<number>(6);
-  const brandVars = {
+  const brandVars: CSSProperties = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,
     "--brand-lighter": colors.primaryLighter,

@@ -5,6 +5,7 @@ import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import type { CSSProperties } from "react";
 
 const leaders = [
   {
@@ -35,7 +36,7 @@ const leaders = [
 ];
 
 export default function LeadershipPage() {
-  const brandVars = {
+  const brandVars: CSSProperties = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,
     "--brand-lighter": colors.primaryLighter,
