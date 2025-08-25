@@ -31,6 +31,7 @@ export const contactCopy = {
       "We may contact you for verification.",
     ],
     success: { detail: "Tip received." },
+    error: { detail: "Failed to send tip." },
     meta: {
       anonymousReassure: "We never publish your name without permission.",
       uploadNote: "Attachments are encrypted and reviewed by editors.",
@@ -52,6 +53,7 @@ export const contactCopy = {
     },
     guidance: ["Include the article URL for review."],
     success: { detail: "Correction request sent." },
+    error: { detail: "Failed to send correction request." },
     meta: {
       privacyShort: "We only use your info to follow up on corrections.",
     },
@@ -69,6 +71,7 @@ export const contactCopy = {
     },
     guidance: ["Community stories are always welcome."],
     success: { detail: "Story suggestion sent." },
+    error: { detail: "Failed to send story suggestion." },
     meta: {
       privacyShort: "We only use your info to follow up on this suggestion.",
     },
@@ -86,6 +89,7 @@ export const contactCopy = {
     },
     guidance: [],
     success: { detail: "Application submitted." },
+    error: { detail: "Failed to submit application." },
     meta: {
       privacyShort: "We use your info only for contributor applications.",
     },
@@ -103,6 +107,7 @@ export const contactCopy = {
     },
     guidance: [],
     success: { detail: "Message sent." },
+    error: { detail: "Failed to send message." },
     meta: {
       privacyShort: "We only use your info for partnership discussions.",
     },
@@ -121,6 +126,7 @@ export const contactCopy = {
     },
     guidance: [],
     success: { detail: "Message sent." },
+    error: { detail: "Failed to send message." },
     meta: {
       privacyShort: "We only use your info to respond to press inquiries.",
     },
@@ -139,6 +145,7 @@ export const contactCopy = {
     },
     guidance: [],
     success: { detail: "Application sent." },
+    error: { detail: "Failed to send application." },
     meta: {
       privacyShort: "We use your info only for recruiting purposes.",
     },
@@ -156,6 +163,7 @@ export const contactCopy = {
     },
     guidance: [],
     success: { detail: "Message sent." },
+    error: { detail: "Failed to send message." },
     meta: {
       privacyShort: "We only use your info to reply.",
     },

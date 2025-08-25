@@ -47,7 +47,7 @@ export default function ContactPage() {
       setToast({ type: "success", message: current.success.detail || contactCopy.shared.toasts.success });
       setFields({ name: "", email: "" });
     } catch (err) {
-      setToast({ type: "error", message: contactCopy.shared.toasts.error });
+      setToast({ type: "error", message: current.error?.detail || contactCopy.shared.toasts.error });
     } finally {
       setSubmitting(false);
     }

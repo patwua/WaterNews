@@ -6,73 +6,7 @@ import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 import { aboutPageJsonLd } from "@/lib/seo";
-
-const leaders = [
-  {
-    name: "Tatiana Chow",
-    title: "Publisher & CEO / Editor in Chief",
-    photo: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
-    ),
-    bio: "Guides WaterNews with a focus on rigorous, community-rooted journalism.",
-  },
-  {
-    name: "Dwuane Adams",
-    title: "CTO / Co-founder",
-    photo: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961624/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
-    ),
-    bio: "Jamaican-born technologist building fast, safe systems for storytelling.",
-  },
-  {
-    name: "Sherman Rodriguez",
-    title: "CFO",
-    photo: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
-    ),
-    bio: "Keeps budgets honest and partnerships viable for our mission.",
-  },
-];
-
-const publishTypes = [
-  {
-    t: "News",
-    d: "Reporting on national and regional events, policy, economy, and public interest issues that matter now.",
-  },
-  {
-    t: "Opinions & Letters",
-    d: "Well-argued perspectives that challenge, explain, and invite constructive debate from our community.",
-  },
-  {
-    t: "Lifestyle",
-    d: "Culture, food, fashion, and everyday life — the rhythms that shape who we are.",
-  },
-];
-
-const values = [
-  {
-    t: "Truth First",
-    d: "We verify sources, correct mistakes, and prioritize accuracy over virality.",
-  },
-  {
-    t: "Community Voice",
-    d: "We make space for letters and perspectives across the Caribbean and diaspora.",
-  },
-  {
-    t: "Cultural Pride",
-    d: "We highlight stories that honor our heritage, creativity, and diversity.",
-  },
-];
-
-const contacts = [
-  { label: "Send a Tip", token: "tip" },
-  { label: "Request a Correction", token: "correction" },
-  { label: "Suggest a Story", token: "suggest-story" },
-  { label: "Apply to Contribute", token: "apply" },
-  { label: "Partnerships & Advertising", token: "partnerships" },
-  { label: "Press & Speaking", token: "press" },
-  { label: "Careers", token: "careers" },
-];
+import aboutCopy from "@/lib/copy/about";
 
 export default function AboutPage() {
   const brandVars = {
@@ -84,15 +18,14 @@ export default function AboutPage() {
     "--brand-tag-bg": colors.primaryTagBg,
     "--brand-tag-text": colors.primaryTagText,
   };
+  const { hero, mission, whoWeAre, diaspora, publish, values: valuesCopy, leadershipHighlights, masthead, reachUs } =
+    aboutCopy;
 
   return (
     <>
       <Head>
-        <title>About Us — WaterNews</title>
-        <meta
-          name="description"
-          content="WaterNews gives Guyanese, Caribbean, and diaspora voices a modern platform for verified news, opinion, and lifestyle stories."
-        />
+        <title>{hero.title} — WaterNews</title>
+        <meta name="description" content={hero.subtitle} />
       </Head>
       <Script
         id="about-jsonld"
@@ -105,10 +38,8 @@ export default function AboutPage() {
           backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})`,
         }}
       >
-        <h1 className="text-4xl font-extrabold">About WaterNews</h1>
-        <p className="mt-2 font-serif text-base opacity-95 md:text-lg">
-          Dive Into Current Stories — giving Guyanese, Caribbean, and diaspora voices a modern platform.
-        </p>
+        <h1 className="text-4xl font-extrabold">{hero.title}</h1>
+        <p className="mt-2 font-serif text-base opacity-95 md:text-lg">{hero.subtitle}</p>
       </header>
       <main style={brandVars} className="mx-auto -mt-12 mb-16 max-w-5xl px-4">
         <SectionCard className="mb-8">
@@ -116,58 +47,52 @@ export default function AboutPage() {
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
             style={{ background: "var(--brand-tag-bg)", color: "var(--brand-tag-text)" }}
           >
-            Our Mission
+            {mission.tag}
           </span>
-          <h2 className="mt-2 text-2xl font-bold">Empower Our Communities with Truth &amp; Story</h2>
-          <p className="mt-1 text-[15px] text-slate-600">
-            We deliver authentic, fact-checked news and engaging features that connect the Caribbean and its diaspora — from Georgetown to New York, Toronto and beyond.
-          </p>
+          <h2 className="mt-2 text-2xl font-bold">{mission.title}</h2>
+          <p className="mt-1 text-[15px] text-slate-600">{mission.blurb}</p>
           <ul className="mt-3 space-y-1 text-[15px] text-slate-700">
-            <li>✅ Reliable reporting across current events, politics, economy</li>
-            <li>✅ Opinion &amp; Letters inviting debate and diverse perspectives</li>
-            <li>✅ Lifestyle features celebrating culture, food, and everyday life</li>
+            {mission.bullets.map((b, i) => (
+              <li key={i}>{b}</li>
+            ))}
           </ul>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link
-              href="/contact?subject=apply"
-              className="rounded-xl bg-[var(--brand)] px-4 py-2 font-semibold text-white"
-            >
-              Apply to Contribute
-            </Link>
-            <Link
-              href="/contact?subject=suggest-story"
-              className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]"
-            >
-              Suggest a Story
-            </Link>
+            {mission.ctas.map((c, i) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className={
+                  i === 0
+                    ? "rounded-xl bg-[var(--brand)] px-4 py-2 font-semibold text-white"
+                    : "rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]"
+                }
+              >
+                {c.label}
+              </Link>
+            ))}
           </div>
         </SectionCard>
 
         <div className="mb-8 grid gap-8 lg:grid-cols-2">
           <SectionCard>
-            <h2 className="text-2xl font-bold">Who We Are</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Stories travel like waves — they echo from the coastlines of Guyana across the Caribbean and through diaspora communities worldwide. WaterNews captures those waves with clarity and context, keeping our readers informed and connected.
-            </p>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Built by journalists and technologists from the region and its diaspora, we're independent, community-rooted, and driven by a commitment to verified reporting and cultural pride.
-            </p>
+            <h2 className="text-2xl font-bold">{whoWeAre.title}</h2>
+            {whoWeAre.body.map((p, i) => (
+              <p key={i} className="mt-2 text-[15px] text-slate-700">
+                {p}
+              </p>
+            ))}
           </SectionCard>
           <SectionCard>
-            <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              From Brooklyn and Toronto to London, we highlight how regional and global stories ripple across Guyanese lives.
-            </p>
+            <h2 className="text-2xl font-bold">{diaspora.title}</h2>
+            <p className="mt-2 text-[15px] text-slate-700">{diaspora.body}</p>
           </SectionCard>
         </div>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">What We Publish</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            News articles, opinion letters, and lifestyle features designed for engagement and credibility.
-          </p>
+          <h2 className="text-2xl font-bold">{publish.title}</h2>
+          <p className="mt-2 text-[15px] text-slate-700">{publish.blurb}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {publishTypes.map((v) => (
+            {publish.types.map((v) => (
               <div key={v.t} className="rounded-xl border border-[var(--brand-light)] bg-white p-5">
                 <strong className="block">{v.t}</strong>
                 <p className="mt-1 text-[15px] text-slate-700">{v.d}</p>
@@ -177,12 +102,10 @@ export default function AboutPage() {
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Our Values</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Truth first. Community voice. Cultural pride. Modern storytelling.
-          </p>
+          <h2 className="text-2xl font-bold">{valuesCopy.title}</h2>
+          <p className="mt-2 text-[15px] text-slate-700">{valuesCopy.blurb}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {values.map((v) => (
+            {valuesCopy.list.map((v) => (
               <div key={v.t} className="rounded-2xl bg-white p-6 shadow">
                 <strong className="block">{v.t}</strong>
                 <p className="mt-1 text-[15px] text-slate-700">{v.d}</p>
@@ -192,12 +115,12 @@ export default function AboutPage() {
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Leadership</h2>
+          <h2 className="text-2xl font-bold">{leadershipHighlights.title}</h2>
           <div className="mt-4 grid gap-6 sm:grid-cols-3">
-            {leaders.map((p) => (
+            {leadershipHighlights.people.map((p) => (
               <article key={p.name} className="text-center">
                 <Image
-                  src={p.photo}
+                  src={withCloudinaryAuto(p.photo)}
                   alt=""
                   width={96}
                   height={96}
@@ -210,20 +133,18 @@ export default function AboutPage() {
             ))}
           </div>
           <div className="mt-4 text-center">
-            <Link href="/about/leadership" className="inline-block rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              Full leadership
+            <Link href={leadershipHighlights.cta.href} className="inline-block rounded-xl bg-black px-4 py-2 font-semibold text-white">
+              {leadershipHighlights.cta.label}
             </Link>
           </div>
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Find editors, reporters, and contributors. Search and paging available.
-          </p>
+          <h2 className="text-2xl font-bold">{masthead.title}</h2>
+          <p className="mt-2 text-[15px] text-slate-700">{masthead.blurb}</p>
           <div className="mt-4">
-            <Link href="/about/masthead" className="rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              Meet the News Team
+            <Link href={masthead.cta.href} className="rounded-xl bg-black px-4 py-2 font-semibold text-white">
+              {masthead.cta.label}
             </Link>
           </div>
         </SectionCard>
@@ -275,12 +196,10 @@ export default function AboutPage() {
             </div>
           </SectionCard>
           <SectionCard>
-            <h2 className="text-2xl font-bold">How to reach us</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Whether you're pitching a feature, flagging a typo, or exploring a partnership, we're just a click away. Choose a link below to reach the right team.
-            </p>
+            <h2 className="text-2xl font-bold">{reachUs.title}</h2>
+            <p className="mt-2 text-[15px] text-slate-700">{reachUs.blurb}</p>
             <div className="mt-4 flex flex-wrap gap-3">
-              {contacts.map((c) => (
+              {reachUs.contacts.map((c) => (
                 <Link
                   key={c.token}
                   href={`/contact?subject=${c.token}`}
