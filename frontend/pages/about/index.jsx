@@ -5,7 +5,7 @@ import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { aboutPageJsonLd } from "@/lib/seo";
+import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 
 const leaders = [
   {
@@ -119,6 +119,12 @@ export default function AboutPage() {
     "--brand-tag-text": colors.primaryTagText,
   };
 
+  const origin =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
+      : window.location.origin;
+  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" });
+
   return (
     <>
       <Head>
@@ -131,7 +137,7 @@ export default function AboutPage() {
       <Script
         id="about-jsonld"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageJsonLd()) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript([aboutPageJsonLd(), breadcrumbs]) }}
       />
       <header
         className="relative grid min-h-[58vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"

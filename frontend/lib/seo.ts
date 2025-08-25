@@ -28,12 +28,25 @@ export function getPublisher(origin: string): Publisher {
 }
 
 // Organization JSON-LD with a square logo (>=112x112).
-export function orgJsonLd() {
+export function orgJsonLd(origin: string) {
+  const url = origin || "https://www.waternewsgy.com";
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: BRAND_NAME,
+    url,
     logo: absoluteUrl(LOGO_FULL),
+  };
+}
+
+// WebSite JSON-LD for global site identity.
+export function webSiteJsonLd(origin: string) {
+  const url = origin || "https://www.waternewsgy.com";
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: BRAND_NAME,
+    url,
   };
 }
 
@@ -78,6 +91,17 @@ export function buildBreadcrumbsJsonLd(origin: string, items: Array<{ name: stri
   };
 }
 
+// Convenience builder for common page-level breadcrumbs: Home → section → page.
+export function pageBreadcrumbsJsonLd(
+  origin: string,
+  section: { name: string; url: string },
+  page?: { name: string; url: string }
+) {
+  const items = [{ name: "Home", url: "/" }, section];
+  if (page) items.push(page);
+  return buildBreadcrumbsJsonLd(origin, items);
+}
+
 export function buildNewsArticleJsonLd(params: {
   origin: string;
   url: string;
@@ -89,6 +113,7 @@ export function buildNewsArticleJsonLd(params: {
   section?: string;
   keywords?: string[];
   authorName?: string;
+  authorUrl?: string;
 }) {
   const {
     origin,
@@ -101,6 +126,7 @@ export function buildNewsArticleJsonLd(params: {
     section,
     keywords,
     authorName,
+    authorUrl,
   } = params;
   const publisher = getPublisher(origin);
   const canonical = url.startsWith("http") ? url : `${origin}${url}`;
@@ -116,7 +142,15 @@ export function buildNewsArticleJsonLd(params: {
     ...(dateModified ? { dateModified } : {}),
     ...(section ? { articleSection: section } : {}),
     ...(keywords && keywords.length ? { keywords: keywords.join(", ") } : {}),
-    author: authorName ? { "@type": "Person", name: authorName } : undefined,
+    author: authorName
+      ? {
+          "@type": "Person",
+          name: authorName,
+          ...(authorUrl
+            ? { url: authorUrl.startsWith("http") ? authorUrl : `${origin}${authorUrl}` }
+            : {}),
+        }
+      : undefined,
     publisher: {
       "@type": "Organization",
       name: publisher.name,

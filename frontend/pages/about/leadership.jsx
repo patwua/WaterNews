@@ -4,6 +4,7 @@ import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
+import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 
 const leaders = [
   {
@@ -41,11 +42,21 @@ export default function LeadershipPage() {
     "--brand-soft-from": colors.primarySoftFrom,
     "--brand-soft-to": colors.primarySoftTo,
   };
+  const origin =
+    typeof window === "undefined"
+      ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
+      : window.location.origin;
+  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" }, { name: "Leadership Team", url: "/about/leadership" });
+
   return (
     <>
       <Head>
         <title>Leadership Team — WaterNews</title>
         <meta name="description" content="Meet the executives guiding WaterNews." />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}
+        />
       </Head>
       <header
         className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"
