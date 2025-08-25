@@ -6,9 +6,10 @@ import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
 import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 import aboutCopy from "@/lib/copy/about";
+import type { CSSProperties } from "react";
 
 export default function AboutPage() {
-  const brandVars = {
+  const brandVars: CSSProperties = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,
     "--brand-lighter": colors.primaryLighter,
