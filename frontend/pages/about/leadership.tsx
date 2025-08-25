@@ -7,6 +7,8 @@ import { colors } from "@/lib/brand-tokens";
 import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 import type { CSSProperties } from "react";
 
+type BrandVars = CSSProperties & Record<string, string>;
+
 const leaders = [
   {
     name: "Tatiana Chow",
@@ -36,7 +38,7 @@ const leaders = [
 ];
 
 export default function LeadershipPage() {
-  const brandVars: CSSProperties = {
+  const brandVars: BrandVars = {
     "--brand": colors.primary,
     "--brand-light": colors.primaryLight,
     "--brand-lighter": colors.primaryLighter,
