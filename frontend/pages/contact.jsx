@@ -5,58 +5,7 @@ import SectionCard from "@/components/UX/SectionCard";
 import Page from "@/components/UX/Page";
 import Toast from "@/components/Toast";
 import { SUBJECTS } from "@/lib/cms-routing";
-
-const FIELDSETS = {
-  tip: [
-    { name: "message", label: "Message", type: "textarea", required: true },
-    { name: "location", label: "Location", type: "text" },
-    { name: "datetime", label: "Date & Time", type: "text" },
-    { name: "caption", label: "What we're seeing", type: "text" },
-    { name: "media", label: "Media", type: "file", multiple: true },
-    { name: "anonymous", label: "Send anonymously", type: "checkbox" },
-  ],
-  correction: [
-    { name: "article", label: "Article URL", type: "text", required: true },
-    { name: "quote", label: "Line or quote in question", type: "text" },
-    { name: "message", label: "Your correction", type: "textarea", required: true },
-    { name: "media", label: "Attachments", type: "file", multiple: true },
-  ],
-  "suggest-story": [
-    { name: "summary", label: "Summary", type: "textarea", required: true },
-    { name: "people", label: "People involved", type: "text" },
-    { name: "links", label: "Links / references", type: "text" },
-    { name: "anonymous", label: "Send anonymously", type: "checkbox" },
-  ],
-  apply: [
-    { name: "bio", label: "Bio", type: "textarea" },
-    { name: "beats", label: "Beats / interests", type: "text" },
-    { name: "links", label: "Clips / links", type: "text" },
-    { name: "cv", label: "CV upload", type: "file" },
-  ],
-  partnerships: [
-    { name: "org", label: "Organization", type: "text" },
-    { name: "website", label: "Website", type: "text" },
-    { name: "goals", label: "Campaign goals", type: "textarea" },
-    { name: "timeline", label: "Timeline", type: "text" },
-    { name: "budget", label: "Budget range", type: "text" },
-  ],
-  press: [
-    { name: "outlet", label: "Outlet", type: "text" },
-    { name: "topic", label: "Topic", type: "text" },
-    { name: "deadline", label: "Deadline", type: "text" },
-    { name: "format", label: "Format", type: "text" },
-    { name: "links", label: "Links", type: "text" },
-  ],
-  careers: [
-    { name: "role", label: "Role of interest", type: "text" },
-    { name: "experience", label: "Experience", type: "textarea" },
-    { name: "links", label: "Links", type: "text" },
-    { name: "cv", label: "CV upload", type: "file" },
-  ],
-  general: [
-    { name: "message", label: "Message", type: "textarea", required: true },
-  ],
-};
+import contactCopy from "@/lib/copy/contact";
 
 export default function ContactPage() {
   const router = useRouter();
@@ -67,10 +16,12 @@ export default function ContactPage() {
 
   useEffect(() => {
     const q = router.query.subject;
-    if (typeof q === "string" && FIELDSETS[q.toLowerCase()]) {
+    if (typeof q === "string" && contactCopy[q.toLowerCase()]) {
       setSubject(q.toLowerCase());
     }
   }, [router.query.subject]);
+
+  const current = contactCopy[subject] || contactCopy.general;
 
   function updateField(name, value) {
     setFields((f) => ({ ...f, [name]: value }));
@@ -93,28 +44,39 @@ export default function ContactPage() {
       const r = await fetch("/api/inbox/create", { method: "POST", body: fd });
       const json = await r.json();
       if (!json.ok) throw new Error(json.error || "Failed");
-      setToast({ type: "success", message: "Thank you — submitted." });
+      setToast({ type: "success", message: current.success.detail || contactCopy.shared.toasts.success });
       setFields({ name: "", email: "" });
     } catch (err) {
-      setToast({ type: "error", message: err.message || "Something went wrong." });
+      setToast({ type: "error", message: contactCopy.shared.toasts.error });
     } finally {
       setSubmitting(false);
     }
   }
 
-  const current = FIELDSETS[subject] || FIELDSETS.general;
-
   return (
     <>
       <Head>
-        <title>Contact Us — WaterNews</title>
-        <meta name="description" content="Reach WaterNews" />
+        <title>{current.hero.title} — WaterNews</title>
+        <meta name="description" content={current.hero.subtitle} />
       </Head>
-      <Page title="Contact WaterNews" subtitle="We read every message." style={{ minHeight: "70vh" }}>
+      <Page title={current.hero.title} subtitle={current.hero.subtitle} style={{ minHeight: "70vh" }}>
         <SectionCard>
+          {subject === "tip" && current.meta && current.fieldsets.some((f) => f.type === "file") && (
+            <div className="mb-3 space-y-1 text-sm text-slate-600">
+              {current.meta.anonymousReassure && <p>{current.meta.anonymousReassure}</p>}
+              {current.meta.uploadNote && <p>{current.meta.uploadNote}</p>}
+            </div>
+          )}
+          {current.guidance.length > 0 && (
+            <ul className="mb-3 list-disc space-y-1 pl-5 text-sm text-slate-700">
+              {current.guidance.map((g, i) => (
+                <li key={i}>{g}</li>
+              ))}
+            </ul>
+          )}
           <form onSubmit={onSubmit} className="grid gap-3">
             <label className="block">
-              <span className="text-sm font-medium">Subject</span>
+              <span className="text-sm font-medium">{contactCopy.shared.labels.subject}</span>
               <select
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
                 value={subject}
@@ -128,7 +90,7 @@ export default function ContactPage() {
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium">Your name</span>
+              <span className="text-sm font-medium">{contactCopy.shared.labels.name}</span>
               <input
                 required
                 value={fields.name}
@@ -137,7 +99,7 @@ export default function ContactPage() {
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium">Email</span>
+              <span className="text-sm font-medium">{contactCopy.shared.labels.email}</span>
               <input
                 required
                 type="email"
@@ -146,7 +108,7 @@ export default function ContactPage() {
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
               />
             </label>
-            {current.map((f) => (
+            {current.fieldsets.map((f) => (
               <label key={f.name} className="block">
                 <span className="text-sm font-medium">{f.label}</span>
                 {f.type === "textarea" ? (
@@ -184,9 +146,12 @@ export default function ContactPage() {
               disabled={submitting}
               className="mt-2 rounded-xl bg-black px-4 py-2 font-semibold text-white disabled:opacity-60"
             >
-              {submitting ? "Sending…" : "Send"}
+              {submitting ? contactCopy.shared.actions.sending : contactCopy.shared.actions.send}
             </button>
           </form>
+          <p className="mt-2 text-xs text-slate-500">
+            {current.meta.privacyShort} <a href="/privacy" className="underline">{contactCopy.shared.tips.privacyLink}</a>
+          </p>
         </SectionCard>
       </Page>
       {toast && <Toast {...toast} onDone={() => setToast(null)} />}
