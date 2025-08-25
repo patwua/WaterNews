@@ -3,110 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
-import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
-
-const leaders = [
-  {
-    name: "Tatiana Chow",
-    title: "Publisher & CEO — Editor in Chief",
-    photo: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882163/file_00000000eaf461f88c63fecb72905946_qmoqor.png"
-    ),
-
-    bio: "Tatiana sets the editorial bar and keeps the mission honest. She blends newsroom discipline with a builder’s instinct: fast when needed, patient when it matters.",
-
-  },
-  {
-    name: "Dwuane Adams",
-    title: "CTO — Co‑founder",
-    photo: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755961624/file_0000000084bc61fb9c2f1f0e1c239ffa_shstq4.png"
-    ),
-
-    bio: "Jamaican-born to Guyanese parents. Outdoors and adventure junkie; computer-science geek and serial entrepreneur by career. He builds the systems that make our journalism nimble and secure.",
-
-  },
-  {
-    name: "Sherman Rodriguez",
-    title: "CFO",
-    photo: withCloudinaryAuto(
-      "https://res.cloudinary.com/dpdhi4joq/image/upload/v1755882130/file_0000000001e861f8a8db16bf20e9d1c8_yju42z.png"
-    ),
-
-    bio: "American, Guyanese father. Finance, travel, culture and lifestyle nerd. He keeps the numbers honest so the reporting can be fearless.",
-
-  },
-];
-
-const publishTypes = [
-  {
-    t: "News",
-    d: "Reporting on national and regional events, policy, economy, and public interest issues that matter now.",
-  },
-  {
-    t: "Opinions & Letters",
-    d: "Well-argued perspectives that challenge, explain, and invite constructive debate from our community.",
-  },
-  {
-    t: "Lifestyle",
-    d: "Culture, food, fashion, and everyday life — the rhythms that shape who we are.",
-  },
-];
-
-const values = [
-  {
-    t: "Truth First",
-    d: "We verify sources, correct mistakes, and prioritize accuracy over virality.",
-  },
-  {
-    t: "Community Voice",
-    d: "We make space for letters and perspectives across the Caribbean and diaspora.",
-  },
-  {
-    t: "Cultural Pride",
-    d: "We highlight stories that honor our heritage, creativity, and diversity.",
-  },
-];
-
-const contacts = [
-  {
-    label: "Send a Tip",
-    token: "tip",
-    desc: "Know something we should report?",
-  },
-  {
-    label: "Request a Correction",
-    token: "correction",
-    desc: "Spotted an error? Let us know.",
-  },
-  {
-    label: "Suggest a Story",
-    token: "suggest-story",
-    desc: "Have an idea for us?",
-  },
-  {
-    label: "Apply to Contribute",
-    token: "apply",
-    desc: "Join our contributor network.",
-  },
-  {
-    label: "Partnerships & Advertising",
-    token: "partnerships",
-    desc: "Work with WaterNews.",
-  },
-  {
-    label: "Press & Speaking",
-    token: "press",
-    desc: "Reach out to our press team.",
-  },
-  {
-    label: "Careers",
-    token: "careers",
-    desc: "Work with us.",
-  },
-];
+import aboutCopy from "@/lib/copy/about";
 
 export default function AboutPage() {
   const brandVars = {
@@ -124,6 +23,19 @@ export default function AboutPage() {
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
       : window.location.origin;
   const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" });
+
+  const {
+    hero,
+    mission,
+    whoWeAre,
+    diaspora,
+    publish,
+    values,
+    leadershipHighlights,
+    masthead,
+    standards,
+    reachUs,
+  } = aboutCopy;
 
   return (
     <>
@@ -145,10 +57,8 @@ export default function AboutPage() {
           backgroundImage: `linear-gradient(to bottom, ${colors.brandBlue}, ${colors.brandBlueDark}, ${colors.brandBlueDarker})`,
         }}
       >
-        <h1 className="text-4xl font-extrabold">About WaterNews</h1>
-        <p className="mt-2 font-serif text-base opacity-95 md:text-lg">
-          Dive Into Current Stories — giving Guyanese, Caribbean, and diaspora voices a modern platform.
-        </p>
+        <h1 className="text-4xl font-extrabold">{hero.title}</h1>
+        <p className="mt-2 font-serif text-base opacity-95 md:text-lg">{hero.subtitle}</p>
       </header>
       <main style={brandVars} className="mx-auto -mt-12 mb-16 max-w-5xl px-4">
         <SectionCard className="mb-8">
@@ -156,69 +66,61 @@ export default function AboutPage() {
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
             style={{ background: "var(--brand-tag-bg)", color: "var(--brand-tag-text)" }}
           >
-            Our Mission
+            {mission.tag}
           </span>
-          <h2 className="mt-2 text-2xl font-bold">Empower Our Communities with Truth</h2>
-          <p className="mt-1 text-[15px] text-slate-600">
-            We deliver authentic, fact-checked news and engaging features that connect the Caribbean and its diaspora — from Georgetown to New York, Toronto and beyond.
-          </p>
+          <h2 className="mt-2 text-2xl font-bold">{mission.headline}</h2>
+          <p className="mt-1 text-[15px] text-slate-600">{mission.body}</p>
           <ul className="mt-3 space-y-1 text-[15px] text-slate-700">
-            <li>✅ Reliable reporting across current events, politics, economy</li>
-            <li>✅ Opinion &amp; Letters inviting debate and diverse perspectives</li>
-            <li>✅ Lifestyle features celebrating culture, food, and everyday life</li>
+            {mission.bullets.map((b) => (
+              <li key={b}>{b}</li>
+            ))}
           </ul>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link
-              href="/contact?subject=apply"
-              className="rounded-xl bg-[var(--brand)] px-4 py-2 font-semibold text-white"
-            >
-              Apply to Contribute
-            </Link>
-            <Link
-              href="/contact?subject=suggest-story"
-              className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]"
-            >
-              Suggest a Story
-            </Link>
+            {mission.ctas.map((c) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className={
+                  c.type === "primary"
+                    ? "rounded-xl bg-[var(--brand)] px-4 py-2 font-semibold text-white"
+                    : "rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-4 py-2 font-semibold text-[var(--brand)]"
+                }
+              >
+                {c.label}
+              </Link>
+            ))}
           </div>
         </SectionCard>
 
         <div className="mb-8 grid gap-8 lg:grid-cols-2">
           <SectionCard>
-            <h2 className="text-2xl font-bold">Who We Are</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Stories travel like waves — they echo from the coastlines of Guyana across the Caribbean and through diaspora communities worldwide. WaterNews captures those waves with clarity and context, keeping our readers informed and connected.
-            </p>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Built by journalists and technologists from the region and its diaspora, we're independent, community-rooted, and driven by a commitment to verified reporting and cultural pride.
-            </p>
+            <h2 className="text-2xl font-bold">{whoWeAre.title}</h2>
+            {whoWeAre.paragraphs.map((p, i) => (
+              <p key={i} className="mt-2 text-[15px] text-slate-700">
+                {p}
+              </p>
+            ))}
           </SectionCard>
           <SectionCard>
-            <h2 className="text-2xl font-bold">Diaspora &amp; International</h2>
+            <h2 className="text-2xl font-bold">{diaspora.title}</h2>
             <div className="mt-2 flow-root text-[15px] text-slate-700">
               <Image
-                src="/brand/diaspora-card.png"
-                alt="Collage of Guyanese diaspora"
-                width={1536}
-                height={1024}
+                src={diaspora.image.src}
+                alt={diaspora.image.alt}
+                width={diaspora.image.width}
+                height={diaspora.image.height}
                 className="float-left mr-4 mb-2 w-40 h-auto rounded-lg"
               />
-              <p>
-                Guyana’s story extends beyond its borders. We examine remittances, migration, climate, culture, and policy as
-                they flow between Georgetown and the diaspora. When global headlines hit home, we explain the why—not just the
-                what. From Brooklyn and Toronto to London, see how the world touches Guyanese life.
-              </p>
+              <p>{diaspora.body}</p>
             </div>
           </SectionCard>
         </div>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">What We Publish</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            News articles, opinion letters, and lifestyle features designed for engagement and credibility.
-          </p>
+          <h2 className="text-2xl font-bold">{publish.title}</h2>
+          <p className="mt-2 text-[15px] text-slate-700">{publish.subtitle}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {publishTypes.map((v) => (
+            {publish.types.map((v) => (
               <div key={v.t} className="rounded-xl border border-[var(--brand-light)] bg-white p-5">
                 <strong className="block">{v.t}</strong>
                 <p className="mt-1 text-[15px] text-slate-700">{v.d}</p>
@@ -228,12 +130,10 @@ export default function AboutPage() {
         </SectionCard>
 
         <SectionCard className="mb-8">
-          <h2 className="text-2xl font-bold">Our Values</h2>
-          <p className="mt-2 text-[15px] text-slate-700">
-            Truth first. Community voice. Cultural pride. Modern storytelling.
-          </p>
+          <h2 className="text-2xl font-bold">{values.title}</h2>
+          <p className="mt-2 text-[15px] text-slate-700">{values.subtitle}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            {values.map((v) => (
+            {values.items.map((v) => (
               <div key={v.t} className="rounded-2xl bg-white p-6 shadow">
                 <strong className="block">{v.t}</strong>
                 <p className="mt-1 text-[15px] text-slate-700">{v.d}</p>
@@ -247,14 +147,12 @@ export default function AboutPage() {
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
             style={{ background: "var(--brand-tag-bg)", color: "var(--brand-tag-text)" }}
           >
-            Leadership
+            {leadershipHighlights.tag}
           </span>
-          <h2 className="mt-2 text-2xl font-bold">Strategy, stewardship, and standards</h2>
-          <p className="mt-1 text-[15px] text-slate-700">
-            Meet the team responsible for the mission, technology and sustainability of WaterNewsGY.
-          </p>
+          <h2 className="mt-2 text-2xl font-bold">{leadershipHighlights.title}</h2>
+          <p className="mt-1 text-[15px] text-slate-700">{leadershipHighlights.subtitle}</p>
           <div className="mt-4 grid gap-6 sm:grid-cols-3">
-            {leaders.map((p) => (
+            {leadershipHighlights.people.map((p) => (
               <article key={p.name} className="text-center">
                 <Image
                   src={p.photo}
@@ -267,54 +165,52 @@ export default function AboutPage() {
                 <p className="m-0 text-sm text-slate-600">{p.title}</p>
                 <p className="mt-2 text-[15px] text-slate-700">{p.bio}</p>
                 <Link href="/about/leadership" className="mt-2 inline-block text-sm font-semibold text-black">
-                  → Meet the full leadership
+                  → {leadershipHighlights.cta}
                 </Link>
               </article>
             ))}
           </div>
-
           <div className="mt-4 text-center">
             <Link href="/about/leadership" className="inline-block rounded-xl bg-black px-4 py-2 font-semibold text-white">
-              → Meet the full leadership
+              → {leadershipHighlights.cta}
             </Link>
           </div>
-
         </SectionCard>
 
         <SectionCard className="mb-8">
-
           <div>
             <Image
-              src="/brand/diaspora-card.png"
-              alt="Diaspora card"
-              width={220}
-              height={220}
+              src={masthead.image.src}
+              alt={masthead.image.alt}
+              width={masthead.image.width}
+              height={masthead.image.height}
               className="float-right ml-4 mb-2 h-auto w-24 object-contain"
             />
-            <h2 className="text-2xl font-bold">Masthead &amp; News Team</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Editors, reporters, and contributors from across Guyana, the Caribbean, and the diaspora power every WaterNews story. Explore the newsroom directory to learn about their beats, bios, and latest work.
-            </p>
-            <h3 className="mt-4 text-lg font-semibold">What you'll find</h3>
+            <h2 className="text-2xl font-bold">{masthead.title}</h2>
+            {masthead.paragraphs.map((p, i) => (
+              <p key={i} className="mt-2 text-[15px] text-slate-700">
+                {p}
+              </p>
+            ))}
+            <h3 className="mt-4 text-lg font-semibold">{masthead.findTitle}</h3>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
-              <li>Author directory with beats and bios</li>
-              <li>Transparency on corrections and updates</li>
-              <li>Diaspora touch across regions and abroad</li>
-              <li>Profile photos &amp; badges identifying roles</li>
+              {masthead.findItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
             </ul>
             <p className="mt-3 text-[15px] text-slate-700">
-              Want to reach us? Use the{' '}
+              {masthead.reachPrompt.before}
               <Link href="/contact" className="underline text-[var(--brand)]">
-                contact page
-              </Link>{' '}
-              to connect directly.
+                {masthead.reachPrompt.linkLabel}
+              </Link>
+              {masthead.reachPrompt.after}
             </p>
             <div className="mt-4">
               <Link
                 href="/about/masthead"
                 className="rounded-xl bg-black px-4 py-2 font-semibold text-white"
               >
-                → Meet the News-Team
+                → {masthead.cta}
               </Link>
             </div>
           </div>
@@ -322,57 +218,37 @@ export default function AboutPage() {
 
         <div className="grid gap-8 lg:grid-cols-2">
           <SectionCard id="standards">
-            <h2 className="text-2xl font-bold">Editorial Standards &amp; Fact-Check Policy</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              WaterNews follows a clear set of editorial practices to keep our reporting accurate, fair, and independent. We vet sources, provide context, and publish corrections when we fall short.
-            </p>
+            <h2 className="text-2xl font-bold">{standards.title}</h2>
+            <p className="mt-2 text-[15px] text-slate-700">{standards.intro}</p>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
-              <li>
-                <strong>Sourcing:</strong> Prefer on-the-record sources, public documents, and data. Anonymous sources are used sparingly with editor approval.
-              </li>
-              <li>
-                <strong>Verification:</strong> Names, titles, dates, locations, and figures are verified prior to publication. Hyperlinks and citations are included where practical.
-              </li>
-              <li>
-                <strong>Right of Reply:</strong> Subjects of critical coverage are given reasonable time to respond.
-              </li>
-              <li>
-                <strong>Conflicts:</strong> Reporters disclose potential conflicts; assignments can be reassigned if necessary.
-              </li>
-              <li>
-                <strong>Images:</strong> Photos and graphics should not materially alter reality; edits are limited to basic color/size/crop.
-              </li>
-              <li>
-                <strong>AI Use:</strong> We may use AI for drafting or summarization; editors review all output for accuracy and tone before publishing.
-              </li>
+              {standards.bullets.map((b) => (
+                <li key={b.label}>
+                  <strong>{b.label}:</strong> {b.text}
+                </li>
+              ))}
             </ul>
-            <h3 className="mt-4 text-lg font-semibold">Fact-Check Workflow</h3>
+            <h3 className="mt-4 text-lg font-semibold">{standards.factCheck.title}</h3>
             <ol className="list-decimal space-y-2 pl-5 text-[15px] text-slate-700">
-              <li>Reporter drafts story with citations and supporting materials.</li>
-              <li>Section editor (or EIC) verifies key facts, quotes, names, dates.</li>
-              <li>If sensitive or contested, we seek an additional independent source.</li>
-              <li>Story is approved for publication with an audit note in the CMS.</li>
+              {standards.factCheck.steps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
             </ol>
-            <h3 className="mt-4 text-lg font-semibold">Corrections</h3>
-            <p className="text-[15px] text-slate-700">
-              If we publish an error, we will correct it promptly and add a note indicating what changed. Use the link below to request a correction.
-            </p>
+            <h3 className="mt-4 text-lg font-semibold">{standards.corrections.title}</h3>
+            <p className="text-[15px] text-slate-700">{standards.corrections.text}</p>
             <div className="mt-3">
               <Link
                 href="/contact?subject=correction"
                 className="rounded-xl border border-[var(--brand-light)] bg-[var(--brand-lighter)] px-3 py-2 text-sm font-semibold text-[var(--brand)]"
               >
-                Request a Correction
+                {standards.corrections.linkText}
               </Link>
             </div>
           </SectionCard>
           <SectionCard>
-            <h2 className="text-2xl font-bold">How to reach us</h2>
-            <p className="mt-2 text-[15px] text-slate-700">
-              Whether you're pitching a feature, flagging a typo, or exploring a partnership, we're just a click away. Choose a link below to reach the right team.
-            </p>
+            <h2 className="text-2xl font-bold">{reachUs.title}</h2>
+            <p className="mt-2 text-[15px] text-slate-700">{reachUs.desc}</p>
             <ul className="mt-4 space-y-4">
-              {contacts.map((c) => (
+              {reachUs.contacts.map((c) => (
                 <li key={c.token} className="list-none">
                   <Link
                     href={`/contact?subject=${c.token}`}
@@ -384,9 +260,7 @@ export default function AboutPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-slate-500">
-              Privacy note: We respect your privacy and local laws.
-            </p>
+            <p className="mt-4 text-xs text-slate-500">{reachUs.note}</p>
           </SectionCard>
         </div>
       </main>

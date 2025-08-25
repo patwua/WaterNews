@@ -22,6 +22,7 @@ export default function ContactPage() {
     }
   }, [router.query.subject]);
 
+  const { shared } = contactCopy;
   const current = contactCopy[subject] || contactCopy.general;
 
   function updateField(name, value) {
@@ -45,10 +46,10 @@ export default function ContactPage() {
       const r = await fetch("/api/inbox/create", { method: "POST", body: fd });
       const json = await r.json();
       if (!json.ok) throw new Error(json.error || "Failed");
-      setToast({ type: "success", message: current.success.detail || contactCopy.shared.toasts.success });
+      setToast({ type: "success", message: current.success.detail || shared.toasts.success });
       setFields({ name: "", email: "" });
     } catch (err) {
-      setToast({ type: "error", message: contactCopy.shared.toasts.error });
+      setToast({ type: "error", message: shared.toasts.error });
     } finally {
       setSubmitting(false);
     }
@@ -87,7 +88,7 @@ export default function ContactPage() {
           )}
           <form onSubmit={onSubmit} className="grid gap-3">
             <label className="block">
-              <span className="text-sm font-medium">{contactCopy.shared.labels.subject}</span>
+              <span className="text-sm font-medium">{shared.labels.subject}</span>
               <select
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
                 value={subject}
@@ -101,7 +102,7 @@ export default function ContactPage() {
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium">{contactCopy.shared.labels.name}</span>
+              <span className="text-sm font-medium">{shared.labels.name}</span>
               <input
                 required
                 value={fields.name}
@@ -110,7 +111,7 @@ export default function ContactPage() {
               />
             </label>
             <label className="block">
-              <span className="text-sm font-medium">{contactCopy.shared.labels.email}</span>
+              <span className="text-sm font-medium">{shared.labels.email}</span>
               <input
                 required
                 type="email"
@@ -157,11 +158,11 @@ export default function ContactPage() {
               disabled={submitting}
               className="mt-2 rounded-xl bg-black px-4 py-2 font-semibold text-white disabled:opacity-60"
             >
-              {submitting ? contactCopy.shared.actions.sending : contactCopy.shared.actions.send}
+              {submitting ? shared.actions.sending : shared.actions.send}
             </button>
           </form>
           <p className="mt-2 text-xs text-slate-500">
-            {current.meta.privacyShort} <a href="/privacy" className="underline">{contactCopy.shared.tips.privacyLink}</a>
+            {current.meta.privacyShort} <a href="/privacy" className="underline">{shared.tips.privacyLink}</a>
           </p>
         </SectionCard>
       </Page>

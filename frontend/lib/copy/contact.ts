@@ -1,9 +1,18 @@
+export type ContactFieldset =
+  | { name: string; label: string; type: "text" | "textarea"; required?: boolean }
+  | { name: string; label: string; type: "file"; multiple?: boolean }
+  | { name: string; label: string; type: "checkbox" };
+
+export interface ContactSubject {
+  hero: { title: string; subtitle: string };
+  guidance: string[];
+  success: { detail: string };
+  meta: { anonymousReassure?: string; uploadNote?: string; privacyShort: string };
+  fieldsets: ContactFieldset[];
+}
+
 export const contactCopy = {
   shared: {
-    hero: {
-      title: "Contact WaterNews",
-      subtitle: "We read every message.",
-    },
     labels: {
       subject: "Subject",
       name: "Your name",
