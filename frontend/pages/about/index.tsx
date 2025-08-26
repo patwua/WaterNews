@@ -167,7 +167,7 @@ export default function AboutPage() {
               <article key={p.name} className="text-center">
                 <Image
                   src={p.photo}
-                  alt=""
+                  alt={p.name}
                   width={96}
                   height={96}
                   className="mx-auto rounded-full object-cover"

@@ -90,7 +90,7 @@ export default function LeadershipPage() {
                 {p.photo ? (
                   <Image
                     src={p.photo}
-                    alt=""
+                    alt={p.name}
                     width={96}
                     height={96}
                     className="mx-auto rounded-full object-cover"
