@@ -17,9 +17,19 @@ declare module "cloudinary" {
   const _default: any;
   export default _default;
 }
+declare module "nodemailer" {
+  const nodemailer: any;
+  export default nodemailer;
+}
 declare module "socket.io-client";
 declare module "socket.io";
 declare module "next-auth/jwt";
 declare module "next/script";
+declare module "next/og" {
+  export const ImageResponse: any;
+}
+declare module "next/server" {
+  export type NextRequest = any;
+}
 
 declare module "react/jsx-runtime";

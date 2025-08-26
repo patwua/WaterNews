@@ -1,15 +1,27 @@
-export const SUBJECTS = [
-  { value: "tip",          label: "Send a Tip" },
-  { value: "correction",   label: "Request a Correction" },
-  { value: "suggest-story",label: "Suggest a Story" },
-  { value: "apply",        label: "Apply to Contribute" },
+export interface SubjectOption {
+  value: string;
+  label: string;
+}
+
+export const SUBJECTS: SubjectOption[] = [
+  { value: "tip", label: "Send a Tip" },
+  { value: "correction", label: "Request a Correction" },
+  { value: "suggest-story", label: "Suggest a Story" },
+  { value: "apply", label: "Apply to Contribute" },
   { value: "partnerships", label: "Partnerships & Advertising" },
-  { value: "press",        label: "Press & Speaking" },
-  { value: "careers",      label: "Careers" },
-  { value: "general",      label: "General" },
+  { value: "press", label: "Press & Speaking" },
+  { value: "careers", label: "Careers" },
+  { value: "general", label: "General" },
 ];
 
-export function routeSubject(subject) {
+export interface SubjectRoute {
+  queue: string;
+  role: string;
+  status: string;
+  priority: string;
+}
+
+export function routeSubject(subject: string): SubjectRoute {
   switch (subject) {
     case "tip":
       return { queue: "tips", role: "Moderator", status: "new", priority: "high" };

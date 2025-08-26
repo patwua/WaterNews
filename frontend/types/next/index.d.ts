@@ -49,4 +49,6 @@ declare module "next" {
   export type GetStaticPaths = any;
   export type GetStaticProps = any;
   export type GetServerSideProps = any;
+  export type GetServerSidePropsContext = any;
+  export type GetServerSidePropsResult<T> = any;
 }
