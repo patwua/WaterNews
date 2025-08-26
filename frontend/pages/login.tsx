@@ -1,11 +1,18 @@
 import React from "react";
+import Head from "next/head";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import Callout from "@/components/UX/Callout";
+import { absoluteCanonical } from "@/lib/seo";
 
 export default function Login() {
   return (
-    <Page title="Log in" subtitle="Access the Newsroom to draft and publish.">
+    <>
+      <Head>
+        <title>Log in — WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical("/login")} />
+      </Head>
+      <Page title="Log in" subtitle="Access the Newsroom to draft and publish.">
       <div className="grid gap-6">
         <SectionCard>
           {/* Keep your existing NextAuth buttons or credentials form here */}
@@ -18,5 +25,6 @@ export default function Login() {
         </Callout>
       </div>
     </Page>
+    </>
   );
 }

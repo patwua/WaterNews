@@ -4,7 +4,11 @@ import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import {
+  absoluteCanonical,
+  jsonLdScript,
+  pageBreadcrumbsJsonLd,
+} from "@/lib/seo";
 import type { CSSProperties } from "react";
 
 type BrandVars = CSSProperties & Record<string, string>;
@@ -56,6 +60,7 @@ export default function LeadershipPage() {
       <Head>
         <title>Leadership Team — WaterNews</title>
         <meta name="description" content="Meet the executives guiding WaterNews." />
+        <link rel="canonical" href={absoluteCanonical("/about/leadership")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

@@ -4,7 +4,11 @@ import { useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import {
+  absoluteCanonical,
+  jsonLdScript,
+  pageBreadcrumbsJsonLd,
+} from "@/lib/seo";
 import type { CSSProperties } from "react";
 
 type BrandVars = CSSProperties & Record<string, string>;
@@ -59,6 +63,7 @@ export default function MastheadPage() {
       <Head>
         <title>Masthead & News Team — WaterNews</title>
         <meta name="description" content="WaterNews masthead and newsroom staff." />
+        <link rel="canonical" href={absoluteCanonical("/about/masthead")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

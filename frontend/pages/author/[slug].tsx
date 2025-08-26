@@ -5,7 +5,12 @@ import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
 import User from "@/models/User";
 import { getFollowedAuthors, toggleFollowAuthor } from "@/utils/follow";
-import { buildBreadcrumbsJsonLd, buildPersonJsonLd, jsonLdScript } from "@/lib/seo";
+import {
+  absoluteCanonical,
+  buildBreadcrumbsJsonLd,
+  buildPersonJsonLd,
+  jsonLdScript,
+} from "@/lib/seo";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 
 type Props = {
@@ -41,6 +46,8 @@ export default function AuthorProfile({ author, posts }: Props) {
   return (
     <>
       <Head>
+        <title>{author.name} — WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical(canonicalPath)} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript([breadcrumbs, personLd]) }}

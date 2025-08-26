@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import Head from "next/head";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import InlineHelp from "@/components/UX/InlineHelp";
+import { absoluteCanonical } from "@/lib/seo";
 
 export default function Prefs() {
   const [prefs, setPrefs] = useState<any>({});
@@ -37,7 +39,12 @@ export default function Prefs() {
     }
   }
   return (
-    <Page title="Preferences" subtitle="Control notifications and reading experience.">
+    <>
+      <Head>
+        <title>Preferences — WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical("/prefs")} />
+      </Head>
+      <Page title="Preferences" subtitle="Control notifications and reading experience.">
       <SectionCard>
         <form onSubmit={onSave} className="space-y-5">
           <div>
@@ -75,5 +82,6 @@ export default function Prefs() {
         </form>
       </SectionCard>
     </Page>
+    </>
   );
 }

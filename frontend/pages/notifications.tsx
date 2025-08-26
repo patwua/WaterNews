@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import Head from "next/head";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import Callout from "@/components/UX/Callout";
+import { absoluteCanonical } from "@/lib/seo";
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<any[] | null>(null);
@@ -23,7 +25,12 @@ export default function NotificationsPage() {
     return () => { alive = false; };
   }, []);
   return (
-    <Page title="Notifications" subtitle="Mentions, assignments, reviews, and publication updates.">
+    <>
+      <Head>
+        <title>Notifications — WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical("/notifications")} />
+      </Head>
+      <Page title="Notifications" subtitle="Mentions, assignments, reviews, and publication updates.">
       <div className="grid gap-6">
         <Callout variant="info">Notifications appear here and in the bell menu. Older items may auto-archive.</Callout>
         <SectionCard>
@@ -42,5 +49,6 @@ export default function NotificationsPage() {
         </SectionCard>
       </div>
     </Page>
+    </>
   );
 }

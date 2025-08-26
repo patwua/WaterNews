@@ -7,6 +7,15 @@ import { buildOgForPost } from "@/lib/og";
 
 export const DEFAULT_OG_IMAGE = OG_DEFAULT;
 
+// Build a fully-qualified canonical URL for the given path.
+// Ensures leading slash and strips trailing slash (except for root).
+export function absoluteCanonical(path: string) {
+  if (!path) return "";
+  const withSlash = path.startsWith("/") ? path : `/${path}`;
+  const normalized = withSlash !== "/" && withSlash.endsWith("/") ? withSlash.slice(0, -1) : withSlash;
+  return absoluteUrl(normalized);
+}
+
 export function ogImageForPost(post: any | null) {
   const maybe = post?.ogImageUrl || (post ? buildOgForPost(post) : null);
   return maybe || absoluteUrl(OG_DEFAULT);

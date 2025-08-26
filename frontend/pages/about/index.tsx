@@ -4,7 +4,12 @@ import Image from "next/image";
 import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
-import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import {
+  aboutPageJsonLd,
+  absoluteCanonical,
+  jsonLdScript,
+  pageBreadcrumbsJsonLd,
+} from "@/lib/seo";
 import aboutCopy from "@/lib/copy/about";
 import type { CSSProperties } from "react";
 
@@ -48,6 +53,7 @@ export default function AboutPage() {
           name="description"
           content="WaterNews gives Guyanese, Caribbean, and diaspora voices a modern platform for verified news, opinion, and lifestyle stories."
         />
+        <link rel="canonical" href={absoluteCanonical("/about")} />
       </Head>
       <Script
         id="about-jsonld"

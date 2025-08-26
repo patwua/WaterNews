@@ -3,6 +3,7 @@ import Link from "next/link";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
+import { absoluteCanonical } from "@/lib/seo";
 
 export default function FAQ() {
   const brandVars = {
@@ -14,6 +15,7 @@ export default function FAQ() {
       <Head>
         <title>FAQ — WaterNews</title>
         <meta name="description" content="Answers for readers and visitors." />
+        <link rel="canonical" href={absoluteCanonical("/faq")} />
       </Head>
       <Page
         title="FAQ"

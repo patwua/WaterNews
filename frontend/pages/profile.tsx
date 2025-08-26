@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import ProfileSettings from "@/components/ProfileSettings";
+import { absoluteCanonical } from "@/lib/seo";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -24,7 +26,12 @@ export default function ProfilePage() {
   }, [router]);
 
   return (
-    <Page title="Your Account" subtitle="Manage profile and settings.">
+    <>
+      <Head>
+        <title>Your Account — WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical("/profile")} />
+      </Head>
+      <Page title="Your Account" subtitle="Manage profile and settings.">
       <div className="grid gap-6">
         <SectionCard title="Writer tools">
           <ul className="list-disc list-inside text-sm text-gray-700">
@@ -35,5 +42,6 @@ export default function ProfilePage() {
         <ProfileSettings />
       </div>
     </Page>
+    </>
   );
 }

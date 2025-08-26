@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import Head from "next/head";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
+import { absoluteCanonical } from "@/lib/seo";
 
 export default function SearchPage() {
   const [q, setQ] = useState("");
@@ -21,7 +23,12 @@ export default function SearchPage() {
   }
 
   return (
-    <Page title="Search" subtitle="Find stories, authors, and topics.">
+    <>
+      <Head>
+        <title>Search — WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical("/search")} />
+      </Head>
+      <Page title="Search" subtitle="Find stories, authors, and topics.">
       <div className="grid gap-6">
         <SectionCard>
           <form onSubmit={onSubmit} className="flex gap-2">
@@ -44,5 +51,6 @@ export default function SearchPage() {
         )}
       </div>
     </Page>
+    </>
   );
 }

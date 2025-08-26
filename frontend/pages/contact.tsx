@@ -6,7 +6,7 @@ import Page from "@/components/UX/Page";
 import Toast from "@/components/Toast";
 import { SUBJECTS } from "@/lib/cms-routing";
 import contactCopy from "@/lib/copy/contact";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import { absoluteCanonical, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 
 type ToastState = { type: "success" | "error"; message: string } | null;
 interface Fields {
@@ -73,6 +73,7 @@ export default function ContactPage() {
       <Head>
         <title>{current.hero.title} — WaterNews</title>
         <meta name="description" content={current.hero.subtitle} />
+        <link rel="canonical" href={absoluteCanonical("/contact")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

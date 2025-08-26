@@ -8,7 +8,13 @@ import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
-import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript, ogImageForPost } from "@/lib/seo";
+import {
+  absoluteCanonical,
+  buildBreadcrumbsJsonLd,
+  buildNewsArticleJsonLd,
+  jsonLdScript,
+  ogImageForPost,
+} from "@/lib/seo";
 
 const RelatedRail = dynamic(() => import("@/components/RelatedRail"), {
   ssr: false,
@@ -115,7 +121,9 @@ export default function ArticleView({
     <>
       <Head>
         <title>{post.title} — WaterNewsGY</title>
-        {!isPreview && <link rel="canonical" href={`${origin}${canonicalPath}`} />}
+        {!isPreview && (
+          <link rel="canonical" href={absoluteCanonical(canonicalPath)} />
+        )}
         {isPreview && <meta name="robots" content="noindex" />}
         <meta property="og:image" content={ogImage} />
         <meta name="twitter:image" content={ogImage} />

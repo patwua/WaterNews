@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
@@ -6,6 +7,7 @@ import MasonryFeed from '../components/MasonryFeed'
 import dynamic from 'next/dynamic'
 import RecircSkeleton from '@/components/Recirculation/RecircSkeleton'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
+import { absoluteCanonical } from '@/lib/seo'
 
 const RecircWidget = dynamic(() => import('@/components/Recirculation/RecircWidget'), { ssr: false, loading: () => <RecircSkeleton /> })
 const TrendingRail = dynamic(() => import('@/components/Recirculation/TrendingRail'), { ssr: false, loading: () => <RecircSkeleton /> })
@@ -149,6 +151,11 @@ export default function HomePage() {
   }
 
   return (
+    <>
+      <Head>
+        <title>WaterNews</title>
+        <link rel="canonical" href={absoluteCanonical("/")} />
+      </Head>
     <div className="min-h-screen bg-gray-50">
       <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
         {/* Contextual hero */}
@@ -183,5 +190,6 @@ export default function HomePage() {
         }
       </div>
     </div>
+    </>
   )
 }

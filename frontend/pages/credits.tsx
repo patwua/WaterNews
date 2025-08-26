@@ -1,5 +1,6 @@
 import Head from "next/head";
 import SectionCard from "@/components/UX/SectionCard";
+import { absoluteCanonical } from "@/lib/seo";
 
 interface CreditItem {
   name: string;
@@ -46,6 +47,7 @@ export default function CreditsPage() {
           name="description"
           content="Credits for technologies, photography, and news organizations used by WaterNews."
         />
+        <link rel="canonical" href={absoluteCanonical("/credits")} />
       </Head>
       <main className="mx-auto max-w-4xl px-4 py-16">
         <h1 className="mb-8 text-4xl font-bold">Credits</h1>

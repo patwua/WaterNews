@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { absoluteCanonical } from "@/lib/seo";
 import Link from "next/link";
 import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
@@ -9,6 +10,7 @@ export default function CareersPage() {
       <Head>
         <title>Careers — WaterNews</title>
         <meta name="description" content="Join the WaterNews team." />
+        <link rel="canonical" href={absoluteCanonical("/careers")} />
       </Head>
       <header
         className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"

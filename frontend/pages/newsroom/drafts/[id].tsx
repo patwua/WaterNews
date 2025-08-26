@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { requireAuthSSR } from "@/lib/user-guard";
 import Page from "@/components/UX/Page";
 import SharedEditor from "@/components/Newsroom/SharedEditor";
+import { absoluteCanonical } from "@/lib/seo";
 
 export const getServerSideProps: GetServerSideProps = (ctx) => requireAuthSSR(ctx);
 
@@ -13,6 +14,7 @@ export default function DraftEditor() {
   const { id } = router.query as { id?: string };
   const isPreview = router.query.preview !== undefined;
   const [draft, setDraft] = useState<any>(null);
+  const canonicalPath = id ? `/newsroom/drafts/${id}` : "/newsroom/drafts";
 
   useEffect(() => {
     if (!id) return;
@@ -69,7 +71,10 @@ export default function DraftEditor() {
 
   return (
     <>
-      <Head>{isPreview && <meta name="robots" content="noindex" />}</Head>
+      <Head>
+        <link rel="canonical" href={absoluteCanonical(canonicalPath)} />
+        {isPreview && <meta name="robots" content="noindex" />}
+      </Head>
       <Page title="Editor" subtitle="Write, attach media, and publish">
       <SharedEditor
         title={draft?.title}
