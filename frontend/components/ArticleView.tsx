@@ -9,15 +9,11 @@ import ImageLightbox from "@/components/ImageLightbox";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
 import { buildBreadcrumbsJsonLd, buildNewsArticleJsonLd, jsonLdScript, ogImageForPost } from "@/lib/seo";
+import RecircSkeleton from "@/components/Recirculation/RecircSkeleton";
 
 const RelatedRail = dynamic(() => import("@/components/RelatedRail"), {
   ssr: false,
-  loading: () => (
-    <div className="space-y-4 animate-pulse">
-      <div className="h-24 bg-gray-200 rounded" />
-      <div className="h-24 bg-gray-200 rounded" />
-    </div>
-  ),
+  loading: () => <RecircSkeleton />,
 });
 
 const PrevNext = dynamic(() => import("@/components/PrevNext"), {
