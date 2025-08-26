@@ -4,7 +4,7 @@ import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import { jsonLdScript, buildBreadcrumbsJsonLd } from "@/lib/seo";
 import type { CSSProperties } from "react";
 
 type BrandVars = CSSProperties & Record<string, string>;
@@ -49,7 +49,11 @@ export default function LeadershipPage() {
     typeof window === "undefined"
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
       : window.location.origin;
-  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" }, { name: "Leadership Team", url: "/about/leadership" });
+  const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
+    { name: "Home", url: "/" },
+    { name: "About", url: "/about" },
+    { name: "Leadership Team", url: "/about/leadership" },
+  ]);
 
   return (
     <>

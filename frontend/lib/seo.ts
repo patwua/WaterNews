@@ -2,7 +2,7 @@
 // Keep objects small, avoid undefineds, and emit a single script per page.
 
 import { absoluteUrl, BRAND_NAME } from "@/lib/brand";
-import { LOGO_FULL, OG_DEFAULT } from "@/lib/brand-tokens";
+import { LOGO_FULL, LOGO_MARK, OG_DEFAULT } from "@/lib/brand-tokens";
 import { buildOgForPost } from "@/lib/og";
 
 export const DEFAULT_OG_IMAGE = OG_DEFAULT;
@@ -40,14 +40,17 @@ export function orgJsonLd(origin: string) {
 }
 
 // WebSite JSON-LD for global site identity.
-export function webSiteJsonLd(origin: string) {
+export function webSiteJsonLd(origin: string, sameAs?: string[]) {
   const url = origin || "https://www.waternewsgy.com";
-  return {
+  const obj: any = {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: BRAND_NAME,
     url,
+    image: absoluteUrl(LOGO_MARK),
   };
+  if (sameAs && sameAs.length) obj.sameAs = sameAs;
+  return obj;
 }
 
 export function aboutPageJsonLd() {

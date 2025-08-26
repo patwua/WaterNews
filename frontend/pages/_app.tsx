@@ -14,7 +14,10 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       ? process.env.NEXT_PUBLIC_SITE_URL || 'https://www.waternewsgy.com'
       : window.location.origin;
   const orgLd = orgJsonLd(origin);
-  const siteLd = webSiteJsonLd(origin);
+  const siteLd = webSiteJsonLd(origin, [
+    'https://twitter.com/WaterNewsGY',
+    'https://facebook.com/WaterNewsGY',
+  ]);
   return (
     <>
       <Head>
