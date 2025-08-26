@@ -13,8 +13,21 @@ if (url) {
   });
 }
 
-export async function uploadLocalFile(filepath, folder = "waternews/uploads") {
-  const res = await cloudinary.uploader.upload(filepath, {
+export interface UploadedFile {
+  url: string;
+  public_id: string;
+  resource_type: string;
+  bytes: number;
+  width: number;
+  height: number;
+  format: string;
+}
+
+export async function uploadLocalFile(
+  filepath: string,
+  folder = "waternews/uploads"
+): Promise<UploadedFile> {
+  const res: any = await cloudinary.uploader.upload(filepath, {
     folder,
     resource_type: "auto",
     // eager transforms later if needed
@@ -30,8 +43,18 @@ export async function uploadLocalFile(filepath, folder = "waternews/uploads") {
   };
 }
 
+export interface ListMediaOptions {
+  prefix?: string;
+  max_results?: number;
+  next_cursor?: string;
+}
+
 // NEW: list media for library
-export async function listMedia({ prefix = "waternews", max_results = 40, next_cursor } = {}) {
+export async function listMedia({
+  prefix = "waternews",
+  max_results = 40,
+  next_cursor,
+}: ListMediaOptions = {}): Promise<any> {
   const res = await cloudinary.search
     .expression(`folder:${prefix}*`)
     .sort_by("created_at", "desc")

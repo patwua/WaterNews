@@ -49,4 +49,5 @@ declare module "next" {
   export type GetStaticPaths = any;
   export type GetStaticProps = any;
   export type GetServerSideProps = any;
+  export interface NextConfig { [key: string]: any }
 }
