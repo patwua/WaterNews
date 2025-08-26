@@ -2,6 +2,7 @@ import { GetStaticPaths, GetStaticProps } from "next";
 import { dbConnect } from "@/lib/server/db";
 import Post from "@/models/Post";
 import ArticleView from "@/components/ArticleView";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -31,12 +32,17 @@ export default function NewsArticlePage({ post, prev, next }: Props) {
   return (
     <>
       {showPreview && (
-        <div className="bg-yellow-100 text-yellow-800 px-4 py-2 text-sm flex justify-between items-center">
-          <span>You’re viewing a preview of this article.</span>
-          <button onClick={viewLive} className="underline">
-            View live
-          </button>
-        </div>
+        <>
+          <Head>
+            <meta name="robots" content="noindex" />
+          </Head>
+          <div className="bg-yellow-100 text-yellow-800 px-4 py-2 text-sm flex justify-between items-center">
+            <span>You’re viewing a preview of this article.</span>
+            <button onClick={viewLive} className="underline">
+              View live
+            </button>
+          </div>
+        </>
       )}
       <ArticleView post={post} prev={prev} next={next} />
     </>

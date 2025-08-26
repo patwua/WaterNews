@@ -1,16 +1,23 @@
 import React from "react";
+import Head from "next/head";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
 import Callout from "@/components/UX/Callout";
+import { seoMetaTags, absoluteCanonical } from "@/lib/seo";
 
 export default function Privacy() {
   return (
-    <Page title="Privacy Policy" subtitle="How we collect, use, and protect your data.">
-      <div className="grid gap-6">
-        <Callout variant="info">
-          We keep things simple: only what’s necessary to run the site and improve your experience.
-        </Callout>
-        <SectionCard>
+    <>
+      <Head>
+        {seoMetaTags({ title: "Privacy Policy — WaterNews" })}
+        <link rel="canonical" href={absoluteCanonical("/privacy")} />
+      </Head>
+      <Page title="Privacy Policy" subtitle="How we collect, use, and protect your data.">
+        <div className="grid gap-6">
+          <Callout variant="info">
+            We keep things simple: only what’s necessary to run the site and improve your experience.
+          </Callout>
+          <SectionCard>
           <div className="prose max-w-none">
             <h3>What we collect</h3>
             <ul>
@@ -48,8 +55,9 @@ export default function Privacy() {
               handling of personal information.
             </p>
           </div>
-        </SectionCard>
-      </div>
-    </Page>
+          </SectionCard>
+        </div>
+      </Page>
+    </>
   );
 }
