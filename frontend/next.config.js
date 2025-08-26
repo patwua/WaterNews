@@ -1,6 +1,5 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: false,
   images: {
     // Modern config (replaces deprecated images.domains)
@@ -52,4 +51,4 @@ const nextConfig: NextConfig = {
   // },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
