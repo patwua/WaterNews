@@ -52,7 +52,7 @@ export default function NotificationsBellMenu({
         aria-label="Open notifications"
         aria-expanded={open}
         onClick={onToggle}
-        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
       >
         {/* Modern outline bell */}
         <svg width="22" height="22" viewBox="0 0 24 24" className="text-slate-700 dark:text-slate-200" aria-hidden="true">
