@@ -1,7 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
 import {
