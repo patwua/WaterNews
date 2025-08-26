@@ -6,7 +6,7 @@ import Hero from '../components/Hero'
 import MasonryFeed from '../components/MasonryFeed'
 import dynamic from 'next/dynamic'
 import RecircSkeleton from '@/components/Recirculation/RecircSkeleton'
-import { seoMetaTags } from '@/lib/seo'
+import { seoMetaTags, absoluteCanonical } from '@/lib/seo'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
 
 const RecircWidget = dynamic(() => import('@/components/Recirculation/RecircWidget'), { ssr: false, loading: () => <RecircSkeleton /> })
@@ -157,6 +157,7 @@ export default function HomePage() {
           title: 'WaterNewsGY — Home',
           description: 'Latest stories from WaterNewsGY.',
         })}
+        <link rel="canonical" href={absoluteCanonical('/')} />
       </Head>
       <div className="min-h-screen bg-gray-50">
       <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">

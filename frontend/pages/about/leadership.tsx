@@ -4,7 +4,12 @@ import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
+import {
+  buildBreadcrumbsJsonLd,
+  jsonLdScript,
+  seoMetaTags,
+  absoluteCanonical,
+} from "@/lib/seo";
 type BrandVars = Record<string, string>;
 
 const leaders = [
@@ -47,7 +52,11 @@ export default function LeadershipPage() {
     typeof window === "undefined"
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
       : window.location.origin;
-  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" }, { name: "Leadership Team", url: "/about/leadership" });
+  const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
+    { name: "Home", url: "/" },
+    { name: "About", url: "/about" },
+    { name: "Leadership Team", url: "/about/leadership" },
+  ]);
 
   return (
     <>
@@ -56,6 +65,7 @@ export default function LeadershipPage() {
           title: "Leadership Team — WaterNews",
           description: "Meet the executives guiding WaterNews.",
         })}
+        <link rel="canonical" href={absoluteCanonical("/about/leadership")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

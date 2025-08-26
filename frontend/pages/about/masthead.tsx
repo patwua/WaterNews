@@ -4,7 +4,12 @@ import { useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
+import {
+  buildBreadcrumbsJsonLd,
+  jsonLdScript,
+  seoMetaTags,
+  absoluteCanonical,
+} from "@/lib/seo";
 type BrandVars = Record<string, string>;
 
 const team = [
@@ -51,7 +56,11 @@ export default function MastheadPage() {
     typeof window === "undefined"
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
       : window.location.origin;
-  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "About", url: "/about" }, { name: "Masthead & News Team", url: "/about/masthead" });
+  const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
+    { name: "Home", url: "/" },
+    { name: "About", url: "/about" },
+    { name: "Masthead & News Team", url: "/about/masthead" },
+  ]);
   return (
     <>
       <Head>
@@ -59,6 +68,7 @@ export default function MastheadPage() {
           title: "Masthead & News Team — WaterNews",
           description: "WaterNews masthead and newsroom staff.",
         })}
+        <link rel="canonical" href={absoluteCanonical("/about/masthead")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

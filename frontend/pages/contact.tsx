@@ -6,7 +6,12 @@ import Page from "@/components/UX/Page";
 import Toast from "@/components/Toast";
 import { SUBJECTS } from "@/lib/cms-routing";
 import contactCopy from "@/lib/copy/contact";
-import { jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
+import {
+  buildBreadcrumbsJsonLd,
+  jsonLdScript,
+  seoMetaTags,
+  absoluteCanonical,
+} from "@/lib/seo";
 
 type ToastState = { type: "success" | "error"; message: string } | null;
 interface Fields {
@@ -66,7 +71,10 @@ export default function ContactPage() {
     typeof window === "undefined"
       ? process.env.NEXT_PUBLIC_SITE_URL || "https://www.waternewsgy.com"
       : window.location.origin;
-  const breadcrumbs = pageBreadcrumbsJsonLd(origin, { name: "Contact", url: "/contact" });
+  const breadcrumbs = buildBreadcrumbsJsonLd(origin, [
+    { name: "Home", url: "/" },
+    { name: "Contact", url: "/contact" },
+  ]);
 
   return (
     <>
@@ -75,6 +83,7 @@ export default function ContactPage() {
           title: `${current.hero.title} — WaterNews`,
           description: current.hero.subtitle,
         })}
+        <link rel="canonical" href={absoluteCanonical("/contact")} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

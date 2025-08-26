@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import ShareRow from "@/components/ShareRow";
 import Image from "next/image";
 import ImageLightbox from "@/components/ImageLightbox";
+import RecircSkeleton from "@/components/Recirculation/RecircSkeleton";
 import { readingTime } from "@/lib/readingTime";
 import { slugify } from "@/lib/slugify";
 import {
@@ -14,16 +15,12 @@ import {
   jsonLdScript,
   ogImageForPost,
   seoMetaTags,
+  absoluteCanonical,
 } from "@/lib/seo";
 
 const RelatedRail = dynamic(() => import("@/components/RelatedRail"), {
   ssr: false,
-  loading: () => (
-    <div className="space-y-4 animate-pulse">
-      <div className="h-24 bg-gray-200 rounded" />
-      <div className="h-24 bg-gray-200 rounded" />
-    </div>
-  ),
+  loading: () => <RecircSkeleton />,
 });
 
 const PrevNext = dynamic(() => import("@/components/PrevNext"), {
@@ -125,7 +122,9 @@ export default function ArticleView({
           description: post.excerpt || post.description || undefined,
           image: ogImage,
         })}
-        {!isPreview && <link rel="canonical" href={`${origin}${canonicalPath}`} />}
+        {!isPreview && (
+          <link rel="canonical" href={absoluteCanonical(canonicalPath)} />
+        )}
         {isPreview && <meta name="robots" content="noindex" />}
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />

@@ -8,6 +8,11 @@ export const DEFAULT_TWITTER_SITE = "@WaterNewsGY";
 
 export const DEFAULT_OG_IMAGE = OG_DEFAULT;
 
+// Build an absolute canonical URL for a given path.
+export function absoluteCanonical(path: string) {
+  return absoluteUrl(path || "/");
+}
+
 export function ogImageForPost(post: any | null) {
   if (!post) return absoluteUrl("/api/og/site");
   const maybe = post.ogImageUrl || (post.slug ? `/api/og/${post.slug}` : null);
