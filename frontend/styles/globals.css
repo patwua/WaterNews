@@ -63,6 +63,14 @@ p { line-height: var(--leading-normal); }
 /* Smooth in-page scrolling (anchors, scrollIntoView) */
 html { scroll-behavior: smooth; } /* MDN confirms wide support */
 
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .wn-fade-in-up,
+  .animate-pulse {
+    animation: none !important;
+  }
+}
+
 /* Headings offset when scrolled to via anchors (helps fixed headers) */
 h1, h2, h3, h4, h5, h6 { scroll-margin-top: 72px; }
 
