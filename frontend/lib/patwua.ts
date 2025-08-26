@@ -1,4 +1,11 @@
-export async function createPatwuaThread({ slug, title, excerpt, url }) {
+export interface PatwuaThreadOptions {
+  slug: string;
+  title: string;
+  excerpt: string;
+  url: string;
+}
+
+export async function createPatwuaThread({ slug, title, excerpt, url }: PatwuaThreadOptions): Promise<string | null> {
   const endpoint = process.env.PATWUA_CREATE_THREAD_URL;
   if (!endpoint) return null;
   try {
@@ -11,7 +18,7 @@ export async function createPatwuaThread({ slug, title, excerpt, url }) {
       body: JSON.stringify({ slug, title, excerpt, url })
     });
     if (!r.ok) return null;
-    const d = await r.json();
+    const d: { threadUrl?: string } = await r.json();
     // Expect { threadUrl: "https://patwua.com/threads/abc123" }
     return d?.threadUrl || null;
   } catch {
