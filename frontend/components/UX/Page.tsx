@@ -1,4 +1,5 @@
 import { colors } from "@/lib/brand-tokens";
+import type { ReactNode } from "react";
 
 export default function Page({
   title,
@@ -8,8 +9,8 @@ export default function Page({
 }: {
   title: string;
   subtitle?: string;
-  actions?: React.ReactNode;
-  children: React.ReactNode;
+  actions?: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <>
