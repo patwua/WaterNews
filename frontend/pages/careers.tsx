@@ -2,13 +2,16 @@ import Head from "next/head";
 import Link from "next/link";
 import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
+import { seoMetaTags } from "@/lib/seo";
 
 export default function CareersPage() {
   return (
     <>
       <Head>
-        <title>Careers — WaterNews</title>
-        <meta name="description" content="Join the WaterNews team." />
+        {seoMetaTags({
+          title: "Careers — WaterNews",
+          description: "Join the WaterNews team.",
+        })}
       </Head>
       <header
         className="relative grid min-h-[40vh] place-items-center overflow-hidden px-4 pt-16 text-center text-white"

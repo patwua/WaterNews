@@ -4,11 +4,9 @@ import Image from "next/image";
 import Script from "next/script";
 import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
-import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
 import aboutCopy from "@/lib/copy/about";
-import type { CSSProperties } from "react";
-
-type BrandVars = CSSProperties & Record<string, string>;
+type BrandVars = Record<string, string>;
 
 export default function AboutPage() {
   const brandVars: BrandVars = {
@@ -43,11 +41,11 @@ export default function AboutPage() {
   return (
     <>
       <Head>
-        <title>About Us — WaterNews</title>
-        <meta
-          name="description"
-          content="WaterNews gives Guyanese, Caribbean, and diaspora voices a modern platform for verified news, opinion, and lifestyle stories."
-        />
+        {seoMetaTags({
+          title: "About Us — WaterNews",
+          description:
+            "WaterNews gives Guyanese, Caribbean, and diaspora voices a modern platform for verified news, opinion, and lifestyle stories.",
+        })}
       </Head>
       <Script
         id="about-jsonld"

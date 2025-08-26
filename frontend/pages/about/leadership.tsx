@@ -4,10 +4,8 @@ import Image from "next/image";
 import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
-import type { CSSProperties } from "react";
-
-type BrandVars = CSSProperties & Record<string, string>;
+import { jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
+type BrandVars = Record<string, string>;
 
 const leaders = [
   {
@@ -54,8 +52,10 @@ export default function LeadershipPage() {
   return (
     <>
       <Head>
-        <title>Leadership Team — WaterNews</title>
-        <meta name="description" content="Meet the executives guiding WaterNews." />
+        {seoMetaTags({
+          title: "Leadership Team — WaterNews",
+          description: "Meet the executives guiding WaterNews.",
+        })}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}
