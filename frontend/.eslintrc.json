@@ -1,0 +1,23 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "overrides": [
+    {
+      "files": ["**/*.js"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "Program",
+            "message": "JavaScript files are not allowed. Use TypeScript instead."
+          }
+        ]
+      }
+    }
+  ]
+}
