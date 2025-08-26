@@ -296,6 +296,12 @@ function ResponsiveShell({ children }: { children: React.ReactNode }) {
   const railW = isCollapsed ? RAIL_W_COLLAPSED : RAIL_W;
   return (
     <div className="min-h-screen bg-gray-50">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-black text-white px-3 py-2 rounded"
+      >
+        Skip to content
+      </a>
       {/* Mobile sticky bar */}
       <MobileTopBar />
       <div className="flex">
