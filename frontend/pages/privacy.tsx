@@ -1,4 +1,3 @@
-import React from "react";
 import Head from "next/head";
 import Page from "@/components/UX/Page";
 import SectionCard from "@/components/UX/SectionCard";
