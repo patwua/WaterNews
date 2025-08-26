@@ -14,6 +14,20 @@ export default class MyDocument extends Document {
           {/* Brand color meta & preconnects */}
           <meta name="theme-color" content="#0b6ea8" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+          <link
+            rel="preload"
+            href="/fonts/Inter-Variable.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+          <link
+            rel="preload"
+            href="/fonts/Merriweather-Variable.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
           <link rel="icon" href={FAVICON_32} type="image/png" sizes="32x32" />
           <link rel="icon" href={FAVICON_16} type="image/png" sizes="16x16" />
           <link rel="apple-touch-icon" href={APPLE_TOUCH} />
