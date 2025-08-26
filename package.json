@@ -1,0 +1,13 @@
+{
+  "name": "waternews-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate-avatar-to-profilePhoto": "tsx scripts/migrate-avatar-to-profilePhoto.ts",
+    "test": "echo \"No tests\""
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

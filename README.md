@@ -18,3 +18,16 @@ import { colors } from "@/lib/brand-tokens";
 
 The file also exports fonts, spacing units, and logo paths for reuse across
 components.
+
+## Database Scripts
+
+Scripts in the `scripts/` directory are written in TypeScript and executed with
+[tsx](https://github.com/esbuild-kit/tsx). Run them from the project root, for
+example:
+
+```bash
+npm run migrate-avatar-to-profilePhoto
+```
+
+Ensure required environment variables such as `MONGODB_URI` are set before
+running a script.
