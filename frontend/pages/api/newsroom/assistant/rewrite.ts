@@ -1,12 +1,16 @@
 // @ts-nocheck
 import type { NextApiRequest, NextApiResponse } from "next";
-import { rateLimit } from '@/lib/rate-limit';
-
-const limiter = rateLimit({ interval: 60_000, uniqueTokenPerInterval: 500, maxInInterval: 20 });
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
-  try { await limiter.check(res, 20, req.headers['x-forwarded-for'] || 'unknown'); } catch { return res.status(429).json({ error: 'Slow down' }); }
+  const ok = await checkRateLimit({
+    req,
+    key: 'newsroom:assistant:rewrite',
+    max: 20,
+    windowMs: 60_000
+  });
+  if (!ok) return res.status(429).json({ error: 'Slow down' });
   const { text = '', mode = 'concise' } = req.body || {};
   const src = String(text || '').trim();
   if (!src) return res.status(400).json({ error: 'text required' });
