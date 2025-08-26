@@ -5,7 +5,7 @@ import { dbConnect } from '@/lib/server/db';
 import Post from '@/models/Post';
 import { colors, LOGO_MARK } from '@/lib/brandkits/rev2';
 
-export const config = { runtime: 'edge' };
+export const runtime = 'nodejs';
 
 export default async function handler(req: NextRequest) {
   if (req.method !== 'GET') {
