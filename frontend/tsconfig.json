@@ -28,6 +28,6 @@
     // Prefer local shims and only use node_modules/@types if present
     "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/api/**/*.ts"],
   "exclude": ["node_modules"]
 }
