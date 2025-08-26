@@ -6,9 +6,7 @@ import SectionCard from "@/components/UX/SectionCard";
 import { colors } from "@/lib/brand-tokens";
 import { aboutPageJsonLd, jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
 import aboutCopy from "@/lib/copy/about";
-import type { CSSProperties } from "react";
-
-type BrandVars = CSSProperties & Record<string, string>;
+type BrandVars = Record<string, string>;
 
 export default function AboutPage() {
   const brandVars: BrandVars = {

@@ -181,16 +181,16 @@ export default function ArticleView({
                   <button
                     key={src + i}
                     type="button"
-                    className="group block rounded-lg overflow-hidden ring-1 ring-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600"
+                    className="group relative block aspect-video rounded-lg overflow-hidden ring-1 ring-black/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-600"
                     onClick={() => setZoomSrc(src)}
                     aria-label="Open image"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={src}
                       alt=""
-                      className="aspect-video object-cover group-hover:opacity-90"
-                      loading="lazy"
+                      fill
+                      className="object-cover group-hover:opacity-90"
+                      sizes="(min-width: 768px) 33vw, 50vw"
                     />
                   </button>
                 ))}

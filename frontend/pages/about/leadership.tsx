@@ -5,9 +5,7 @@ import SectionCard from "@/components/UX/SectionCard";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
 import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
-import type { CSSProperties } from "react";
-
-type BrandVars = CSSProperties & Record<string, string>;
+type BrandVars = Record<string, string>;
 
 const leaders = [
   {
