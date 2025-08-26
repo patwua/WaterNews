@@ -6,7 +6,7 @@ import Page from "@/components/UX/Page";
 import Toast from "@/components/Toast";
 import { SUBJECTS } from "@/lib/cms-routing";
 import contactCopy from "@/lib/copy/contact";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
+import { jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
 
 type ToastState = { type: "success" | "error"; message: string } | null;
 interface Fields {
@@ -71,8 +71,10 @@ export default function ContactPage() {
   return (
     <>
       <Head>
-        <title>{current.hero.title} — WaterNews</title>
-        <meta name="description" content={current.hero.subtitle} />
+        {seoMetaTags({
+          title: `${current.hero.title} — WaterNews`,
+          description: current.hero.subtitle,
+        })}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

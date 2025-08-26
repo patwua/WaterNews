@@ -4,10 +4,8 @@ import { useState } from "react";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
 import { withCloudinaryAuto } from "@/lib/media";
 import { colors } from "@/lib/brand-tokens";
-import { jsonLdScript, pageBreadcrumbsJsonLd } from "@/lib/seo";
-import type { CSSProperties } from "react";
-
-type BrandVars = CSSProperties & Record<string, string>;
+import { jsonLdScript, pageBreadcrumbsJsonLd, seoMetaTags } from "@/lib/seo";
+type BrandVars = Record<string, string>;
 
 const team = [
   {
@@ -57,8 +55,10 @@ export default function MastheadPage() {
   return (
     <>
       <Head>
-        <title>Masthead & News Team — WaterNews</title>
-        <meta name="description" content="WaterNews masthead and newsroom staff." />
+        {seoMetaTags({
+          title: "Masthead & News Team — WaterNews",
+          description: "WaterNews masthead and newsroom staff.",
+        })}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }}

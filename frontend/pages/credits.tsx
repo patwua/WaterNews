@@ -1,5 +1,6 @@
 import Head from "next/head";
 import SectionCard from "@/components/UX/SectionCard";
+import { seoMetaTags } from "@/lib/seo";
 
 interface CreditItem {
   name: string;
@@ -41,11 +42,11 @@ export default function CreditsPage() {
   return (
     <>
       <Head>
-        <title>Credits — WaterNews</title>
-        <meta
-          name="description"
-          content="Credits for technologies, photography, and news organizations used by WaterNews."
-        />
+        {seoMetaTags({
+          title: "Credits — WaterNews",
+          description:
+            "Credits for technologies, photography, and news organizations used by WaterNews.",
+        })}
       </Head>
       <main className="mx-auto max-w-4xl px-4 py-16">
         <h1 className="mb-8 text-4xl font-bold">Credits</h1>

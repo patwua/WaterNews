@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
@@ -5,6 +6,7 @@ import Hero from '../components/Hero'
 import MasonryFeed from '../components/MasonryFeed'
 import dynamic from 'next/dynamic'
 import RecircSkeleton from '@/components/Recirculation/RecircSkeleton'
+import { seoMetaTags } from '@/lib/seo'
 import { getFollowedAuthors, getFollowedTags, toggleFollowAuthor, toggleFollowTag, syncFollowsIfAuthed, pushServerFollows } from '../utils/follow'
 
 const RecircWidget = dynamic(() => import('@/components/Recirculation/RecircWidget'), { ssr: false, loading: () => <RecircSkeleton /> })
@@ -149,7 +151,14 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Head>
+        {seoMetaTags({
+          title: 'WaterNewsGY — Home',
+          description: 'Latest stories from WaterNewsGY.',
+        })}
+      </Head>
+      <div className="min-h-screen bg-gray-50">
       <div className="px-3 py-4 md:px-4 max-w-7xl mx-auto">
         {/* Contextual hero */}
           <Hero
@@ -183,5 +192,6 @@ export default function HomePage() {
         }
       </div>
     </div>
+    </>
   )
 }

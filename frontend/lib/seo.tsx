@@ -3,13 +3,15 @@
 
 import { absoluteUrl, BRAND_NAME } from "@/lib/brand";
 import { LOGO_FULL, OG_DEFAULT } from "@/lib/brand-tokens";
-import { buildOgForPost } from "@/lib/og";
+
+export const DEFAULT_TWITTER_SITE = "@WaterNewsGY";
 
 export const DEFAULT_OG_IMAGE = OG_DEFAULT;
 
 export function ogImageForPost(post: any | null) {
-  const maybe = post?.ogImageUrl || (post ? buildOgForPost(post) : null);
-  return maybe || absoluteUrl(OG_DEFAULT);
+  if (!post) return absoluteUrl("/api/og/site");
+  const maybe = post.ogImageUrl || (post.slug ? `/api/og/${post.slug}` : null);
+  return absoluteUrl(maybe || "/api/og/site");
 }
 
 type Publisher = {
@@ -184,5 +186,28 @@ export function buildPersonJsonLd(params: {
 
 export function jsonLdScript(objOrArray: unknown) {
   return JSON.stringify(objOrArray, null, 0);
+}
+
+export function seoMetaTags(params: {
+  title: string;
+  description?: string;
+  image?: string;
+  slug?: string;
+  twitterSite?: string;
+}) {
+  const { title, description, image, slug, twitterSite = DEFAULT_TWITTER_SITE } = params;
+  const img = absoluteUrl(image || (slug ? `/api/og/${slug}` : "/api/og/site"));
+  return (
+    <>
+      <title>{title}</title>
+      {description ? <meta name="description" content={description} /> : null}
+      <meta property="og:title" content={title} />
+      {description ? <meta property="og:description" content={description} /> : null}
+      <meta property="og:image" content={img} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content={twitterSite} />
+      <meta name="twitter:image" content={img} />
+    </>
+  );
 }
 
