@@ -64,7 +64,7 @@ export default function MyPosts() {
   return (
     <Page title="My Posts" subtitle="Published articles you’ve authored">
       <div className="grid gap-6">
-        <SectionCard title="Search">
+          <SectionCard id="posts-search" title="Search">
           <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
             <input
               className="flex-1 border px-3 py-2 rounded"
@@ -74,7 +74,7 @@ export default function MyPosts() {
             />
           </form>
         </SectionCard>
-        <SectionCard title="Published">
+          <SectionCard id="posts-published" title="Published">
           {loading ? (
             <div>Loading…</div>
           ) : visible.length === 0 ? (

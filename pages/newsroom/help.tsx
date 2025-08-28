@@ -10,14 +10,14 @@ export default function NewsroomHelp() {
         <Callout title="TL;DR">
           Draft → Add media → Submit for review → (optional) Schedule → Publish
         </Callout>
-        <SectionCard title="Writing">
+          <SectionCard id="newsroom-help-writing" title="Writing">
           <ul className="list-disc list-inside text-sm text-gray-700">
             <li>Use headings and short paragraphs for scannability.</li>
             <li>Add captions and alt text for accessibility.</li>
             <li>Link sources — we encourage transparent citations.</li>
           </ul>
         </SectionCard>
-        <SectionCard title="Media">
+          <SectionCard id="newsroom-help-media" title="Media">
           <ul className="list-disc list-inside text-sm text-gray-700">
             <li>Prefer horizontal images ≥ 1600px on the long edge.</li>
             <li>Use the library to reuse approved assets.</li>

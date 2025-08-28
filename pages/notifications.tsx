@@ -26,7 +26,7 @@ export default function NotificationsPage() {
     <Page title="Notifications" subtitle="Mentions, assignments, reviews, and publication updates.">
       <div className="grid gap-6">
         <Callout variant="info">Notifications appear here and in the bell menu. Older items may auto-archive.</Callout>
-        <SectionCard>
+          <SectionCard id="notifications-list">
           {loading && <div>Loading…</div>}
           {!loading && (!items || items.length === 0) && <div>No notifications yet.</div>}
           {!loading && items && (

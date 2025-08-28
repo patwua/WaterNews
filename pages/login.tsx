@@ -7,7 +7,7 @@ export default function Login() {
   return (
     <Page title="Log in" subtitle="Access the Newsroom to draft and publish.">
       <div className="grid gap-6">
-        <SectionCard>
+          <SectionCard id="login-form">
           {/* Keep your existing NextAuth buttons or credentials form here */}
           <a href="/api/auth/signin" className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900 inline-block">
             Continue with email

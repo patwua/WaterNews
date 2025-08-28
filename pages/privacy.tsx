@@ -16,7 +16,7 @@ export default function Privacy() {
           <Callout variant="info">
             We keep things simple: only what’s necessary to run the site and improve your experience.
           </Callout>
-          <SectionCard>
+            <SectionCard id="privacy-collection">
           <div className="prose max-w-none">
             <h3>What we collect</h3>
             <ul>
@@ -30,7 +30,7 @@ export default function Privacy() {
             <p>Update or delete your account anytime in <strong>Newsroom → Profile &amp; Settings</strong>.</p>
           </div>
         </SectionCard>
-        <SectionCard>
+          <SectionCard id="privacy-governance">
           <div className="prose max-w-none">
             <h3>Governance &amp; Compliance</h3>
             <p>

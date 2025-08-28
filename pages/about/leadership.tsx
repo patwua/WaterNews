@@ -78,12 +78,12 @@ export default function LeadershipPage() {
         <h1 className="text-4xl font-extrabold">Leadership Team</h1>
       </header>
       <main style={brandVars} className="mx-auto -mt-12 mb-16 max-w-5xl px-4">
-        <SectionCard>
+          <SectionCard id="leadership-intro">
           <p className="text-[15px] text-slate-700">
             Our executives steer WaterNews with accountability, innovation, and a commitment to regional voices.
           </p>
         </SectionCard>
-        <SectionCard className="mt-8">
+          <SectionCard id="leadership-team" className="mt-8">
           <div className="grid gap-6 sm:grid-cols-2">
             {leaders.map((p) => (
               <article key={p.name} className="text-center">

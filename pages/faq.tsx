@@ -23,7 +23,7 @@ export default function FAQ() {
         title="FAQ"
         subtitle="Answers for readers and visitors. For member help, see the NewsRoom dashboard."
       >
-        <SectionCard>
+          <SectionCard id="faq-content">
           <div style={brandVars} className="space-y-6">
             <section>
               <h2 className="font-medium">How do I submit a story tip?</h2>

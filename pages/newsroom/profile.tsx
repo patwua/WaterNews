@@ -8,10 +8,10 @@ export default function Profile() {
   return (
     <Page title="Profile & Settings" subtitle="Update your details, photo, and preferences.">
       <div className="grid gap-6 sm:grid-cols-2">
-        <SectionCard title="Profile photo">
+          <SectionCard id="newsroom-profile-photo" title="Profile photo">
           <ProfilePhotoForm />
         </SectionCard>
-        <SectionCard title="Account">
+          <SectionCard id="newsroom-account" title="Account">
           <p className="text-sm text-gray-700">Edit display name, handle, and contact preferences.</p>
           {/* Existing settings form goes here */}
         </SectionCard>

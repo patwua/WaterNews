@@ -70,7 +70,7 @@ export default function AboutPage() {
         <p className="mt-2 font-serif text-base opacity-95 md:text-lg">{hero.subtitle}</p>
       </header>
       <main style={brandVars} className="mx-auto -mt-12 mb-16 max-w-5xl px-4">
-        <SectionCard className="mb-8">
+        <SectionCard id="about-mission" className="mb-8">
           <span
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
             style={{ background: "var(--brand-tag-bg)", color: "var(--brand-tag-text)" }}
@@ -102,7 +102,7 @@ export default function AboutPage() {
         </SectionCard>
 
         <div className="mb-8 grid gap-8 lg:grid-cols-2">
-          <SectionCard>
+          <SectionCard id="about-who-we-are">
             <h2 className="text-2xl font-bold">{whoWeAre.title}</h2>
             {whoWeAre.paragraphs.map((p, i) => (
               <p key={i} className="mt-2 text-[15px] text-slate-700">
@@ -110,7 +110,7 @@ export default function AboutPage() {
               </p>
             ))}
           </SectionCard>
-          <SectionCard>
+          <SectionCard id="about-diaspora">
             <h2 className="text-2xl font-bold">{diaspora.title}</h2>
             <div className="mt-2 flow-root text-[15px] text-slate-700">
               <Image
@@ -126,7 +126,7 @@ export default function AboutPage() {
           </SectionCard>
         </div>
 
-        <SectionCard className="mb-8">
+        <SectionCard id="about-publish" className="mb-8">
           <h2 className="text-2xl font-bold">{publish.title}</h2>
           <p className="mt-2 text-[15px] text-slate-700">{publish.subtitle}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -139,7 +139,7 @@ export default function AboutPage() {
           </div>
         </SectionCard>
 
-        <SectionCard className="mb-8">
+        <SectionCard id="about-values" className="mb-8">
           <h2 className="text-2xl font-bold">{values.title}</h2>
           <p className="mt-2 text-[15px] text-slate-700">{values.subtitle}</p>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -152,7 +152,7 @@ export default function AboutPage() {
           </div>
         </SectionCard>
 
-        <SectionCard className="mb-8">
+        <SectionCard id="about-leadership" className="mb-8">
           <span
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
             style={{ background: "var(--brand-tag-bg)", color: "var(--brand-tag-text)" }}
@@ -188,7 +188,7 @@ export default function AboutPage() {
           </div>
         </SectionCard>
 
-        <SectionCard className="mb-8">
+        <SectionCard id="about-masthead" className="mb-8">
           <div>
             <Image
               src={masthead.image.src}
@@ -230,7 +230,7 @@ export default function AboutPage() {
 
         <div className="grid gap-8 lg:grid-cols-2">
           <div id="standards">
-            <SectionCard>
+              <SectionCard id="about-standards">
             <h2 className="text-2xl font-bold">{standards.title}</h2>
             <p className="mt-2 text-[15px] text-slate-700">{standards.intro}</p>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-[15px] text-slate-700">
@@ -258,7 +258,7 @@ export default function AboutPage() {
             </div>
             </SectionCard>
           </div>
-          <SectionCard>
+            <SectionCard id="about-reach-us">
             <h2 className="text-2xl font-bold">{reachUs.title}</h2>
             <p className="mt-2 text-[15px] text-slate-700">{reachUs.desc}</p>
             <ul className="mt-4 space-y-4">

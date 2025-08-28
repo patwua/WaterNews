@@ -92,7 +92,7 @@ export default function NoticeBoard() {
           Use this space for platform notes, suggestions, and coordination.
         </Callout>
         <div id="new">
-          <SectionCard title="Post a notice">
+            <SectionCard id="notice-board-new" title="Post a notice">
             <form onSubmit={onPost} className="space-y-3">
               <input
                 className="w-full border px-3 py-2 rounded"
@@ -116,7 +116,7 @@ export default function NoticeBoard() {
             </form>
           </SectionCard>
         </div>
-        <SectionCard title="All notices">
+          <SectionCard id="notice-board-list" title="All notices">
           {loading ? (
             <div>Loading…</div>
           ) : items.length === 0 ? (
