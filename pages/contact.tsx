@@ -91,7 +91,7 @@ export default function ContactPage() {
       </Head>
       <div style={{ minHeight: "70vh" }}>
         <Page title={current.hero.title} subtitle={current.hero.subtitle}>
-          <SectionCard>
+          <SectionCard id="contact-form">
           {subject === "tip" && current.meta && current.fieldsets.some((f) => f.type === "file") && (
             <div className="mb-3 space-y-1 text-sm text-slate-600">
               {current.meta.anonymousReassure && <p>{current.meta.anonymousReassure}</p>}

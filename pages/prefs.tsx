@@ -38,7 +38,7 @@ export default function Prefs() {
   }
   return (
     <Page title="Preferences" subtitle="Control notifications and reading experience.">
-      <SectionCard>
+        <SectionCard id="prefs-form">
         <form onSubmit={onSave} className="space-y-5">
           <div>
             <label className="flex items-center gap-2">

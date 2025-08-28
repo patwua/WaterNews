@@ -90,7 +90,7 @@ export default function Collab() {
           Toggle visibility to let other authors discover and offer help on your draft.
         </Callout>
         <div className="grid gap-6 lg:grid-cols-2">
-          <SectionCard title="My drafts (visibility)">
+            <SectionCard id="collab-my-drafts" title="My drafts (visibility)">
             {loading ? (
               <div>Loading…</div>
             ) : mine.length === 0 ? (
@@ -123,7 +123,7 @@ export default function Collab() {
               </ul>
             )}
           </SectionCard>
-          <SectionCard title="Network drafts">
+            <SectionCard id="collab-network-drafts" title="Network drafts">
             {loading ? (
               <div>Loading…</div>
             ) : network.length === 0 ? (

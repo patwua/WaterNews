@@ -38,7 +38,7 @@ export default function Media() {
   return (
     <Page title="Media Library" subtitle="Search and reuse newsroom images and video.">
       <div className="grid gap-6">
-        <SectionCard>
+          <SectionCard id="media-search">
           <form onSubmit={onSearch} className="flex gap-2">
             <input
               type="text"
@@ -53,7 +53,7 @@ export default function Media() {
             Shows recent items by default. Searches call Cloudinary only when you submit.
           </p>
         </SectionCard>
-        <SectionCard>
+          <SectionCard id="media-results">
           {loading ? (
             <p className="text-gray-600">Loading…</p>
           ) : items.length === 0 ? (

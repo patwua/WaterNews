@@ -23,15 +23,15 @@ export default function SearchPage() {
   return (
     <Page title="Search" subtitle="Find stories, authors, and topics.">
       <div className="grid gap-6">
-        <SectionCard>
+          <SectionCard id="search-form">
           <form onSubmit={onSubmit} className="flex gap-2">
             <input className="flex-1 border px-3 py-2 rounded" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search articles…" />
             <button className="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-900">Search</button>
           </form>
         </SectionCard>
-        {loading && <SectionCard>Searching…</SectionCard>}
+          {loading && <SectionCard id="search-loading">Searching…</SectionCard>}
         {results && (
-          <SectionCard title="Results">
+            <SectionCard id="search-results" title="Results">
             <ul className="space-y-3">
               {results.map((r) => (
                 <li key={r.slug} className="border rounded p-3 hover:bg-gray-50">

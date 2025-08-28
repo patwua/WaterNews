@@ -31,7 +31,7 @@ export default function WriterDashboard() {
   return (
     <DashboardLayout title="Writer Dashboard" subtitle="Your newsroom overview">
       <div className="grid gap-6">
-        <SectionCard>
+          <SectionCard id="writer-dashboard-stats">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <KPI title="Drafts" value={stats?.drafts ?? 0} data={stats?.spark?.drafts ?? []} />
             <KPI title="Scheduled" value={stats?.scheduled ?? 0} data={stats?.spark?.scheduled ?? []} />
@@ -45,7 +45,7 @@ export default function WriterDashboard() {
           </div>
         </SectionCard>
         <div className="grid lg:grid-cols-2 gap-6">
-          <SectionCard title="Quick actions">
+            <SectionCard id="writer-dashboard-actions" title="Quick actions">
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/newsroom"
@@ -73,7 +73,7 @@ export default function WriterDashboard() {
               </Link>
             </div>
           </SectionCard>
-          <SectionCard title="Tips">
+            <SectionCard id="writer-dashboard-tips" title="Tips">
             <ul className="list-disc list-inside text-sm text-gray-700">
               <li>
                 Attach media directly from the editor via <em>/</em> menu or drag-drop.

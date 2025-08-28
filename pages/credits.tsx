@@ -54,7 +54,10 @@ export default function CreditsPage() {
         <div className="grid gap-6">
           {credits.map((group) => (
             <div key={group.group}>
-              <SectionCard title={group.group}>
+                <SectionCard
+                  id={`credits-${group.group.toLowerCase().replace(/\s+/g, '-')}`}
+                  title={group.group}
+                >
                 <ul className="space-y-2 text-[15px] text-slate-700">
                   {group.items.map((item) => (
                     <li key={item.name}>

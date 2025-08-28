@@ -21,12 +21,12 @@ export default function CareersPage() {
         <h1 className="text-4xl font-extrabold">Careers</h1>
       </header>
       <main className="mx-auto -mt-12 mb-16 max-w-4xl px-4">
-        <SectionCard className="mb-8">
+        <SectionCard id="careers-intro" className="mb-8">
           <p className="text-[15px] text-slate-700">
             We're growing a network of writers, editors, and technologists. Current openings are listed below.
           </p>
         </SectionCard>
-        <SectionCard>
+        <SectionCard id="careers-open-roles">
           <h2 className="text-xl font-bold">Open Roles</h2>
           <ul className="mt-2 list-disc space-y-2 pl-5 text-[15px] text-slate-700">
             <li>News Reporter (freelance)</li>
