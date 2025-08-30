@@ -35,4 +35,16 @@ Stored as:
 4) Reorder assets (top = first in Streams). For videos, set a poster.
 5) Click Save mediaAssets.
 
-> If you attach to a Draft and then publish, ensure your publish pipeline copies mediaAssets to the Article. If not yet wired, attach directly to the published Article after publishing.
+> If you attach to a Draft and then publish, ensure your publish pipeline copies mediaAssets to the Article.
+> If not yet wired, attach directly to the published Article after publishing.
+
+### Guaranteed copy during publish
+If you prefer to keep using the existing publish flow, call:
+
+```
+POST /api/newsroom/drafts/:id/publish-with-media
+```
+
+This endpoint:
+1) Invokes your current `/api/newsroom/drafts/:id/publish`.
+2) Copies `draft.mediaAssets` → `article.mediaAssets` (skips if article already has media unless `?force=true`).
