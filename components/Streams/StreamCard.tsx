@@ -4,10 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cldImage, cldVideoPoster } from '@/lib/cloudinary';
 
-const StreamCard: FC<{ item: MediaSlice }> = ({ item }) => {
+const StreamCard: FC<{ item: MediaSlice; onActive?: (item: MediaSlice) => void }> = ({
+  item,
+  onActive,
+}) => {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
+  const activated = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -31,6 +35,17 @@ const StreamCard: FC<{ item: MediaSlice }> = ({ item }) => {
       v.pause();
     }
   }, [active]);
+
+  // Notify page when this card becomes active (once per activation streak)
+  useEffect(() => {
+    if (active && !activated.current) {
+      activated.current = true;
+      onActive?.(item);
+    }
+    if (!active) {
+      activated.current = false;
+    }
+  }, [active, item, onActive]);
 
   const goLink = `/${item.article.slug}`;
   const isVideo = item.type === 'video';
