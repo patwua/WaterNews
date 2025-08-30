@@ -6,7 +6,7 @@ try {
   // Defer to runtime; avoids type resolution during build/typecheck
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   cloudinary = require('cloudinary').v2;
-  require('@/lib/cloudinary'); // keep your config side-effects
+  require('@/lib/server/cloudinary'); // keep your config side-effects
 } catch (_) {
   cloudinary = null;
 }

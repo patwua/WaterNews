@@ -4,7 +4,7 @@ import formidable from "formidable";
 import fs from "fs";
 import { getDb } from "@/lib/db";
 import { routeSubject } from "@/lib/cms-routing";
-import { uploadLocalFile } from "@/lib/cloudinary";
+import { uploadLocalFile } from "@/lib/server/cloudinary";
 
 export const config = { api: { bodyParser: false } };
 
