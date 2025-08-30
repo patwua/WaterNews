@@ -27,3 +27,12 @@ Stored as:
 ```
 
 `/api/media/streams` also falls back to `coverImage` or the first media URL found in `content` when `mediaAssets` is absent.
+
+## Editorial workflow (recommended)
+1) In the Newsroom, open Streams Editor at /newsroom/streams.
+2) Select target: Published Article (by _id or slug) or Draft (by _id).
+3) Upload files via existing /api/media/upload (or paste URLs).
+4) Reorder assets (top = first in Streams). For videos, set a poster.
+5) Click Save mediaAssets.
+
+> If you attach to a Draft and then publish, ensure your publish pipeline copies mediaAssets to the Article. If not yet wired, attach directly to the published Article after publishing.
