@@ -1,13 +1,17 @@
-import { useEffect, useRef, useState, type FC } from 'react';
-import type { MediaSlice } from '@/lib/types/media';
+import { useEffect, useRef, useState } from 'react';
+import type { MediaSlice } from '../../lib/types/media';
 import Link from 'next/link';
 import Image from 'next/image';
-import { cldImage, cldVideoPoster } from '@/lib/cloudinary';
+import { cldImage, cldVideoPoster } from '../../lib/cloudinary';
 
-const StreamCard: FC<{ item: MediaSlice; onActive?: (item: MediaSlice) => void }> = ({
+export default function StreamCard({
   item,
   onActive,
-}) => {
+}: {
+  item: MediaSlice;
+  onActive?: (item: MediaSlice) => void;
+  key?: any;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
@@ -91,6 +95,4 @@ const StreamCard: FC<{ item: MediaSlice; onActive?: (item: MediaSlice) => void }
       </div>
     </div>
   );
-};
-
-export default StreamCard;
+}
