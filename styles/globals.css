@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @font-face {
   font-family: 'Inter';
   src: url('/fonts/Inter-Variable.woff2') format('woff2');
@@ -11,10 +15,6 @@
   font-weight: 300 900;
   font-display: swap;
 }
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* subtle highlight for search matches */
 mark {

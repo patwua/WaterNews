@@ -304,10 +304,13 @@ function ResponsiveShell({ children }: { children: React.ReactNode }) {
       </a>
       {/* Mobile sticky bar */}
       <MobileTopBar />
-      <div className="flex">
+      <div
+        className="lg:grid lg:gap-8"
+        style={{ gridTemplateColumns: `${railW}px minmax(0,1fr)` }}
+      >
         {/* Desktop rail */}
         <aside
-          className="hidden md:block sticky top-0 h-screen shrink-0 border-r bg-white/70 backdrop-blur"
+          className="hidden lg:block sticky top-0 h-screen border-r bg-white/70 backdrop-blur"
           style={{ width: railW }}
         >
           <RailContents />
@@ -317,7 +320,7 @@ function ResponsiveShell({ children }: { children: React.ReactNode }) {
           <RailContents />
         </MobileDrawer>
         {/* Main content */}
-        <div className="flex-1 min-w-0 md:ml-0">{children}</div>
+        <div className="min-w-0">{children}</div>
       </div>
     </div>
   );

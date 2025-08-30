@@ -1,0 +1,7 @@
+# Review required for critical layout and style files
+/tailwind.config.ts @waternews/maintainers
+/styles/globals.css @waternews/maintainers
+/components/Newsroom/GlobalShell.tsx @waternews/maintainers
+/components/UX/Page.tsx @waternews/maintainers
+/components/UX/SectionCard.tsx @waternews/maintainers
+/lib/brand-tokens.ts @waternews/maintainers
