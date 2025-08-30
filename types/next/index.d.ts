@@ -51,3 +51,12 @@ declare module "next" {
   export type GetServerSideProps = any;
   export interface NextConfig { [key: string]: any }
 }
+
+// Minimal stubs for next/server used in middleware
+declare module "next/server" {
+  export const NextResponse: any;
+  export interface NextRequest {
+    nextUrl: URL & { clone(): URL; pathname: string; search: string };
+    method: string;
+  }
+}

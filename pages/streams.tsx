@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import { useEffect, useRef } from 'react';
 import useSWRInfinite from 'swr/infinite';
-import type { MediaSlice } from '@/lib/types/media';
-import StreamCard from '@/components/Streams/StreamCard';
+import type { MediaSlice } from '../lib/types/media';
+import StreamCard from '../components/Streams/StreamCard';
 
 type Resp = { page: number; pageSize: number; count: number; items: MediaSlice[] };
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -54,7 +54,7 @@ export default function StreamsPage() {
   function onActive(item: MediaSlice) {
     if (seen.current.has(item.id)) return;
     seen.current.add(item.id);
-    // Fire-and-forget telemetry; /api/telemetry/events already exists in your repo
+    // Fire-and-forget telemetry; /api/telemetry/events already exists
     fetch('/api/telemetry/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
