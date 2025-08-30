@@ -33,6 +33,9 @@ export default function SmartMenu() {
       <Link href="/topics" className="hover:underline">
         Categories
       </Link>
+      <Link href="/streams" className="hover:underline">
+        Streams
+      </Link>
       <Link href="/credits" className="hover:underline">
         Credits
       </Link>

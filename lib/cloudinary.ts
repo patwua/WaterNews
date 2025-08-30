@@ -1,65 +1,22 @@
-import { v2 as cloudinary } from "cloudinary";
+// Optional helpers. If NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is not set,
+// these return the original URL so the app still works.
+const CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-const url = process.env.CLOUDINARY_URL; // preferred single var
-if (url) {
-  cloudinary.config({ secure: true }); // CLOUDINARY_URL auto-parsed
-} else {
-  // fallback if you use separate vars (optional)
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
-  });
+export function cldImage(url: string, opts?: { w?: number; h?: number; q?: number; f?: string }) {
+  if (!CLOUD) return url;
+  const { w = 1080, h, q = 70, f = 'auto' } = opts || {};
+  const t = [`f_${f}`, `q_${q}`, `w_${w}`].concat(h ? [`h_${h}`, 'c_fill'] : []).join(',');
+  if (url.includes('/upload/')) return url.replace('/upload/', `/upload/${t}/`);
+  return `https://res.cloudinary.com/${CLOUD}/image/upload/${t}/${url}.jpg`;
 }
 
-export interface UploadedFile {
-  url: string;
-  public_id: string;
-  resource_type: string;
-  bytes: number;
-  width: number;
-  height: number;
-  format: string;
-}
-
-export async function uploadLocalFile(
-  filepath: string,
-  folder = "waternews/uploads"
-): Promise<UploadedFile> {
-  const res: any = await cloudinary.uploader.upload(filepath, {
-    folder,
-    resource_type: "auto",
-    // eager transforms later if needed
-  });
-  return {
-    url: res.secure_url,
-    public_id: res.public_id,
-    resource_type: res.resource_type,
-    bytes: res.bytes,
-    width: res.width,
-    height: res.height,
-    format: res.format,
-  };
-}
-
-export interface ListMediaOptions {
-  prefix?: string;
-  max_results?: number;
-  next_cursor?: string;
-}
-
-// NEW: list media for library
-export async function listMedia({
-  prefix = "waternews",
-  max_results = 40,
-  next_cursor,
-}: ListMediaOptions = {}): Promise<any> {
-  const res = await cloudinary.search
-    .expression(`folder:${prefix}*`)
-    .sort_by("created_at", "desc")
-    .max_results(max_results)
-    .next_cursor(next_cursor || undefined)
-    .execute();
-  return res; // { resources, next_cursor }
+export function cldVideoPoster(publicIdOrUrl: string, w = 1080) {
+  if (!CLOUD) return undefined;
+  const t = `f_auto,q_70,w_${w}`;
+  if (publicIdOrUrl.includes('/upload/')) {
+    return publicIdOrUrl
+      .replace('/video/upload/', `/video/upload/${t}/`)
+      .replace('.mp4', '.jpg');
+  }
+  return `https://res.cloudinary.com/${CLOUD}/video/upload/${t}/${publicIdOrUrl}.jpg`;
 }

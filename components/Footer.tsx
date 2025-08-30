@@ -24,7 +24,12 @@ export default function Footer() {
             Privacy
           </Link>
         </nav>
-        <div className="text-xs text-gray-300">© {new Date().getFullYear()} WaterNewsGY</div>
+        <div className="text-xs text-gray-300">
+          © {new Date().getFullYear()} WaterNewsGY ·{' '}
+          <Link href="/streams" className="hover:underline">
+            Streams
+          </Link>
+        </div>
       </div>
     </footer>
   );
