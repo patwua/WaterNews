@@ -10,6 +10,7 @@ jobs:
       BASE_URL: https://waternews.onrender.com
     steps:
       - name: Ensure DB indexes
+        if: ${{ secrets.WATERNEWS_CRON_SECRET }}
         run: |
           curl -fsS -X POST -H "Authorization: Bearer ${{ secrets.WATERNEWS_CRON_SECRET }}" \
             "$BASE_URL/api/admin/cron/ensure-indexes"
