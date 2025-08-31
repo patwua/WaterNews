@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import type { MediaSlice } from '../../lib/types/media';
 import Link from 'next/link';
 import Image from 'next/image';
-import { cldImage, cldVideoPoster } from '../../lib/cloudinary';
+import { cldImage, cldVideoPoster, cldStreamOverlayFetch } from '../../lib/cloudinary';
 
 export default function StreamCard({
   item,
   onActive,
   onVideoProgress,
+  enhanceStills = true,
 }: {
   item: MediaSlice;
   onActive?: (item: MediaSlice) => void;
@@ -20,6 +21,7 @@ export default function StreamCard({
     state?: 'play' | 'pause' | 'end';
   }) => void;
   key?: any;
+  enhanceStills?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -107,6 +109,10 @@ export default function StreamCard({
   const goLink = `/${item.article.slug}`;
   const isVideo = item.type === 'video';
   const poster = item.poster || (isVideo ? cldVideoPoster(item.src) : undefined);
+  const overlayUrl =
+    !isVideo && enhanceStills
+      ? cldStreamOverlayFetch(item.src, item.article.title, { w: 1440, h: 2560 })
+      : cldImage(item.src, { w: 1440 });
 
   return (
     <div ref={ref} className="snap-start h-screen w-full flex items-center justify-center relative">
@@ -135,14 +141,24 @@ export default function StreamCard({
               controls={false}
             />
           ) : (
-            <Image
-              alt={item.article.title}
-              src={cldImage(item.src, { w: 1440 })}
-              fill
-              className="object-contain"
-              sizes="100vw"
-              priority={false}
-            />
+            <>
+              <Image
+                alt={item.article.title}
+                src={overlayUrl}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority={false}
+              />
+              {/* CSS overlay fallback if CLOUD not present */}
+              {!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME && (
+                <div className="absolute inset-x-0 bottom-0 p-4 pb-6 bg-gradient-to-t from-black/70 to-transparent">
+                  <div className="text-white text-xl font-semibold drop-shadow">
+                    {item.article.title}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

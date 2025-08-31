@@ -35,6 +35,7 @@ export default function StreamsPage() {
   const activeItem = useRef<MediaSlice | null>(null);
   const activeSince = useRef<number>(0);
   const visible = useRef<boolean>(true);
+  const preloaded = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const el = sentinel.current;
@@ -168,6 +169,34 @@ export default function StreamsPage() {
       postEvent('streams_video_quartile', { ...base, quartile: ev.quartile });
     }
   }
+
+  // Prefetch next 2 media URLs for smoother swipes
+  useEffect(() => {
+    const prefetchNext = () => {
+      const toPrefetch: string[] = [];
+      const startIdx = activeItem.current ? items.findIndex((it) => it.id === activeItem.current!.id) : -1;
+      for (let i = startIdx + 1; i < Math.min(items.length, startIdx + 3); i++) {
+        const it = items[i];
+        if (!it) continue;
+        const key = it.id;
+        if (preloaded.current.has(key)) continue;
+        preloaded.current.add(key);
+        const href = it.type === 'video' ? it.src : it.src;
+        toPrefetch.push(href);
+      }
+      for (const href of toPrefetch) {
+        try {
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.href = href;
+          document.head.appendChild(link);
+          // Cleanup later
+          setTimeout(() => link.remove(), 30000);
+        } catch {}
+      }
+    };
+    prefetchNext();
+  }, [items]);
 
   return (
     <>
