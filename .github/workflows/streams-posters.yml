@@ -8,10 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BASE_URL: https://waternews.onrender.com
+      WATERNEWS_CRON_SECRET: ${{ secrets.WATERNEWS_CRON_SECRET }}
     steps:
       - name: Ensure posters on recent media
-        if: ${{ secrets.WATERNEWS_CRON_SECRET }}
+        if: ${{ env.WATERNEWS_CRON_SECRET != '' }}
         run: |
-          curl -fsS -X POST -H "Authorization: Bearer ${{ secrets.WATERNEWS_CRON_SECRET }}" \
+          curl -fsS -X POST -H "Authorization: Bearer $WATERNEWS_CRON_SECRET" \
             "$BASE_URL/api/admin/cron/ensure-posters"
 
