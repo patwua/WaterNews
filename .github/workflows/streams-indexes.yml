@@ -1,0 +1,16 @@
+name: Streams – Ensure Indexes
+on:
+  schedule:
+    - cron: "5 3 1 * *" # monthly at 03:05 UTC
+  workflow_dispatch:
+jobs:
+  call-endpoint:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://waternews.onrender.com
+    steps:
+      - name: Ensure DB indexes
+        run: |
+          curl -fsS -X POST -H "Authorization: Bearer ${{ secrets.WATERNEWS_CRON_SECRET }}" \
+            "$BASE_URL/api/admin/cron/ensure-indexes"
+

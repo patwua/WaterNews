@@ -1,0 +1,16 @@
+name: Streams – Ensure Posters
+on:
+  schedule:
+    - cron: "7 * * * *" # hourly, offset to avoid :00 (UTC)
+  workflow_dispatch:
+jobs:
+  call-endpoint:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://waternews.onrender.com
+    steps:
+      - name: Ensure posters on recent media
+        run: |
+          curl -fsS -X POST -H "Authorization: Bearer ${{ secrets.WATERNEWS_CRON_SECRET }}" \
+            "$BASE_URL/api/admin/cron/ensure-posters"
+
