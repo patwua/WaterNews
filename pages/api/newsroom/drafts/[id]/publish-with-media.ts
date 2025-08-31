@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { copyDraftMediaAssetsToArticle } from '@/lib/server/streams-copy';
+import { copyDraftMediaAssetsToPost } from '@/lib/server/streams-copy';
 import { getDb } from '@/lib/db';
 import { ObjectId } from 'mongodb';
 
@@ -10,7 +10,7 @@ const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 /**
  * POST /api/newsroom/drafts/:id/publish-with-media?force=true|false
  * 1) Calls existing /api/newsroom/drafts/:id/publish (for your normal pipeline)
- * 2) Copies draft.mediaAssets -> article.mediaAssets (if article has none, or force=true)
+ * 2) Copies draft.mediaAssets -> post.mediaAssets (if post has none, or force=true)
  *
  * Uses NEXTAUTH_URL to call the internal publish route and forwards newsroom session cookies.
  */
@@ -41,6 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       'Content-Type': 'application/json',
       // forward session cookies so next-auth authorizes this server-side call
       ...(cookie ? { cookie } : {}),
+      // mark as internal so middleware doesn't rewrite
+      'x-internal-request': '1',
     },
     // forward payload if your pipeline expects it (e.g., { publishAt, sectionId, ... })
     body: req.body && typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {}),
@@ -57,11 +59,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(pubResp.status).json({ error: 'publish_failed', detail: publishData || null });
   }
 
-  // Try to extract article identifiers from publish response or fallback to draft
-  let articleId: string | null = publishData?.articleId || publishData?.article?._id || publishData?.post?._id || null;
-  let slug: string | null = publishData?.slug || publishData?.article?.slug || publishData?.post?.slug || null;
+  // Try to extract post identifiers from publish response or fallback to draft
+  let postId: string | null = publishData?.postId || publishData?.post?._id || publishData?.article?._id || null;
+  let slug: string | null = publishData?.slug || publishData?.post?.slug || publishData?.article?.slug || null;
 
-  if (!articleId && !slug) {
+  if (!postId && !slug) {
     // Fallback: read draft for its slug; most pipelines publish using draft.slug
     const db = await getDb();
     const draft = await db.collection('drafts').findOne(
@@ -71,14 +73,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     slug = (draft as any)?.slug || null;
   }
 
-  const copyRes = await copyDraftMediaAssetsToArticle({ draftId, articleId, slug, force });
+  const copyRes = await copyDraftMediaAssetsToPost({ draftId, postId, slug, force });
 
   return res.status(200).json({
     ok: true,
     publish: publishData,
     mediaAssetsCopied: copyRes.copied,
     reason: copyRes.reason,
-    articleId,
+    postId,
     slug,
   });
 }

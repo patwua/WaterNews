@@ -3,7 +3,13 @@ import type { NextRequest } from 'next/server';
 
 // Transparently rewrite newsroom draft publish → publish-with-media
 export function middleware(req: NextRequest) {
-  const { pathname, search } = req.nextUrl;
+  const { pathname, search, searchParams } = req.nextUrl;
+
+  // Skip rewrite when marked as an internal request
+  const internalHeader = (req as any).headers?.get?.('x-internal-request');
+  const isInternal = internalHeader === '1' || searchParams.get('internal') === '1';
+  if (isInternal) return NextResponse.next();
+
   // Match /api/newsroom/drafts/:id/publish exactly
   const m = pathname.match(/^\/api\/newsroom\/drafts\/([^/]+)\/publish$/);
   if (m && req.method === 'POST') {

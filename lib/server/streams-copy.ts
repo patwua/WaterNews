@@ -5,16 +5,16 @@ const isValidObjectId = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 
 type CopyArgs = {
   draftId: string;
-  articleId?: string | null;
+  postId?: string | null;
   slug?: string | null;
   force?: boolean;
 };
 
-export async function copyDraftMediaAssetsToArticle(args: CopyArgs) {
-  const { draftId, articleId, slug, force = false } = args;
+export async function copyDraftMediaAssetsToPost(args: CopyArgs) {
+  const { draftId, postId, slug, force = false } = args;
   const db = await getDb();
   const Drafts = db.collection('drafts');
-  const Articles = db.collection('articles');
+  const Posts = db.collection('posts');
 
   if (!isValidObjectId(draftId)) {
     return { copied: false, reason: 'invalid_draft_id' as const };
@@ -28,31 +28,31 @@ export async function copyDraftMediaAssetsToArticle(args: CopyArgs) {
   const mediaAssets = Array.isArray(draft.mediaAssets) ? draft.mediaAssets : [];
   if (!mediaAssets.length) return { copied: false, reason: 'no_media_on_draft' as const };
 
-  // Resolve target article
+  // Resolve target post
   let filter: any = null;
-  if (articleId && isValidObjectId(articleId)) {
-    filter = { _id: new ObjectId(articleId) };
+  if (postId && isValidObjectId(postId)) {
+    filter = { _id: new ObjectId(postId) };
   } else if (slug || draft.slug) {
     filter = { slug: slug || draft.slug };
   } else {
-    return { copied: false, reason: 'no_article_selector' as const };
+    return { copied: false, reason: 'no_post_selector' as const };
   }
 
   if (!force) {
-    const existing = await Articles.findOne(filter, { projection: { _id: 1, mediaAssets: 1, slug: 1 } });
-    if (!existing) return { copied: false, reason: 'article_not_found' as const };
+    const existing = await Posts.findOne(filter, { projection: { _id: 1, mediaAssets: 1, slug: 1 } });
+    if (!existing) return { copied: false, reason: 'post_not_found' as const };
     if (Array.isArray(existing.mediaAssets) && existing.mediaAssets.length) {
-      return { copied: false, reason: 'article_already_has_media' as const };
+      return { copied: false, reason: 'post_already_has_media' as const };
     }
   }
 
-  const res = await Articles.updateOne(
+  const res = await Posts.updateOne(
     filter,
     { $set: { mediaAssets, updatedAt: new Date() } }
   );
   return {
     copied: res.matchedCount > 0 && res.modifiedCount > 0,
-    reason: res.matchedCount ? 'ok' : ('article_not_found' as const),
+    reason: res.matchedCount ? 'ok' : ('post_not_found' as const),
   };
 }
 
