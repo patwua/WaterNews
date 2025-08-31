@@ -161,7 +161,7 @@ function MobileTopBar() {
   const router = useRouter();
   const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
   return (
-    <div className="lg:hidden sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
+    <div className="md:hidden sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
       <div className="h-14 px-3 flex items-center gap-3">
         <button
           onClick={() => router.push("/newsroom/writer-dashboard")}
@@ -271,7 +271,7 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
   }, [isMobileOpen, openMobile, closeMobile]);
   return (
     <div
-      className={`lg:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
+      className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
       aria-hidden={!isMobileOpen}
       role="presentation"
     >
@@ -330,12 +330,12 @@ function ResponsiveShell({ children }: { children: React.ReactNode }) {
       {/* Mobile sticky bar */}
       <MobileTopBar />
       <div
-        className="lg:grid lg:gap-8"
+        className="md:grid md:gap-8"
         style={{ gridTemplateColumns: `${railW}px minmax(0,1fr)` }}
       >
         {/* Desktop rail */}
         <aside
-          className="hidden lg:block sticky top-0 h-screen border-r bg-white/70 backdrop-blur"
+          className="hidden md:block sticky top-0 h-screen border-r bg-white/70 backdrop-blur"
           style={{ width: railW }}
         >
           <RailContents />
