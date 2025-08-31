@@ -29,7 +29,8 @@ export async function getTrendingOrder(opts?: {
 
   const rows = await coll
     .aggregate([
-      { $match: { ts: { $gte: since } } },
+      // Exclude future-dated events that could inflate scores
+      { $match: { ts: { $gte: since, $lte: now } } },
       {
         $project: {
           slug: 1,
@@ -37,7 +38,9 @@ export async function getTrendingOrder(opts?: {
           type: 1,
           phase: 1,
           dwellMs: { $ifNull: ["$dwellMs", 0] },
-          ageHours: { $divide: [{ $subtract: [now, "$ts"] }, 3600000] },
+          ageHours: {
+            $max: [0, { $divide: [{ $subtract: [now, "$ts"] }, 3600000] }]
+          },
           base: {
             $switch: {
               branches: [
