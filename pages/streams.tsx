@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import useSWRInfinite from 'swr/infinite';
 import type { MediaSlice } from '../lib/types/media';
 import StreamCard from '../components/Streams/StreamCard';
+import { postEvent, getStreamsSessionId } from '../lib/telemetry';
 
 type Resp = { page: number; pageSize: number; count: number; items: MediaSlice[] };
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -25,6 +26,9 @@ export default function StreamsPage() {
   const items = (data || []).flatMap((d) => d.items);
   const sentinel = useRef<HTMLDivElement>(null);
   const seen = useRef<Set<string>>(new Set());
+  const activeItem = useRef<MediaSlice | null>(null);
+  const activeSince = useRef<number>(0);
+  const visible = useRef<boolean>(true);
 
   useEffect(() => {
     const el = sentinel.current;
@@ -54,19 +58,109 @@ export default function StreamsPage() {
   function onActive(item: MediaSlice) {
     if (seen.current.has(item.id)) return;
     seen.current.add(item.id);
-    // Fire-and-forget telemetry; /api/telemetry/events already exists
-    fetch('/api/telemetry/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'streams_view',
-        itemId: item.id,
-        mediaType: item.type,
-        articleId: item.article.id,
-        slug: item.article.slug,
+    postEvent('streams_view', {
+      itemId: item.id,
+      mediaType: item.type,
+      articleId: item.article.id,
+      slug: item.article.slug,
+      sort,
+      ts: Date.now(),
+    });
+    // Focus swap: end previous, start new
+    flushFocus('swap');
+    activeItem.current = item;
+    activeSince.current = Date.now();
+    postEvent('streams_focus', {
+      phase: 'start',
+      itemId: item.id,
+      slug: item.article.slug,
+      sort,
+      ts: Date.now(),
+    });
+  }
+
+  // Heartbeat dwell: every 5s while visible and an item is active
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (!visible.current) return;
+      if (!activeItem.current || !activeSince.current) return;
+      postEvent('streams_dwell', {
+        itemId: activeItem.current.id,
+        slug: activeItem.current.article.slug,
+        sinceMs: 5000,
+        activeForMs: Date.now() - activeSince.current,
+        sort,
         ts: Date.now(),
-      }),
-    }).catch(() => {});
+      });
+    }, 5000);
+    return () => clearInterval(id);
+  }, [sort]);
+
+  // Handle tab visibility
+  useEffect(() => {
+    const onVis = () => {
+      const v = document.visibilityState !== 'hidden';
+      if (!v) flushFocus('hidden');
+      visible.current = v;
+      if (v && activeItem.current && !activeSince.current) {
+        activeSince.current = Date.now();
+        postEvent('streams_focus', {
+          phase: 'resume',
+          itemId: activeItem.current.id,
+          slug: activeItem.current.article.slug,
+          sort,
+          ts: Date.now(),
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pagehide', () => flushFocus('pagehide'));
+    window.addEventListener('beforeunload', () => flushFocus('unload'));
+    return () => {
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pagehide', () => flushFocus('pagehide'));
+      window.removeEventListener('beforeunload', () => flushFocus('unload'));
+    };
+  }, [sort]);
+
+  function flushFocus(reason: 'swap' | 'hidden' | 'pagehide' | 'unload') {
+    if (!activeItem.current || !activeSince.current) return;
+    const dwell = Date.now() - activeSince.current;
+    postEvent('streams_focus', {
+      phase: 'end',
+      reason,
+      itemId: activeItem.current.id,
+      slug: activeItem.current.article.slug,
+      dwellMs: dwell,
+      sort,
+      ts: Date.now(),
+    });
+    activeSince.current = 0;
+  }
+
+  function onVideoProgress(ev: {
+    item: MediaSlice;
+    currentTime: number;
+    duration: number;
+    percent: number;
+    quartile?: 25|50|75|95;
+    state?: 'play' | 'pause' | 'end';
+  }) {
+    const base = {
+      itemId: ev.item.id,
+      slug: ev.item.article.slug,
+      percent: Math.round(ev.percent),
+      currentTime: Math.round(ev.currentTime),
+      duration: Math.round(ev.duration || 0),
+      sort,
+      ts: Date.now(),
+    };
+    if (ev.state === 'play') postEvent('streams_video_play', base);
+    else if (ev.state === 'pause') postEvent('streams_video_pause', base);
+    else if (ev.state === 'end') postEvent('streams_video_complete', base);
+    if (ev.quartile) {
+      postEvent('streams_video_quartile', { ...base, quartile: ev.quartile });
+    }
   }
 
   return (
@@ -83,7 +177,7 @@ export default function StreamsPage() {
         </div>
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory no-scrollbar">
           {items.map((it) => (
-            <StreamCard key={it.id} item={it} onActive={onActive} />
+            <StreamCard key={it.id} item={it} onActive={onActive} onVideoProgress={onVideoProgress} />
           ))}
           <div ref={sentinel} className="h-[40vh] w-full flex items-center justify-center text-sm opacity-70">
             {isValidating ? 'Loading more…' : 'You’ve reached the end'}

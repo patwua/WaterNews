@@ -7,15 +7,26 @@ import { cldImage, cldVideoPoster } from '../../lib/cloudinary';
 export default function StreamCard({
   item,
   onActive,
+  onVideoProgress,
 }: {
   item: MediaSlice;
   onActive?: (item: MediaSlice) => void;
+  onVideoProgress?: (e: {
+    item: MediaSlice;
+    currentTime: number;
+    duration: number;
+    percent: number; // 0..100
+    quartile?: 25 | 50 | 75 | 95;
+    state?: 'play' | 'pause' | 'end';
+  }) => void;
   key?: any;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [active, setActive] = useState(false);
   const activated = useRef(false);
+  const sentQuartiles = useRef<{[k: string]: boolean}>({});
+  const lastTick = useRef<number>(0);
 
   useEffect(() => {
     const el = ref.current;
@@ -33,11 +44,53 @@ export default function StreamCard({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    const handlePlay = () => {
+      if (!onVideoProgress) return;
+      const d = v.duration || 0;
+      onVideoProgress({ item, currentTime: v.currentTime, duration: d, percent: pct(v), state: 'play' });
+    };
+    const handlePause = () => {
+      if (!onVideoProgress) return;
+      const d = v.duration || 0;
+      onVideoProgress({ item, currentTime: v.currentTime, duration: d, percent: pct(v), state: 'pause' });
+    };
+    const handleEnded = () => {
+      if (!onVideoProgress) return;
+      const d = v.duration || 0;
+      onVideoProgress({ item, currentTime: d, duration: d, percent: 100, state: 'end', quartile: 95 });
+    };
+    const handleTime = () => {
+      if (!onVideoProgress) return;
+      const now = Date.now();
+      if (now - lastTick.current < 1000) return; // throttle 1s
+      lastTick.current = now;
+      const d = v.duration || 0;
+      const p = pct(v);
+      // Fire quartiles once
+      const q: Array<25|50|75|95> = [25,50,75,95];
+      for (const qq of q) {
+        if (p >= qq && !sentQuartiles.current[String(qq)]) {
+          sentQuartiles.current[String(qq)] = true;
+          onVideoProgress({ item, currentTime: v.currentTime, duration: d, percent: p, quartile: qq });
+        }
+      }
+      onVideoProgress({ item, currentTime: v.currentTime, duration: d, percent: p });
+    };
     if (active) {
       v.play().catch(() => {});
     } else {
       v.pause();
     }
+    v.addEventListener('play', handlePlay);
+    v.addEventListener('pause', handlePause);
+    v.addEventListener('ended', handleEnded);
+    v.addEventListener('timeupdate', handleTime);
+    return () => {
+      v.removeEventListener('play', handlePlay);
+      v.removeEventListener('pause', handlePause);
+      v.removeEventListener('ended', handleEnded);
+      v.removeEventListener('timeupdate', handleTime);
+    };
   }, [active]);
 
   // Notify page when this card becomes active (once per activation streak)
@@ -95,4 +148,10 @@ export default function StreamCard({
       </div>
     </div>
   );
+}
+
+function pct(v: HTMLVideoElement) {
+  const d = v.duration || 0;
+  if (!d) return 0;
+  return Math.max(0, Math.min(100, (v.currentTime / d) * 100));
 }
