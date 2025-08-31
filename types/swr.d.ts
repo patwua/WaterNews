@@ -1,4 +1,4 @@
-declare module 'swr/infinite' {
-  const useSWRInfinite: <T = any>(getKey: any, fetcher: any, config?: any) => any;
-  export default useSWRInfinite;
+declare module 'swr' {
+  const useSWR: <T = any>(key: any, fetcher: any, config?: any) => any;
+  export default useSWR;
 }
