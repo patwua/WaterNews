@@ -29,29 +29,22 @@ export default function AdminSections() {
   }, []);
 
   async function toggle(id: string) {
-    let previous: boolean | undefined;
+    const current = items.find((it) => it.id === id)?.enabled;
+    if (current === undefined) return;
+
     setItems((prev) =>
-      prev.map((it) => {
-        if (it.id === id) {
-          previous = it.enabled;
-          return { ...it, enabled: !it.enabled };
-        }
-        return it;
-      })
+      prev.map((it) => (it.id === id ? { ...it, enabled: !current } : it))
     );
+
     try {
       await fetch("/api/admin/sections", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, enabled: !previous }),
+        body: JSON.stringify({ id, enabled: !current }),
       });
     } catch (e) {
       setItems((prev) =>
-        prev.map((it) =>
-          it.id === id && previous !== undefined
-            ? { ...it, enabled: previous }
-            : it
-        )
+        prev.map((it) => (it.id === id ? { ...it, enabled: current } : it))
       );
     }
   }
