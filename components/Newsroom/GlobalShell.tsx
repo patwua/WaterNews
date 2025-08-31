@@ -161,7 +161,7 @@ function MobileTopBar() {
   const router = useRouter();
   const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
   return (
-    <div className="md:hidden sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
+    <div className="lg:hidden sticky top-0 z-50 bg-white/85 backdrop-blur border-b">
       <div className="h-14 px-3 flex items-center gap-3">
         <button
           onClick={() => router.push("/newsroom/writer-dashboard")}
@@ -271,7 +271,7 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
   }, [isMobileOpen, openMobile, closeMobile]);
   return (
     <div
-      className={`md:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
+      className={`lg:hidden fixed inset-0 z-50 ${isMobileOpen ? "" : "pointer-events-none"}`}
       aria-hidden={!isMobileOpen}
       role="presentation"
     >
