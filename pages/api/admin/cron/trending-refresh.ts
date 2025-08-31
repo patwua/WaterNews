@@ -1,18 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../auth/[...nextauth]';
+import { isCronAuthorized } from '../../../../lib/server/cron-auth';
 import { getDb } from '../../../../lib/server/db';
 import { getTrendingOrder } from '../../../../lib/server/trending';
 import { setTrendingCache } from '../../../../lib/server/trending-cache';
-
-function isAdminEmail(email?: string | null) {
-  if (!email) return false;
-  const list = (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  return list.includes(email.toLowerCase());
-}
 
 /**
  * GET/POST /api/admin/cron/trending-refresh?hours=48&n=100
@@ -20,12 +10,7 @@ function isAdminEmail(email?: string | null) {
  * Hook a Render Cron to call this endpoint periodically.
  */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Allow both: Admin-gated or token-based if provided as PATWUA_API_KEY
-  const session = await getServerSession(req, res, authOptions);
-  const isAdmin = !!session && isAdminEmail((session.user as any)?.email);
-  const tokenOk =
-    !!process.env.PATWUA_API_KEY && req.headers.authorization === `Bearer ${process.env.PATWUA_API_KEY}`;
-  if (!isAdmin && !tokenOk) return res.status(401).json({ error: 'unauthorized' });
+  if (!(await isCronAuthorized(req, res))) return res.status(401).json({ error: 'unauthorized' });
 
   const hours = Math.max(1, Math.min(168, parseInt(String(req.query.hours || '48'), 10) || 48));
   const n = Math.max(1, Math.min(200, parseInt(String(req.query.n || '100'), 10) || 100));

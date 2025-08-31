@@ -1,0 +1,16 @@
+name: Streams – Trending Refresh
+on:
+  schedule:
+    - cron: "3,18,33,48 * * * *" # every ~15 min, offset from :00 (UTC)
+  workflow_dispatch:
+jobs:
+  call-endpoint:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://waternews.onrender.com
+    steps:
+      - name: Refresh trending cache
+        run: |
+          curl -fsS -H "Authorization: Bearer ${{ secrets.WATERNEWS_CRON_SECRET }}" \
+            "$BASE_URL/api/admin/cron/trending-refresh?hours=48&n=100"
+
