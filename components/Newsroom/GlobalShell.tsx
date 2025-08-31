@@ -241,12 +241,18 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
     return () => panelRef.removeEventListener("keydown", onKeyDown as any);
   }, [isMobileOpen, panelRef]);
 
-  // Edge-swipe gestures
+  // Edge-swipe gestures (mobile only)
   useEffect(() => {
-    let startX = 0, startY = 0, tracking = false;
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(min-width: 768px)");
+
+    let startX = 0,
+      startY = 0,
+      tracking = false;
     const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0];
-      startX = t.clientX; startY = t.clientY;
+      startX = t.clientX;
+      startY = t.clientY;
       if (!isMobileOpen && startX < 24) tracking = true;
       if (isMobileOpen && (t.target as HTMLElement)?.closest?.("aside[data-nr-drawer]")) tracking = true;
     };
@@ -255,18 +261,53 @@ function MobileDrawer({ children }: { children: React.ReactNode }) {
       const t = e.touches[0];
       const dx = t.clientX - startX;
       const dy = Math.abs(t.clientY - startY);
-      if (dy > 30) { tracking = false; return; }
-      if (!isMobileOpen && dx > 40) { openMobile(); tracking = false; }
-      if (isMobileOpen && dx < -40) { closeMobile(); tracking = false; }
+      if (dy > 30) {
+        tracking = false;
+        return;
+      }
+      if (!isMobileOpen && dx > 40) {
+        openMobile();
+        tracking = false;
+      }
+      if (isMobileOpen && dx < -40) {
+        closeMobile();
+        tracking = false;
+      }
     };
-    const onTouchEnd = () => { tracking = false; };
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
-    window.addEventListener("touchend", onTouchEnd, { passive: true });
-    return () => {
+    const onTouchEnd = () => {
+      tracking = false;
+    };
+
+    const addListeners = () => {
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: true });
+      window.addEventListener("touchend", onTouchEnd, { passive: true });
+    };
+    const removeListeners = () => {
       window.removeEventListener("touchstart", onTouchStart as any);
       window.removeEventListener("touchmove", onTouchMove as any);
       window.removeEventListener("touchend", onTouchEnd as any);
+    };
+
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        removeListeners();
+        closeMobile();
+      } else {
+        addListeners();
+      }
+    };
+
+    if (mql.matches) {
+      closeMobile();
+    } else {
+      addListeners();
+    }
+
+    mql.addEventListener("change", onChange);
+    return () => {
+      removeListeners();
+      mql.removeEventListener("change", onChange);
     };
   }, [isMobileOpen, openMobile, closeMobile]);
   return (
