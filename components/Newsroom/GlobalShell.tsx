@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useSWR from "swr";
 import { useShell } from "./ShellContext";
 import { withCloudinaryAuto } from "@/lib/media";
 import ProfilePhoto from "@/components/User/ProfilePhoto";
@@ -70,6 +71,12 @@ function RailContents() {
   const { user, isCollapsed, toggleCollapse } = useShell();
   const router = useRouter();
   const photo = withCloudinaryAuto(user?.profilePhotoUrl || user?.avatarUrl);
+  const { data } = useSWR<{ isAdmin: boolean }>(
+    '/api/admin/is-admin',
+    (u) => fetch(u).then((r) => r.json()),
+    { revalidateOnFocus: false }
+  );
+  const isAdmin = !!data?.isAdmin;
 
   return (
     <div className="h-full flex flex-col">
@@ -118,6 +125,24 @@ function RailContents() {
         <SectionLink href="/newsroom/profile" label={isCollapsed ? "Profile" : "Profile & Settings"} />
         <SectionLink href="/newsroom/help" label="Help" />
         <SectionLink href="/newsroom/invite" label={isCollapsed ? "Invite" : "Invite a friend"} />
+        <div className="pt-4 mt-4 border-t">
+          {!isCollapsed && (
+            <div className="text-xs uppercase tracking-wide text-gray-500 px-2 mb-2">
+              Analytics
+            </div>
+          )}
+          <Link
+            href="/admin/analytics/streams"
+            className="flex items-center gap-2 px-2 py-2 rounded hover:bg-gray-100"
+          >
+            <span className="truncate">Streams Analytics</span>
+            {isAdmin && (
+              <span className="text-[10px] leading-none px-1.5 py-0.5 rounded-full bg-black text-white">
+                Admin
+              </span>
+            )}
+          </Link>
+        </div>
       </nav>
 
       {/* Footer / Changelog strip (kept minimal) */}
