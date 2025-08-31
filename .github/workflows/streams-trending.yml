@@ -10,6 +10,7 @@ jobs:
       BASE_URL: https://waternews.onrender.com
     steps:
       - name: Refresh trending cache
+        if: ${{ secrets.WATERNEWS_CRON_SECRET }}
         run: |
           curl -fsS -H "Authorization: Bearer ${{ secrets.WATERNEWS_CRON_SECRET }}" \
             "$BASE_URL/api/admin/cron/trending-refresh?hours=48&n=100"
