@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectId } from 'mongodb';
 import { getDb } from '@/lib/db';
+import { getTrendingOrder } from '@/lib/server/trending';
 import type { MediaSlice } from '@/lib/types/media';
 
 /**
@@ -19,30 +20,76 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!db) return res.status(500).json({ error: 'db_not_configured' });
     const Articles = db.collection('articles');
 
-    const sortStage =
-      sort === 'trending'
-        ? { 'stats.score': -1 as const, publishedAt: -1 as const }
-        : { publishedAt: -1 as const, _id: -1 as const };
+    let docs: any[] = [];
 
-    const cursor = Articles.find(
-      { status: 'published' },
-      {
-        projection: {
-          _id: 1,
-          slug: 1,
-          title: 1,
-          publishedAt: 1,
-          mediaAssets: 1,
-          coverImage: 1,
-          content: 1,
-        },
-        sort: sortStage,
-        skip,
-        limit: pageSize,
+    if (sort === 'trending') {
+      // Trending powered by streams_events (24h half-life). Optional window override: ?hours=48
+      const hours = Math.max(1, Math.min(168, parseInt(String(req.query.hours || '48'), 10) || 48));
+      const order = await getTrendingOrder({ hours, limit: pageSize, skip });
+      const slugs = order.map((r) => r.slug).filter(Boolean);
+      if (slugs.length === 0) {
+        // Fallback to previously "stats.score" based ordering if no telemetry yet
+        const cursor = Articles.find(
+          { status: 'published' },
+          {
+            projection: {
+              _id: 1,
+              slug: 1,
+              title: 1,
+              publishedAt: 1,
+              mediaAssets: 1,
+              coverImage: 1,
+              content: 1,
+            },
+            sort: { 'stats.score': -1 as const, publishedAt: -1 as const },
+            skip,
+            limit: pageSize,
+          }
+        );
+        docs = await cursor.toArray();
+      } else {
+        const got = await Articles
+          .find(
+            { status: 'published', slug: { $in: slugs } },
+            {
+              projection: {
+                _id: 1,
+                slug: 1,
+                title: 1,
+                publishedAt: 1,
+                mediaAssets: 1,
+                coverImage: 1,
+                content: 1,
+              },
+            }
+          )
+          .toArray();
+        // Preserve trending order
+        const rank = new Map(slugs.map((s, i) => [s, i]));
+        got.sort((a, b) => (rank.get(a.slug) ?? 0) - (rank.get(b.slug) ?? 0));
+        docs = got;
       }
-    );
-
-    const docs = await cursor.toArray();
+    } else {
+      // latest
+      const cursor = Articles.find(
+        { status: 'published' },
+        {
+          projection: {
+            _id: 1,
+            slug: 1,
+            title: 1,
+            publishedAt: 1,
+            mediaAssets: 1,
+            coverImage: 1,
+            content: 1,
+          },
+          sort: { publishedAt: -1 as const, _id: -1 as const },
+          skip,
+          limit: pageSize,
+        }
+      );
+      docs = await cursor.toArray();
+    }
 
     const flatten = (doc: any): MediaSlice[] => {
       const articleBase = {

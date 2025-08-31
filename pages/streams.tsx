@@ -12,11 +12,17 @@ export default function StreamsPage() {
   // URL sort param: latest | trending
   const params = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search);
   const sort = (params.get('sort') === 'trending' ? 'trending' : 'latest') as 'latest' | 'trending';
+  const hours = (() => {
+    const h = parseInt(String(params.get('hours') || ''), 10);
+    return Number.isFinite(h) && h >= 1 && h <= 168 ? h : 48;
+  })();
 
   const getKey = (pageIndex: number, previousPageData: Resp | null) => {
     if (previousPageData && previousPageData.items.length === 0) return null;
     const page = pageIndex + 1;
-    return `/api/media/streams?sort=${sort}&page=${page}`;
+    const q = new URLSearchParams({ sort, page: String(page) });
+    if (sort === 'trending') q.set('hours', String(hours));
+    return `/api/media/streams?${q.toString()}`;
   };
 
   const { data, size, setSize, isValidating } = useSWRInfinite<Resp>(getKey, fetcher, {
@@ -172,7 +178,17 @@ export default function StreamsPage() {
       <div className="w-full bg-black text-white">
         <div className="max-w-[700px] mx-auto py-2 flex gap-2 px-3 text-sm">
           <SortButton label="Latest" active={sort === 'latest'} href="/streams?sort=latest" />
-          <SortButton label="Trending" active={sort === 'trending'} href="/streams?sort=trending" />
+          <SortButton label="Trending" active={sort === 'trending'} href={`/streams?sort=trending&hours=${hours}`} />
+          {sort === 'trending' && (
+            <div className="ml-2 flex items-center gap-1">
+              <span className="opacity-70">Window:</span>
+              <a className={hours === 24 ? 'underline' : 'opacity-70 hover:underline'} href="/streams?sort=trending&hours=24">24h</a>
+              <span className="opacity-50">·</span>
+              <a className={hours === 48 ? 'underline' : 'opacity-70 hover:underline'} href="/streams?sort=trending&hours=48">48h</a>
+              <span className="opacity-50">·</span>
+              <a className={hours === 72 ? 'underline' : 'opacity-70 hover:underline'} href="/streams?sort=trending&hours=72">72h</a>
+            </div>
+          )}
           <div className="ml-auto opacity-70">Streams</div>
         </div>
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory no-scrollbar">
