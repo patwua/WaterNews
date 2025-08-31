@@ -30,7 +30,9 @@ export default function AdminSections() {
 
   async function toggle(id: string, current: boolean) {
     const next = !current;
-    setItems(items.map((it) => (it.id === id ? { ...it, enabled: next } : it)));
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, enabled: next } : it))
+    );
     try {
       await fetch("/api/admin/sections", {
         method: "PUT",
@@ -38,7 +40,9 @@ export default function AdminSections() {
         body: JSON.stringify({ id, enabled: next }),
       });
     } catch (e) {
-      setItems(items.map((it) => (it.id === id ? { ...it, enabled: current } : it)));
+      setItems((prev) =>
+        prev.map((it) => (it.id === id ? { ...it, enabled: current } : it))
+      );
     }
   }
 

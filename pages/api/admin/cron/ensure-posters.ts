@@ -29,8 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return url.replace('/video/upload/', `/video/upload/f_auto,q_70,w_1080/`).replace(/\.mp4($|\?)/, '.jpg$1');
   }
 
-  async function processColl(coll: any) {
-    for (const doc of coll as any[]) {
+  async function processColl(docs: any[], collection: any) {
+    for (const doc of docs) {
       const assets = Array.isArray(doc.mediaAssets) ? doc.mediaAssets : [];
       let changed = false;
       for (const m of assets) {
@@ -44,14 +44,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
       if (changed) {
         const id = doc._id as ObjectId;
-        await (doc.slug ? Articles : Drafts).updateOne({ _id: id }, { $set: { mediaAssets: assets, updatedAt: new Date() } });
+        await collection.updateOne(
+          { _id: id },
+          { $set: { mediaAssets: assets, updatedAt: new Date() } }
+        );
         updated++;
       }
     }
   }
 
-  await processColl(articles);
-  await processColl(drafts);
+  await processColl(articles, Articles);
+  await processColl(drafts, Drafts);
 
   return res.status(200).json({ ok: true, updated });
 }

@@ -23,7 +23,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === "PUT") {
     const { id, enabled, context } = req.body || {};
     if (!id) return res.status(400).json({ error: "id required" });
-    const update: any = { enabled: !!enabled };
+    const update: any = {};
+    if (enabled !== undefined) update.enabled = !!enabled;
     if (context !== undefined) update.context = context;
     const section = await Section.findOneAndUpdate(
       { id },
