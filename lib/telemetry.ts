@@ -19,7 +19,8 @@ export function getStreamsSessionId() {
 
 export function postEvent(type: string, payload: Record<string, any>) {
   if (typeof window === 'undefined') return;
-  const url = '/api/telemetry/events';
+  // Use our dedicated Streams telemetry endpoint so we control storage/aggregation.
+  const url = '/api/telemetry/streams';
   const body = JSON.stringify({ type, sid: getStreamsSessionId(), ...payload });
   try {
     if ('sendBeacon' in navigator) {
