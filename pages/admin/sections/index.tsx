@@ -28,20 +28,30 @@ export default function AdminSections() {
     };
   }, []);
 
-  async function toggle(id: string, current: boolean) {
-    const next = !current;
+  async function toggle(id: string) {
+    let previous: boolean | undefined;
     setItems((prev) =>
-      prev.map((it) => (it.id === id ? { ...it, enabled: next } : it))
+      prev.map((it) => {
+        if (it.id === id) {
+          previous = it.enabled;
+          return { ...it, enabled: !it.enabled };
+        }
+        return it;
+      })
     );
     try {
       await fetch("/api/admin/sections", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, enabled: next }),
+        body: JSON.stringify({ id, enabled: !previous }),
       });
     } catch (e) {
       setItems((prev) =>
-        prev.map((it) => (it.id === id ? { ...it, enabled: current } : it))
+        prev.map((it) =>
+          it.id === id && previous !== undefined
+            ? { ...it, enabled: previous }
+            : it
+        )
       );
     }
   }
@@ -63,7 +73,7 @@ export default function AdminSections() {
                 <input
                   type="checkbox"
                   checked={s.enabled}
-                  onChange={() => toggle(s.id, s.enabled)}
+                  onChange={() => toggle(s.id)}
                 />
                 <span className="text-sm">{s.enabled ? "On" : "Off"}</span>
               </label>

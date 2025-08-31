@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const since = new Date(Date.now() - 14 * 24 * 3600 * 1000);
   const q = { updatedAt: { $gte: since } };
-  const fields = { projection: { _id: 1, mediaAssets: 1 } };
+  const fields = { projection: { _id: 1, mediaAssets: 1, slug: 1 } };
   const articles = await Articles.find(q, fields).toArray();
   const drafts = await Drafts.find(q, fields).toArray();
 
