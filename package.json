@@ -25,7 +25,8 @@
     "nodemailer": "^6.9.8",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
-    "swr": "^2.2.2"
+    "swr": "^2.2.2",
+    "@prisma/client": "^5.16.2"
   },
   "optionalDependencies": {
     "cloudinary": "^1.41.2"

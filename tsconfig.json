@@ -11,6 +11,7 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
@@ -26,7 +27,8 @@
       "@/utils/*": ["utils/*"]
     },
     // Prefer local shims and only use node_modules/@types if present
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "types": ["node", "react", "react-dom"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "pages/api/**/*.ts"],
   "exclude": ["node_modules", "scripts"]
