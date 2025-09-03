@@ -31,8 +31,10 @@ test('auto-populates orgId from single membership', async (t) => {
 
   assert.equal(captured.orgId, 'org1');
   assert.equal(captured.status, 'active');
+  assert.equal(typeof captured.activatedAt, 'string');
   assert.equal(audit.mock.callCount(), 1);
   assert.equal(subscription.orgId, 'org1');
+  assert.equal(subscription.activatedAt, captured.activatedAt);
 });
 
 test('pending status when multiple memberships', async (t) => {
@@ -53,6 +55,8 @@ test('pending status when multiple memberships', async (t) => {
   const subscription = await activateSubscriptionFromIntent('chk2');
 
   assert.equal(captured.status, 'pending_assignment');
+  assert.equal(captured.activatedAt, undefined);
   assert.equal(audit.mock.callCount(), 0);
   assert.equal(subscription.status, 'pending_assignment');
+  assert.equal(subscription.activatedAt, undefined);
 });

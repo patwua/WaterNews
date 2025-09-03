@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { formatISO } from "date-fns";
 
 export const prisma = new PrismaClient();
 
@@ -29,14 +30,20 @@ export async function activateSubscriptionFromIntent(
       : undefined);
 
   const status = resolvedOrgId ? "active" : "pending_assignment";
+  const activatedAt = formatISO(new Date());
 
   const subscription = await prisma.orgSubscription.upsert({
     where: { checkoutIntentId },
-    update: { orgId: resolvedOrgId, status },
+    update: {
+      orgId: resolvedOrgId,
+      status,
+      ...(resolvedOrgId ? { activatedAt } : {}),
+    },
     create: {
       orgId: resolvedOrgId,
       checkoutIntentId,
       status,
+      ...(resolvedOrgId ? { activatedAt } : {}),
     },
   });
 
