@@ -7,7 +7,35 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  memberships String[]
+  checkoutIntents CheckoutIntent[]
+  auditLogs   AuditLog[]
+}
+
+model CheckoutIntent {
+  id        String @id
+  user      User   @relation(fields: [userId], references: [id])
+  userId    String
+  orgId     String?
+  orgSubscription OrgSubscription?
+}
+
 model OrgSubscription {
-  id               Int    @id @default(autoincrement())
-  checkoutIntentId String @unique
+  id               Int              @id @default(autoincrement())
+  checkoutIntent   CheckoutIntent   @relation(fields: [checkoutIntentId], references: [id])
+  checkoutIntentId String           @unique
+  orgId            String?
+  status           String           @default("active")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  orgId     String
+  action    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
 }
