@@ -31,6 +31,37 @@ npm run migrate-avatar-to-profilePhoto
 Ensure required environment variables such as `MONGODB_URI` are set before
 running a script.
 
+## Build and Start
+
+Build the application using your preferred package manager:
+
+- **pnpm**:
+
+  ```bash
+  corepack enable && pnpm install --frozen-lockfile && pnpm build
+  ```
+
+- **npm**:
+
+  ```bash
+  npm ci && npm run build
+  ```
+
+To run the server with database migrations applied:
+
+- **pnpm**:
+
+  ```bash
+  pnpm prisma migrate deploy && pnpm start
+  ```
+
+- **npm**:
+
+  ```bash
+  npx prisma migrate deploy && npm start
+  ```
+
+
 ## Routes
 - `/news/[slug]` – canonical article view.
 - `/article/[slug]` – legacy path now redirected to `/news/[slug]`.
